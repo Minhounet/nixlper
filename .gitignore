@@ -45,3 +45,4 @@ bin/
 
 gradle
 /src/main/bash/.nixlper_bookmarks
+/.send.sh

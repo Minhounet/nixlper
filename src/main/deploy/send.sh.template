@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Template to send quicklu nixlper.s
+readonly USER=
+readonly MACHINES="MACHINE1 MACHINE2 ..."
+readonly PASSWORD=
+
+for i in ${MACHINES} ; do
+    curl.exe --insecure --user ${USER}:${PASSWORD} -T src/main/bash/nixlper.sh scp://${i}/logiciels/nixlper/nixlper.sh
+done
