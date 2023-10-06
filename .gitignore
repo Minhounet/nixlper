@@ -44,3 +44,4 @@ bin/
 /.idea/
 
 gradle
+/src/main/bash/.nixlper_bookmarks
