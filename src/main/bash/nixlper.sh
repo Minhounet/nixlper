@@ -19,10 +19,10 @@ function _log() {
   echo "${date} ${category} ${message}"
 }
 
-function log_as_error() {
+function _log_as_error() {
   _log "ERROR" $@
 }
-function log_as_info() {
+function _log_as_info() {
   _log "INFO" $@
 }
 
@@ -56,26 +56,38 @@ function bookmark_directory() {
   local -r shortcut_name=$1
   local -r bookmarked_dir=$2
 
-  [[ $# -ne 2 ]] && log_as_error "Please specify the bookmarks, the shortcut name and the bookmarked dir." && return 1
+  [[ $# -ne 2 ]] && _log_as_error "Please specify the bookmarks, the shortcut name and the bookmarked dir." && return 1
 
   # Only bookmark if not existing.
   [[ $(grep "alias ${shortcut_name}=" ${NIXLPER_BOOKMARKS_FILE}) ]] || echo "alias $shortcut_name='cd $bookmarked_dir && echo \"INFO: Jump into folder $(pwd)\"'" >> "${NIXLPER_BOOKMARKS_FILE}"
 }
 
+function _mark_folder_as_current() {
+    local -r current_folder=$(pwd)
+    _log_as_info "Mark ${current_folder} as current (use \"gc\")"
+    # shellcheck disable=SC2139
+    alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
+}
+
 # **********************************************************************************************************************
 # Commands exposed to user
 # **********************************************************************************************************************
+# ----------------------------------------------------------------------------------------------------------------------
+# Folders
+# ----------------------------------------------------------------------------------------------------------------------
+# Go to folder from a filepath
 function cdf() {
     [[ "$1" == "--help" ]] && echo "$FUNCNAME go to the folder containing the provided path
 
     Usage; $0 PATH" && return 0
 
-    [[ $# -lt 1 ]] && log_as_error "Please specify a filepath." && return 1
+    [[ $# -lt 1 ]] && _log_as_error "Please specify a filepath." && return 1
     local -r folderpath=$(dirname "$1")
     cd "${folderpath}" || return 1
-    log_as_info "Now in ${folderpath}"
+    _log_as_info "Now in ${folderpath}"
 }
-
+# Set current folder
+alias c=_mark_folder_as_current
 
 # **********************************************************************************************************************
 # Main part
