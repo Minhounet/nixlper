@@ -3,20 +3,37 @@
 export NIXLPER_INSTALL_DIR
 NIXLPER_INSTALL_DIR="$(dirname "${BASH_SOURCE[0]}")"
 export NIXLPER_BOOKMARKS_FILE=${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks
+# **********************************************************************************************************************
+# DEVELOPMENT PART (not supposed to be exposed)
+# **********************************************************************************************************************
 # ----------------------------------------------------------------------------------------------------------------------
-# dev utils
+# DEV utilities
 # ----------------------------------------------------------------------------------------------------------------------
 function debug_display_variables() {
     echo "Install dir NIXLPER_INSTALL_DIR is ${NIXLPER_INSTALL_DIR}"
 }
+function _log() {
+  local -r category=$1
+  local message=${@:2}
+  local -r date=$(date '+%Y-%m-%d %H:%M:%S')
+  echo "${date} ${category} ${message}"
+}
+
+function log_as_error() {
+  _log "ERROR" $@
+}
+function log_as_info() {
+  _log "INFO" $@
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
-# Init part
+# Init
 # ----------------------------------------------------------------------------------------------------------------------
 function init() {
   create_bookmarks_file_if_not_existing
 }
 # ----------------------------------------------------------------------------------------------------------------------
-# Bookmarks part
+# Bookmarks
 # ----------------------------------------------------------------------------------------------------------------------
 function create_bookmarks_file_if_not_existing() {
   if [[ ! -f $NIXLPER_BOOKMARKS_FILE ]]; then
@@ -44,22 +61,25 @@ function bookmark_directory() {
   # Only bookmark if not existing.
   [[ $(grep "alias ${shortcut_name}=" ${NIXLPER_BOOKMARKS_FILE}) ]] || echo "alias $shortcut_name='cd $bookmarked_dir && echo \"INFO: Jump into folder $(pwd)\"'" >> "${NIXLPER_BOOKMARKS_FILE}"
 }
-# ----------------------------------------------------------------------------------------------------------------------
-# Logger part
-# ----------------------------------------------------------------------------------------------------------------------
-function _log() {
-  local -r category=$1
-  local message=${@:2}
-  local -r date=$(date '+%Y-%m-%d %H:%M:%S')
-  echo "${date} ${category} ${message}"
+
+# **********************************************************************************************************************
+# Commands exposed to user
+# **********************************************************************************************************************
+function cdf() {
+    [[ "$1" == "--help" ]] && echo "$FUNCNAME go to the folder containing the provided path
+
+    Usage; $0 PATH" && return 0
+
+    [[ $# -lt 1 ]] && log_as_error "Please specify a filepath." && return 1
+    local -r folderpath=$(dirname "$1")
+    cd "${folderpath}" || return 1
+    log_as_info "Now in ${folderpath}"
 }
 
-function log_as_error() {
-  _log "ERROR" $@
-}
-# ----------------------------------------------------------------------------------------------------------------------
+
+# **********************************************************************************************************************
 # Main part
-# ----------------------------------------------------------------------------------------------------------------------
+# **********************************************************************************************************************
 function main() {
     init
 }
