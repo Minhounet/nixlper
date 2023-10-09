@@ -9,7 +9,7 @@ export NIXLPER_BOOKMARKS_FILE=${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks
 # ----------------------------------------------------------------------------------------------------------------------
 # DEV utilities
 # ----------------------------------------------------------------------------------------------------------------------
-function debug_display_variables() {
+function _debug_display_variables() {
     echo "Install dir NIXLPER_INSTALL_DIR is ${NIXLPER_INSTALL_DIR}"
 }
 function _log() {
@@ -29,13 +29,13 @@ function _log_as_info() {
 # ----------------------------------------------------------------------------------------------------------------------
 # Init
 # ----------------------------------------------------------------------------------------------------------------------
-function init() {
-  create_bookmarks_file_if_not_existing
+function _init() {
+  _mark_folder_as_currentcreate_bookmarks_file_if_not_existing
 }
 # ----------------------------------------------------------------------------------------------------------------------
 # Bookmarks
 # ----------------------------------------------------------------------------------------------------------------------
-function create_bookmarks_file_if_not_existing() {
+function _mark_folder_as_currentcreate_bookmarks_file_if_not_existing() {
   if [[ ! -f $NIXLPER_BOOKMARKS_FILE ]]; then
     echo "Bookmarks file does not exist, create ${NIXLPER_BOOKMARKS_FILE}"
     touch "${NIXLPER_BOOKMARKS_FILE}"
@@ -44,7 +44,7 @@ function create_bookmarks_file_if_not_existing() {
 }
 
 # Bookmark a directory to a specific file. An alias is used to define the bookmark.
-function bookmark_directory() {
+function _bookmark_directory() {
   [[ "$1" == "--help" ]] && echo "$FUNCNAME bookmark a specific directory storing its path into a file with a specific alias.
     Thus it is possible to reach this folder using an alias.
 
@@ -93,7 +93,7 @@ alias c=_mark_folder_as_current
 # Main part
 # **********************************************************************************************************************
 function main() {
-    init
+    _init
 }
 
 main
