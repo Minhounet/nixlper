@@ -25,13 +25,6 @@ function _log_as_error() {
 function _log_as_info() {
   _log "INFO" $@
 }
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Init
-# ----------------------------------------------------------------------------------------------------------------------
-function _init() {
-  _mark_folder_as_currentcreate_bookmarks_file_if_not_existing
-}
 # ----------------------------------------------------------------------------------------------------------------------
 # Bookmarks
 # ----------------------------------------------------------------------------------------------------------------------
@@ -56,7 +49,7 @@ function _bookmark_directory() {
   local -r shortcut_name=$1
   local -r bookmarked_dir=$2
 
-  [[ $# -ne 2 ]] && _log_as_error "Please specify the bookmarks, the shortcut name and the bookmarked dir." && return 1
+  [[ $# -ne 2 ]] && _log_as_error "Please specify the shortcut name and the bookmarked dir." && return 1
 
   # Only bookmark if not existing.
   [[ $(grep "alias ${shortcut_name}=" ${NIXLPER_BOOKMARKS_FILE}) ]] || echo "alias $shortcut_name='cd $bookmarked_dir && echo \"INFO: Jump into folder $(pwd)\"'" >> "${NIXLPER_BOOKMARKS_FILE}"
@@ -69,6 +62,16 @@ function _mark_folder_as_current() {
     alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
 }
 
+function _display_existing_bookmarks() {
+  _log_as_info "Current bookmarks are: "
+  sed -E "s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g" "${NIXLPER_BOOKMARKS_FILE}"
+}
+# ----------------------------------------------------------------------------------------------------------------------
+# Init
+# ----------------------------------------------------------------------------------------------------------------------
+function _init() {
+  _mark_folder_as_currentcreate_bookmarks_file_if_not_existing
+}
 # **********************************************************************************************************************
 # Commands exposed to user
 # **********************************************************************************************************************
