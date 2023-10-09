@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Template to send quicklu nixlper.s
+# Please fill the three parameters
 readonly USER=
-readonly MACHINES="MACHINE1 MACHINE2 ..."
+readonly MACHINES=
 readonly PASSWORD=
 
 for i in ${MACHINES} ; do
