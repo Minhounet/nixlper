@@ -66,6 +66,16 @@ function _display_existing_bookmarks() {
   _log_as_info "Current bookmarks are: "
   sed -E "s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g" "${NIXLPER_BOOKMARKS_FILE}"
 }
+
+function _delete_bookmark() {
+  [[ "$1" == "--help" ]] && echo "$FUNCNAME delete a bookmark.
+
+      Usage: $0 SHORTCUT_NAME
+
+      SHORTCUT_NAME: the name or the alias." && return 0
+  [[ $# -ne 1 ]] && _log_as_error "Please specify the bookmark to delete" && return 1
+  sed -i "/alias ${1}=/d" "$NIXLPER_BOOKMARKS_FILE"
+}
 # ----------------------------------------------------------------------------------------------------------------------
 # Init
 # ----------------------------------------------------------------------------------------------------------------------
