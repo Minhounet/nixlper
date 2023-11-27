@@ -28,7 +28,7 @@ function _log_as_info() {
 # ----------------------------------------------------------------------------------------------------------------------
 # Bookmarks
 # ----------------------------------------------------------------------------------------------------------------------
-function _mark_folder_as_currentcreate_bookmarks_file_if_not_existing() {
+function _create_bookmarks_file_if_not_existing() {
   if [[ ! -f $NIXLPER_BOOKMARKS_FILE ]]; then
     echo "Bookmarks file does not exist, create ${NIXLPER_BOOKMARKS_FILE}"
     touch "${NIXLPER_BOOKMARKS_FILE}"
@@ -80,7 +80,7 @@ function _delete_bookmark() {
 # Init
 # ----------------------------------------------------------------------------------------------------------------------
 function _init() {
-  _mark_folder_as_currentcreate_bookmarks_file_if_not_existing
+  _create_bookmarks_file_if_not_existing
 }
 # **********************************************************************************************************************
 # Commands exposed to user
