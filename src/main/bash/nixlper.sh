@@ -16,9 +16,11 @@ SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
 # ----------------------------------------------------------------------------------------------------------------------
 # DEV utilities
 # ----------------------------------------------------------------------------------------------------------------------
+# >Debugging
 function _debug_display_variables() {
     echo "Install dir NIXLPER_INSTALL_DIR is ${NIXLPER_INSTALL_DIR}"
 }
+# >Logging
 function _log() {
   local -r category=$1
   local message=${@:2}
@@ -31,9 +33,13 @@ function _log_as_error() {
 function _log_as_info() {
   _log "INFO" $@
 }
+function _log_action_cancelled() {
+  _log_as_info "Action is cancelled"
+}
 # ----------------------------------------------------------------------------------------------------------------------
 # Bookmarks
 # ----------------------------------------------------------------------------------------------------------------------
+# >Initializing bookmarks
 function _create_bookmarks_file_if_not_existing() {
   if [[ ! -f $NIXLPER_BOOKMARKS_FILE ]]; then
     echo "Bookmarks file does not exist, create ${NIXLPER_BOOKMARKS_FILE}"
@@ -41,12 +47,11 @@ function _create_bookmarks_file_if_not_existing() {
     chmod 777 "${NIXLPER_BOOKMARKS_FILE}"
   fi
 }
-
 function _load_bookmarks() {
   source "${NIXLPER_BOOKMARKS_FILE}"
 }
 
-# Bookmark a directory to a specific file. An alias is used to define the bookmark.
+# >Bookmark atomic actions
 function _bookmark_directory() {
   [[ "$1" == "--help" ]] && echo "$FUNCNAME bookmark a specific directory storing its path into a file with a specific alias.
     Thus it is possible to reach this folder using an alias.
@@ -65,18 +70,6 @@ function _bookmark_directory() {
   [[ $(grep "alias ${shortcut_name}=" ${NIXLPER_BOOKMARKS_FILE}) ]] || echo "alias $shortcut_name='cd $bookmarked_dir && echo \"INFO: Jump into folder $(pwd)\"'" >> "${NIXLPER_BOOKMARKS_FILE}"
 }
 
-function _mark_folder_as_current() {
-    local -r current_folder=$(pwd)
-    _log_as_info "Mark ${current_folder} as current (use \"gc\")"
-    # shellcheck disable=SC2139
-    alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
-}
-
-function _display_existing_bookmarks() {
-  _log_as_info "Current bookmarks are: "
-  sed -E "${SED_PATTERN_EXTRACT_ALIAS}" "${NIXLPER_BOOKMARKS_FILE}"
-}
-
 function _delete_bookmark() {
   [[ "$1" == "--help" ]] && echo "$FUNCNAME delete a bookmark.
 
@@ -85,6 +78,12 @@ function _delete_bookmark() {
       SHORTCUT_NAME: the name or the alias." && return 0
   [[ $# -ne 1 ]] && _log_as_error "Please specify the bookmark to delete" && return 1
   sed -i "/alias ${1}=/d" "$NIXLPER_BOOKMARKS_FILE"
+}
+
+# >Key bookmarks action
+function _display_existing_bookmarks() {
+  _log_as_info "Current bookmarks are: "
+  sed -E "${SED_PATTERN_EXTRACT_ALIAS}" "${NIXLPER_BOOKMARKS_FILE}"
 }
 
 # Similarly to Total commander, is the main function to bookmark current folder if not done, or to remove current folder from bookmarks
@@ -132,6 +131,17 @@ function _add_or_remove_bookmark() {
     fi
   fi
 }
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Folders
+# ----------------------------------------------------------------------------------------------------------------------
+function _mark_folder_as_current() {
+    local -r current_folder=$(pwd)
+    _log_as_info "Mark ${current_folder} as current (use \"gc\")"
+    # shellcheck disable=SC2139
+    alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Init
 # ----------------------------------------------------------------------------------------------------------------------
