@@ -9,7 +9,9 @@ export NIXLPER_INSTALL_DIR
 NIXLPER_INSTALL_DIR="$(dirname "${BASH_SOURCE[0]}")"
 export NIXLPER_BOOKMARKS_FILE=${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks
 
-
+# Bookmark constants
+# sed pattern to display a bookmark like "/var/projects (projects_alias)" where "projects_alias" is an alias.
+SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
 
 # ----------------------------------------------------------------------------------------------------------------------
 # DEV utilities
@@ -66,8 +68,6 @@ function _mark_folder_as_current() {
     alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
 }
 
-# SED pattern to display a bookmark like "/var/projects (projects_alias)" where "projects_alias" is an alias.
-SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
 function _display_existing_bookmarks() {
   _log_as_info "Current bookmarks are: "
   sed -E "${SED_PATTERN_EXTRACT_ALIAS}" "${NIXLPER_BOOKMARKS_FILE}"
@@ -83,6 +83,7 @@ function _delete_bookmark() {
   sed -i "/alias ${1}=/d" "$NIXLPER_BOOKMARKS_FILE"
 }
 
+# Similarly to Total commander, is the main function to bookmark current folder if not done, or to remove current folder from bookmarks
 function _add_or_remove_bookmark() {
   _display_existing_bookmarks
 
@@ -93,8 +94,8 @@ function _add_or_remove_bookmark() {
     echo "-------------------------------------------------------------------------------------------------------------"
     echo "-> $(pwd) not bookmarked"
     echo "-------------------------------------------------------------------------------------------------------------"
-    read -rp "Bookmark this folder? (y/n default n)" answer_create_bookmark
-    answer_create_bookmark=${answer_create_bookmark:-n}
+    read -rp "Bookmark this folder? (y/n default y)" answer_create_bookmark
+    answer_create_bookmark=${answer_create_bookmark:-y}
     if [[ ${answer_create_bookmark} == "y" ]]; then
       read -rp "Enter bookmark name: " answer_bookmark_name
       while [[ -z ${answer_bookmark_name} ]]; do
@@ -110,13 +111,20 @@ function _add_or_remove_bookmark() {
     fi
   else
     echo "-------------------------------------------------------------------------------------------------------------"
-    # SED_PATTERN_EXTRACT_ALIAS
-    local -r current_location=$(echo ${matching_bookmark} | sed -E "${SED_PATTERN_EXTRACT_ALIAS}")
+    local -r current_location=$(echo "${matching_bookmark}" | sed -E "${SED_PATTERN_EXTRACT_ALIAS}")
     echo "current bookmark -> ${current_location}"
     echo "-------------------------------------------------------------------------------------------------------------"
-    echo "Delete bookmark?"
+    read -rp "Delete bookmark? (y/n default n)" answer_delete_bookmark
+    answer_delete_bookmark=${answer_delete_bookmark:-n}
+    if [[ ${answer_delete_bookmark} == "y" ]]; then
+      # shellcheck disable=SC2001
+      local -r bookmark_name=$(echo "${current_location}" | sed  's/.*(\(.*\))/\1/g') # Alias is between "(" and ")" chars.
+      _delete_bookmark "${bookmark_name}"
+      _log_as_info "Bookmark ${bookmark_name} is deleted"
+    else
+      _log_as_info "Action is cancelled"
+    fi
   fi
-
 }
 # ----------------------------------------------------------------------------------------------------------------------
 # Init
