@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
-
-export NIXLPER_INSTALL_DIR
-NIXLPER_INSTALL_DIR="$(dirname "${BASH_SOURCE[0]}")"
-export NIXLPER_BOOKMARKS_FILE=${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks
 # **********************************************************************************************************************
 # DEVELOPMENT PART (not supposed to be exposed)
 # **********************************************************************************************************************
+# ----------------------------------------------------------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------------------------------------------------------
+export NIXLPER_INSTALL_DIR
+NIXLPER_INSTALL_DIR="$(dirname "${BASH_SOURCE[0]}")"
+export NIXLPER_BOOKMARKS_FILE=${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks
+
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # DEV utilities
 # ----------------------------------------------------------------------------------------------------------------------
@@ -18,7 +23,6 @@ function _log() {
   local -r date=$(date '+%Y-%m-%d %H:%M:%S')
   echo "${date} ${category} ${message}"
 }
-
 function _log_as_error() {
   _log "ERROR" $@
 }
@@ -62,9 +66,11 @@ function _mark_folder_as_current() {
     alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
 }
 
+# SED pattern to display a bookmark like "/var/projects (projects_alias)" where "projects_alias" is an alias.
+SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
 function _display_existing_bookmarks() {
   _log_as_info "Current bookmarks are: "
-  sed -E "s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g" "${NIXLPER_BOOKMARKS_FILE}"
+  sed -E "${SED_PATTERN_EXTRACT_ALIAS}" "${NIXLPER_BOOKMARKS_FILE}"
 }
 
 function _delete_bookmark() {
@@ -75,6 +81,42 @@ function _delete_bookmark() {
       SHORTCUT_NAME: the name or the alias." && return 0
   [[ $# -ne 1 ]] && _log_as_error "Please specify the bookmark to delete" && return 1
   sed -i "/alias ${1}=/d" "$NIXLPER_BOOKMARKS_FILE"
+}
+
+function _add_or_remove_bookmark() {
+  _display_existing_bookmarks
+
+  # test existence using path with " &&" for ending part
+  local -r matching_bookmark=$(grep "$(pwd) &&" "$NIXLPER_BOOKMARKS_FILE")
+
+  if [[ -z "${matching_bookmark}" ]]; then
+    echo "-------------------------------------------------------------------------------------------------------------"
+    echo "-> $(pwd) not bookmarked"
+    echo "-------------------------------------------------------------------------------------------------------------"
+    read -rp "Bookmark this folder? (y/n default n)" answer_create_bookmark
+    answer_create_bookmark=${answer_create_bookmark:-n}
+    if [[ ${answer_create_bookmark} == "y" ]]; then
+      read -rp "Enter bookmark name: " answer_bookmark_name
+      while [[ -z ${answer_bookmark_name} ]]; do
+          if [[ -z ${answer_bookmark_name} ]]; then
+            _log_as_error "Bookmark cannot be empty, please enter a value"
+            read -rp "Enter bookmark name: " answer_bookmark_name
+          fi
+      done
+      _bookmark_directory "${answer_bookmark_name}" "$(pwd)"
+      _log_as_info "Bookmark saved"
+    else
+      _log_as_info "Action is cancelled"
+    fi
+  else
+    echo "-------------------------------------------------------------------------------------------------------------"
+    # SED_PATTERN_EXTRACT_ALIAS
+    local -r current_location=$(echo ${matching_bookmark} | sed -E "${SED_PATTERN_EXTRACT_ALIAS}")
+    echo "current bookmark -> ${current_location}"
+    echo "-------------------------------------------------------------------------------------------------------------"
+    echo "Delete bookmark?"
+  fi
+
 }
 # ----------------------------------------------------------------------------------------------------------------------
 # Init
