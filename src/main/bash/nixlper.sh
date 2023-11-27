@@ -42,6 +42,10 @@ function _create_bookmarks_file_if_not_existing() {
   fi
 }
 
+function _load_bookmarks() {
+  source "${NIXLPER_BOOKMARKS_FILE}"
+}
+
 # Bookmark a directory to a specific file. An alias is used to define the bookmark.
 function _bookmark_directory() {
   [[ "$1" == "--help" ]] && echo "$FUNCNAME bookmark a specific directory storing its path into a file with a specific alias.
@@ -106,6 +110,7 @@ function _add_or_remove_bookmark() {
       done
       _bookmark_directory "${answer_bookmark_name}" "$(pwd)"
       _log_as_info "Bookmark saved"
+      _load_bookmarks
     else
       _log_as_info "Action is cancelled"
     fi
@@ -120,6 +125,7 @@ function _add_or_remove_bookmark() {
       # shellcheck disable=SC2001
       local -r bookmark_name=$(echo "${current_location}" | sed  's/.*(\(.*\))/\1/g') # Alias is between "(" and ")" chars.
       _delete_bookmark "${bookmark_name}"
+      unalias "${bookmark_name}"
       _log_as_info "Bookmark ${bookmark_name} is deleted"
     else
       _log_as_info "Action is cancelled"
@@ -131,6 +137,7 @@ function _add_or_remove_bookmark() {
 # ----------------------------------------------------------------------------------------------------------------------
 function _init() {
   _create_bookmarks_file_if_not_existing
+  _load_bookmarks
 }
 # **********************************************************************************************************************
 # Commands exposed to user
