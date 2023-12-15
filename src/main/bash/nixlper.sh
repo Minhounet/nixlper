@@ -6,7 +6,7 @@
 # Constants
 # ----------------------------------------------------------------------------------------------------------------------
 export NIXLPER_INSTALL_DIR
-NIXLPER_INSTALL_DIR="$(dirname "${BASH_SOURCE[0]}")"
+NIXLPER_INSTALL_DIR="$(cd "$(dirname "$0")" && pwd)"
 export NIXLPER_BOOKMARKS_FILE=${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks
 
 # Bookmark constants
@@ -148,6 +148,7 @@ function _mark_folder_as_current() {
 function _init() {
   _create_bookmarks_file_if_not_existing
   _load_bookmarks
+  _load_bindings
 }
 # **********************************************************************************************************************
 # Commands exposed to user
