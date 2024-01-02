@@ -5,20 +5,18 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------------------------------------------------------
-export NIXLPER_INSTALL_DIR
-NIXLPER_INSTALL_DIR="$(cd "$(dirname "$0")" && pwd)"
-export NIXLPER_BOOKMARKS_FILE=${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks
-
 # Bookmark constants
 # sed pattern to display a bookmark like "/var/projects (projects_alias)" where "projects_alias" is an alias.
 SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
-
 # ----------------------------------------------------------------------------------------------------------------------
 # DEV utilities
 # ----------------------------------------------------------------------------------------------------------------------
 # >Debugging
 function _debug_display_variables() {
     echo "Install dir NIXLPER_INSTALL_DIR is ${NIXLPER_INSTALL_DIR}"
+}
+function TODO() {
+  echo "TODO: $*"
 }
 # >Logging
 function _log() {
@@ -149,15 +147,48 @@ function _load_bindings() {
     bind -x '"\C-x\C-d": _display_existing_bookmarks'
     bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
 }
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Init
 # ----------------------------------------------------------------------------------------------------------------------
+function _test_prerequisites() {
+  if [[ -z ${NIXLPER_INSTALL_DIR} ]]; then
+    _log_as_error "NIXLPER_INSTALL_DIR is not defined, please run \"install\" command"
+    return 1
+  fi
+  if [[ -z ${NIXLPER_INSTALL_DIR} ]]; then
+    _log_as_error "NIXLPER_BOOKMARKS_FILE is not defined, please run \"install\" command"
+    return 1
+  fi
+}
+
 function _init() {
   _create_bookmarks_file_if_not_existing
   _load_bookmarks
   _load_bindings
 }
+# ----------------------------------------------------------------------------------------------------------------------
+# Install nixlper
+# ----------------------------------------------------------------------------------------------------------------------
+function _install() {
+  touch ~/.bashrc
+  if grep "nixlper.sh" ~/.bashrc; then
+    _log_as_info ".bashrc has already a reference nixlper, action is skipped"
+  else
+    _log_as_info "Backup existing .bashrc"
+    cp ~/.bashrc ~/.bashrc.ori
+    _log_as_info "Update .bashrc with nixlper"
+    echo "" >> ~/.bashrc
+    echo "################################################################################################" >> ~/.bashrc
+    echo "# nilxper installation" >> ~/.bashrc
+    echo "################################################################################################" >> ~/.bashrc
+    echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
+    echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
+    echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
+    echo "################################################################################################" >> ~/.bashrc
+    source ~/.bashrc
+  fi
+}
+
 # **********************************************************************************************************************
 # Commands exposed to user
 # **********************************************************************************************************************
@@ -182,7 +213,19 @@ alias c=_mark_folder_as_current
 # Main part
 # **********************************************************************************************************************
 function main() {
-    _init
+  if [[ $# -eq 0 ]]; then
+    if _test_prerequisites; then
+      _init
+    fi
+  else
+    local -r command=$1
+    if [[ "${command}" == "install" ]]; then
+      _install
+    else
+      echo "command ${command} is unknown, use one the following ones:
+      install: to install NIXLPER"
+    fi
+  fi
 }
 
-main
+main "$@"
