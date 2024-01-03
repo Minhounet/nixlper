@@ -1,2 +1,2 @@
-rootProject.name = "unix_helper"
+rootProject.name = "nixlper"
 
