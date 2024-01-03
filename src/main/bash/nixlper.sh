@@ -133,7 +133,6 @@ function _add_or_remove_bookmark() {
     fi
   fi
 }
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Folders
 # ----------------------------------------------------------------------------------------------------------------------
@@ -143,7 +142,23 @@ function _mark_folder_as_current() {
     # shellcheck disable=SC2139
     alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
 }
-
+# ----------------------------------------------------------------------------------------------------------------------
+# Files
+# ----------------------------------------------------------------------------------------------------------------------
+function _mark_file_as_current() {
+  if [[ $# -eq 0 ]]; then
+    echo "ERROR: missing filename"
+    return 1
+  else
+    local -r filepath=$1
+    if [[ ${file_path} == /* ]];then
+      alias gcf="vim ${filepath}"
+    else
+      alias gcf="vim $(pwd)/${filepath}"
+    fi
+    _log_as_info "Mark ${filepath} as current. Use \"gcf\" to open file"
+  fi
+}
 # ----------------------------------------------------------------------------------------------------------------------
 # Help
 # ----------------------------------------------------------------------------------------------------------------------
@@ -235,8 +250,9 @@ function cdf() {
     cd "${folderpath}" || return 1
     _log_as_info "Now in ${folderpath}"
 }
-# Set current folder
+# Set current items
 alias c=_mark_folder_as_current
+alias cf=_mark_file_as_current
 
 # **********************************************************************************************************************
 # Main part
