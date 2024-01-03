@@ -15,6 +15,10 @@ SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
 function _debug_display_variables() {
     echo "Install dir NIXLPER_INSTALL_DIR is ${NIXLPER_INSTALL_DIR}"
 }
+# >Useful to test new feature before implementing it
+function _debug_open_executable() {
+  vim "${NIXLPER_INSTALL_DIR}"/nixlper.sh
+}
 function TODO() {
   echo "TODO: $*"
 }
@@ -141,11 +145,36 @@ function _mark_folder_as_current() {
 }
 
 # ----------------------------------------------------------------------------------------------------------------------
+# Help
+# ----------------------------------------------------------------------------------------------------------------------
+function nixlper_help() {
+  read -rp "Nixlper help, please hit a topic (can be a pattern, for example \"bookma\": " topic_input
+  topic_input=${topic_input:-""}
+
+  if [[ -z ${topic_input} ]]; then
+    for i in "${NIXLPER_INSTALL_DIR}"/help/help_* ; do
+        echo "========================================================================================================="
+        cat "${i}"
+    done
+  else
+    echo "Display help for ${topic_input}"
+    if ! cat "${NIXLPER_INSTALL_DIR}"/help/help_*"${topic_input}"* 2>/dev/null; then
+      echo "No topic found for ${topic_input}"
+    fi
+  fi
+}
+# ----------------------------------------------------------------------------------------------------------------------
 # Bindings
 # ----------------------------------------------------------------------------------------------------------------------
 function _load_bindings() {
-    bind -x '"\C-x\C-d": _display_existing_bookmarks'
-    bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
+  # bookmarks
+  bind -x '"\C-x\C-d": _display_existing_bookmarks'
+  bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
+  # help
+  bind '"\C-x\C-h": "nixlper_help\15"'
+
+  # instant access to this file
+  bind -x '"\C-x\C-o": vim ${NIXLPER_INSTALL_DIR}/nixlper.sh'
 }
 # ----------------------------------------------------------------------------------------------------------------------
 # Init

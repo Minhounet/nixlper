@@ -33,4 +33,7 @@ fun AbstractArchiveTask.buildContent() {
             rename { _ -> "version" }
         }
     }
+    into("/help") {
+        from("src/main/help")
+    }
 }
