@@ -6,6 +6,7 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 
 - [Project Title](#nixlper)
 - [Description](#description)
+- [Prerequisites](#prerequisites)
 - [Features](#features)
 - [Installation](#installation)
 - [License](#license)
@@ -80,6 +81,14 @@ cd /opt/nixlper
 ### Bookmarks
 `CTRL + X then D`: display existing bookmarks
 `CTRL + X then B`: add or remote existing bookmark for **current** folder
+
+### Files and folders
+
+`cdf FILEPATH`: Go the folder of the file
+
+
+`c`: mark current folder, use "**gc**" to go this folder from any place
+`cf FILEPATH` : mark file as current, use "gcf" to open it in vim from any place
 
 ## License
 
