@@ -78,7 +78,7 @@ cd /opt/nixlper
 ## Features
 
 ### Bookmarks
-`CTRL + X then D`: display existing bookrmarks
+`CTRL + X then D`: display existing bookmarks
 `CTRL + X then B`: add or remote existing bookmark for **current** folder
 
 ## License
