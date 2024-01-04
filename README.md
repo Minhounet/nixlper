@@ -105,16 +105,15 @@ cd /opt/nixlper
 ## Features
 
 ### Bookmarks
-`CTRL + X then D`: display existing bookmarks
-`CTRL + X then B`: add or remote existing bookmark for **current** folder
+- `CTRL + X then D`: display existing bookmarks
+- `CTRL + X then B`: add or remote existing bookmark for **current** folder
 
 ### Files and folders
 
-`cdf FILEPATH`: Go the folder of the file
+- `cdf FILEPATH`: Go the folder of the file
 
-
-`c`: mark current folder, use "**gc**" to go this folder from any place
-`cf FILEPATH` : mark file as current, use "gcf" to open it in vim from any place
+- `c`: mark current folder, use `gc` to go this folder from any place
+`cf FILEPATH` : mark file as current, use `gcf` to open it in vim from any place.
 
 ## License
 
