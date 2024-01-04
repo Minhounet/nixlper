@@ -83,9 +83,19 @@ function _delete_bookmark() {
 }
 
 # >Key bookmarks action
+
 function _display_existing_bookmarks() {
   _log_as_info "Current bookmarks are: "
   sed -E "${SED_PATTERN_EXTRACT_ALIAS}" "${NIXLPER_BOOKMARKS_FILE}"
+  echo ""
+  local -r matching_bookmark=$(_get_matching_bookmark_for_current_folder)
+  if [[ -z "${matching_bookmark}"  ]]; then
+    echo "-> $(pwd) (not bookmarked)"
+    echo "HINT: use \"CTRL + X, B\" to bookmark it)"
+  else
+    local -r current_location=$(echo "${matching_bookmark}" | sed -E "${SED_PATTERN_EXTRACT_ALIAS}")
+    echo "-> ${current_location}"
+  fi
 }
 
 # Similarly to Total commander, is the main function to bookmark current folder if not done, or to remove current folder from bookmarks
@@ -93,7 +103,7 @@ function _add_or_remove_bookmark() {
   _display_existing_bookmarks
 
   # test existence using path with " &&" for ending part
-  local -r matching_bookmark=$(grep "$(pwd) &&" "$NIXLPER_BOOKMARKS_FILE")
+  local -r matching_bookmark=$(_get_matching_bookmark_for_current_folder)
 
   if [[ -z "${matching_bookmark}" ]]; then
     echo "-------------------------------------------------------------------------------------------------------------"
@@ -132,6 +142,12 @@ function _add_or_remove_bookmark() {
       _log_as_info "Action is cancelled"
     fi
   fi
+}
+
+# Test if current folder is in your bookmarks
+function _get_matching_bookmark_for_current_folder() {
+  local -r matching_bookmark=$(grep "$(pwd) &&" "$NIXLPER_BOOKMARKS_FILE")
+  echo "${matching_bookmark}"
 }
 # ----------------------------------------------------------------------------------------------------------------------
 # Folders
