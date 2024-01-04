@@ -204,6 +204,9 @@ function _load_bindings() {
   # help
   bind '"\C-x\C-h": "nixlper_help\15"'
 
+  # files
+  bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
+
   # instant access to this file
   bind -x '"\C-x\C-o": vim ${NIXLPER_INSTALL_DIR}/nixlper.sh'
 }
