@@ -7,8 +7,17 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 - [Project Title](#nixlper)
 - [Description](#description)
 - [Prerequisites](#prerequisites)
-- [Features](#features)
+  - [Java (mandatory)](#java-mandatory)
+  - [Gradle (optional)](#gradle-optional)
+- [Build](#build)
+  - [Build with Gradle wrapper](#build-with-gradle-wrapper)
+  - [Build with local Gradle installation](#build-with-local-gradle-installation)
 - [Installation](#installation)
+  - [Standard installation steps](#standard-installation-steps)
+  - [Installation steps without Gradle build](#installation-steps-without-gradle-build)
+- [Features](#features)
+  - [Bookmarks](#bookmarks)
+  - [Files and folders](#files-and-folders)
 - [License](#license)
 
 ## Description
@@ -18,17 +27,34 @@ and this is why it contains a lots of key shortcuts
 
 ## Prerequisites
 
-### Java
+### Java (mandatory)
 
 This project is built with [Gradle](#gradle) using [JDK 20](https://www.oracle.com/java/technologies/javase/jdk20-archive-downloads.html).
 
-### Gradle
+### Gradle (optional)
 
-This project is built using [Gradle](https://gradle.org/releases/) 8.4 but you can go for the latest version.
+This project is built using [Gradle](https://gradle.org/releases/) 8.4, but you can go for the latest version. If you want to avoid Gradle
+installation you build the project using the [Gradle wrapper](#build-with-gradle-wrapper).
 
 ## Build
+You can either build with Gradle wrapper or with your local Gradle installation.
 
+### Build with Gradle wrapper
 Perform the following command in the project:
+```bash
+./gradlew clean build
+```
+Build result should be like the screenshot below:
+
+![gradle_build.png](documentation/gradle_build.png)
+
+Resulting archives lays in build/distributions folder after Gradle command.
+- build/distributions/nixlper-<version>.tar
+- build/distributions/nixlper-<version>.zip
+
+## Build with local Gradle installation
+
+If you have Gradle installed on your computer, you can perform the following command in the project:
 ```bash
 gradle clean build
 ```
