@@ -4,7 +4,6 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 
 ## Table of Contents
 
-- [Project Title](#nixlper)
 - [Description](#description)
 - [Prerequisites](#prerequisites)
   - [Java (mandatory)](#java-mandatory)
@@ -105,6 +104,7 @@ cd /opt/nixlper
 ## Features
 
 ### Bookmarks
+
 - `CTRL + X then D`: display existing bookmarks
 - `CTRL + X then B`: add or remote existing bookmark for **current** folder
 
@@ -114,6 +114,12 @@ cd /opt/nixlper
 
 - `c`: mark current folder, use `gc` to go this folder from any place
 `cf FILEPATH` : mark file as current, use `gcf` to open it in vim from any place.
+
+- `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history.
+
+### Display help
+
+- `CTRL + X then H`: give the ability to search help per topic
 
 ## License
 
