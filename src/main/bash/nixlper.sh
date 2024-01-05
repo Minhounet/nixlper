@@ -271,7 +271,7 @@ function _i_load_bindings() {
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Install nixlper
+# Install/Uninstall nixlper
 #***********************************************************************************************************************
 function _i_install() {
   touch ~/.bashrc
@@ -291,6 +291,19 @@ function _i_install() {
     echo "################################ nixlper stop ##################################################" >> ~/.bashrc
     source ~/.bashrc
   fi
+}
+
+function _i_uninstall() {
+  local -r install_dir="${NIXLPER_INSTALL_DIR}"
+  echo "Delete ${NIXLPER_BOOKMARKS_FILE} file"
+  rm -rf "${NIXLPER_BOOKMARKS_FILE}"
+  echo "Remove installation from .bashrc file"
+  sed -i  '/nixlper start/,/nixlper stop/d' ~/.bashrc
+  echo "Delete environment variables"
+  unset NIXLPER_INSTALL_DIR
+  unset NIXLPER_BOOKMARKS_FILE
+  echo "To permanently remove Nixlper, please remove all items from ${install_dir} with command below:
+  rm -rf ${install_dir}"
 }
 #***********************************************************************************************************************
 ########################################################################################################################
@@ -333,12 +346,18 @@ function main() {
     fi
   else
     local -r command=$1
-    if [[ "${command}" == "install" ]]; then
+    case ${command} in
+    install)
       _i_install
-    else
+      ;;
+    uninstall)
+      _i_uninstall
+      ;;
+    *)
       echo "command ${command} is unknown, use one the following ones:
-      install: to install NIXLPER"
-    fi
+            install: to install NIXLPER
+            uninstall: to uninstall NIXLPER, installation will be removed"
+    esac
   fi
 }
 
