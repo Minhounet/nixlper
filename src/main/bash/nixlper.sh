@@ -256,17 +256,19 @@ function _help() {
 # Bindings
 #***********************************************************************************************************************
 function _i_load_bindings() {
-  # bookmarks
-  bind -x '"\C-x\C-d": _display_existing_bookmarks'
-  bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
-  # help
-  bind '"\C-x\C-h": "nixlper_help\15"'
+  if [ -n "$PS1" ]; then
+    # bookmarks
+    bind -x '"\C-x\C-d": _display_existing_bookmarks'
+    bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
+    # help
+    bind '"\C-x\C-h": "nixlper_help\15"'
 
-  # files
-  bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
+    # files
+    bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
 
-  # instant access to this file
-  bind -x '"\C-x\C-o": vim ${NIXLPER_INSTALL_DIR}/nixlper.sh'
+    # instant access to this file
+    bind -x '"\C-x\C-o": vim ${NIXLPER_INSTALL_DIR}/nixlper.sh'
+  fi
 }
 #***********************************************************************************************************************
 
