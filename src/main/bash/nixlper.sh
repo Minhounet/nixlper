@@ -290,6 +290,9 @@ function _i_install() {
     echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
     echo "################################ nixlper stop ##################################################" >> ~/.bashrc
     source ~/.bashrc
+    echo "Please execute one the following commands to finalize the installation:
+    - source ~/.bashrc
+    - logout then login again"
   fi
 }
 
