@@ -1,94 +1,89 @@
 #!/usr/bin/env bash
-# **********************************************************************************************************************
-# DEVELOPMENT PART (not supposed to be exposed)
-# **********************************************************************************************************************
-# ----------------------------------------------------------------------------------------------------------------------
-# Constants
-# ----------------------------------------------------------------------------------------------------------------------
-# Bookmark constants
+########################################################################################################################
+#                                           FILE: nixlper.sh                                                           #
+#                                           DESCRIPTION: the bash helper in an linux environment                       #
+########################################################################################################################
+# DEVELOPMENT NOTES
+########################################################################################################################
+# There is 3 types of functions:
+# - <FUNCTION_NAME>: name is not starting with "_", so it can be exposed to end user
+# - _<FUNCTION_NAME>: these ones can be exposed using a binding or an alias but not supposed to be called directly
+# - _i_<FUNCTION_NAME>: for internal use only
+########################################################################################################################
+
+########################################################################################################################
+# DEVELOPMENT PART (not exposed to end users)                                                                          #
+########################################################################################################################
+#***********************************************************************************************************************
+# CONSTANTS                                                                                                            *
+#***********************************************************************************************************************
+#-----------------------------------------------------------------------------------------------------------------------
+# Bookmarks constants
+#-----------------------------------------------------------------------------------------------------------------------
 # sed pattern to display a bookmark like "/var/projects (projects_alias)" where "projects_alias" is an alias.
 SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
-# ----------------------------------------------------------------------------------------------------------------------
-# DEV utilities
-# ----------------------------------------------------------------------------------------------------------------------
-# >Debugging
-function _debug_display_variables() {
-    echo "Install dir NIXLPER_INSTALL_DIR is ${NIXLPER_INSTALL_DIR}"
-}
-# >Useful to test new feature before implementing it
-function _debug_open_executable() {
-  vim "${NIXLPER_INSTALL_DIR}"/nixlper.sh
-}
+#***********************************************************************************************************************
+
+#***********************************************************************************************************************
+# DEV UTILITIES: useful for nixlper development
+#***********************************************************************************************************************
+# Display a "to do" task with return code 1 (fail fast)
 function TODO() {
   echo "TODO: $*"
+  return 1
 }
-# >Logging
-function _log() {
+#-----------------------------------------------------------------------------------------------------------------------
+# Logging
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_log() {
   local -r category=$1
   local message=${@:2}
   local -r date=$(date '+%Y-%m-%d %H:%M:%S')
   echo "${date} ${category} ${message}"
 }
-function _log_as_error() {
-  _log "ERROR" $@
+function _i_log_as_error() {
+  _i_log "ERROR" $@
 }
-function _log_as_info() {
-  _log "INFO" $@
+function _i_log_as_info() {
+  _i_log "INFO" $@
 }
-function _log_action_cancelled() {
-  _log_as_info "Action is cancelled"
+function _i_log_action_cancelled() {
+  _i_log_as_info "Action is cancelled"
 }
-# ----------------------------------------------------------------------------------------------------------------------
-# Bookmarks
-# ----------------------------------------------------------------------------------------------------------------------
-# >Initializing bookmarks
-function _create_bookmarks_file_if_not_existing() {
-  if [[ ! -f $NIXLPER_BOOKMARKS_FILE ]]; then
-    echo "Bookmarks file does not exist, create ${NIXLPER_BOOKMARKS_FILE}"
-    touch "${NIXLPER_BOOKMARKS_FILE}"
-    chmod 777 "${NIXLPER_BOOKMARKS_FILE}"
+#***********************************************************************************************************************
+
+#***********************************************************************************************************************
+# Initialisation
+#***********************************************************************************************************************
+function _i_test_prerequisites() {
+  if ! grep "export NIXLPER_INSTALL_DIR" ~/.bashrc > /dev/null 2>&1 ; then
+    _i_log_as_error "NIXLPER_INSTALL_DIR is not defined, please run \"install\" command"
+    return 1
+  fi
+  if ! grep "export NIXLPER_BOOKMARKS_FILE" ~/.bashrc > /dev/null 2>&1 ; then
+    _i_log_as_error "NIXLPER_BOOKMARKS_FILE is not defined, please run \"install\" command"
+    return 1
   fi
 }
-function _load_bookmarks() {
-  source "${NIXLPER_BOOKMARKS_FILE}"
+
+function _i_init() {
+  _i_create_bookmarks_file_if_not_existing
+  _i_load_bookmarks
+  _i_load_bindings
 }
+#***********************************************************************************************************************
 
-# >Bookmark atomic actions
-function _bookmark_directory() {
-  [[ "$1" == "--help" ]] && echo "$FUNCNAME bookmark a specific directory storing its path into a file with a specific alias.
-    Thus it is possible to reach this folder using an alias.
-
-    Usage: $0 SHORTCUT_NAME DIR_TO_BOOKMARK
-
-    SHORTCUT_NAME: the name or the alias.
-    DIR_TO_BOOKMARK: the directory to bookmark" && return 0
-
-  local -r shortcut_name=$1
-  local -r bookmarked_dir=$2
-
-  [[ $# -ne 2 ]] && _log_as_error "Please specify the shortcut name and the bookmarked dir." && return 1
-
-  # Only bookmark if not existing.
-  [[ $(grep "alias ${shortcut_name}=" ${NIXLPER_BOOKMARKS_FILE}) ]] || echo "alias $shortcut_name='cd $bookmarked_dir && echo \"INFO: Jump into folder $(pwd)\"'" >> "${NIXLPER_BOOKMARKS_FILE}"
-}
-
-function _delete_bookmark() {
-  [[ "$1" == "--help" ]] && echo "$FUNCNAME delete a bookmark.
-
-      Usage: $0 SHORTCUT_NAME
-
-      SHORTCUT_NAME: the name or the alias." && return 0
-  [[ $# -ne 1 ]] && _log_as_error "Please specify the bookmark to delete" && return 1
-  sed -i "/alias ${1}=/d" "$NIXLPER_BOOKMARKS_FILE"
-}
-
-# >Key bookmarks action
-
+#***********************************************************************************************************************
+# Bookmarks
+#***********************************************************************************************************************
+#-----------------------------------------------------------------------------------------------------------------------
+# Bookmarks mains actions
+#-----------------------------------------------------------------------------------------------------------------------
 function _display_existing_bookmarks() {
-  _log_as_info "Current bookmarks are: "
+  _i_log_as_info "Current bookmarks are: "
   sed -E "${SED_PATTERN_EXTRACT_ALIAS}" "${NIXLPER_BOOKMARKS_FILE}"
   echo ""
-  local -r matching_bookmark=$(_get_matching_bookmark_for_current_folder)
+  local -r matching_bookmark=$(_i_get_matching_bookmark_for_current_folder)
   if [[ -z "${matching_bookmark}"  ]]; then
     echo "-> $(pwd) (not bookmarked)"
     echo "HINT: use \"CTRL + X, B\" to bookmark it)"
@@ -98,7 +93,11 @@ function _display_existing_bookmarks() {
   fi
 }
 
-# Similarly to Total commander, is the main function to bookmark current folder if not done, or to remove current folder from bookmarks
+# Similarly to Total commander (https://www.ghisler.com/accueil.htm) this function behaves like:
+# - Display existing bookmarks
+# - Test if current folder is in the bookmarks
+#   - if so, propose to add it to the bookmarks
+#   - if no, propose to remove it from bookmarks
 function _add_or_remove_bookmark() {
   _display_existing_bookmarks
 
@@ -115,15 +114,15 @@ function _add_or_remove_bookmark() {
       read -rp "Enter bookmark name: " answer_bookmark_name
       while [[ -z ${answer_bookmark_name} ]]; do
           if [[ -z ${answer_bookmark_name} ]]; then
-            _log_as_error "Bookmark cannot be empty, please enter a value"
+            _i_log_as_error "Bookmark cannot be empty, please enter a value"
             read -rp "Enter bookmark name: " answer_bookmark_name
           fi
       done
-      _bookmark_directory "${answer_bookmark_name}" "$(pwd)"
-      _log_as_info "Bookmark saved"
-      _load_bookmarks
+      _i_bookmark_directory "${answer_bookmark_name}" "$(pwd)"
+      _i_log_as_info "Bookmark saved"
+      _i_load_bookmarks
     else
-      _log_as_info "Action is cancelled"
+      _i_log_as_info "Action is cancelled"
     fi
   else
     echo "-------------------------------------------------------------------------------------------------------------"
@@ -137,56 +136,105 @@ function _add_or_remove_bookmark() {
       local -r bookmark_name=$(echo "${current_location}" | sed  's/.*(\(.*\))/\1/g') # Alias is between "(" and ")" chars.
       _delete_bookmark "${bookmark_name}"
       unalias "${bookmark_name}"
-      _log_as_info "Bookmark ${bookmark_name} is deleted"
+      _i_log_as_info "Bookmark ${bookmark_name} is deleted"
     else
-      _log_as_info "Action is cancelled"
+      _i_log_as_info "Action is cancelled"
     fi
   fi
 }
 
+#-----------------------------------------------------------------------------------------------------------------------
+# Init bookmarks feature: create all needed items to use bookmark features
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_create_bookmarks_file_if_not_existing() {
+  if [[ ! -f $NIXLPER_BOOKMARKS_FILE ]]; then
+    echo "Bookmarks file does not exist, create ${NIXLPER_BOOKMARKS_FILE}"
+    touch "${NIXLPER_BOOKMARKS_FILE}"
+    chmod 777 "${NIXLPER_BOOKMARKS_FILE}"
+  fi
+}
+function _i_load_bookmarks() {
+  # shellcheck disable=SC1090
+  source "${NIXLPER_BOOKMARKS_FILE}"
+}
+
+function _i_bookmark_directory() {
+  [[ "$1" == "--help" ]] && echo "$FUNCNAME bookmark a specific directory storing its path into a file with a specific alias.
+    Thus it is possible to reach this folder using an alias.
+
+    Usage: $0 SHORTCUT_NAME DIR_TO_BOOKMARK
+
+    SHORTCUT_NAME: the name or the alias.
+    DIR_TO_BOOKMARK: the directory to bookmark" && return 0
+
+  local -r shortcut_name=$1
+  local -r bookmarked_dir=$2
+
+  [[ $# -ne 2 ]] && _i_log_as_error "Please specify the shortcut name and the bookmarked dir." && return 1
+
+  # Only bookmark if not existing.
+  [[ $(grep "alias ${shortcut_name}=" ${NIXLPER_BOOKMARKS_FILE}) ]] \
+  || echo "alias $shortcut_name='cd $bookmarked_dir && echo \"INFO: Jump into folder $(pwd)\"'" >> "${NIXLPER_BOOKMARKS_FILE}"
+}
+#-----------------------------------------------------------------------------------------------------------------------
+# Bookmarks atomic actions
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_delete_bookmark() {
+  [[ "$1" == "--help" ]] && echo "$FUNCNAME delete a bookmark.
+
+      Usage: $0 SHORTCUT_NAME
+
+      SHORTCUT_NAME: the name or the alias." && return 0
+  [[ $# -ne 1 ]] && _i_log_as_error "Please specify the bookmark to delete" && return 1
+  sed -i "/alias ${1}=/d" "$NIXLPER_BOOKMARKS_FILE"
+}
+
 # Test if current folder is in your bookmarks
-function _get_matching_bookmark_for_current_folder() {
+function _i_get_matching_bookmark_for_current_folder() {
   local -r matching_bookmark=$(grep "$(pwd) &&" "$NIXLPER_BOOKMARKS_FILE")
   echo "${matching_bookmark}"
 }
-# ----------------------------------------------------------------------------------------------------------------------
-# Folders
-# ----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
+
+#***********************************************************************************************************************
+# Files and folders
+#***********************************************************************************************************************
 function _mark_folder_as_current() {
     local -r current_folder=$(pwd)
-    _log_as_info "Mark ${current_folder} as current (use \"gc\")"
+    _i_log_as_info "Mark ${current_folder} as current (use \"gc\")"
     # shellcheck disable=SC2139
     alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
 }
-# ----------------------------------------------------------------------------------------------------------------------
-# Files
-# ----------------------------------------------------------------------------------------------------------------------
+
 function _mark_file_as_current() {
   if [[ $# -eq 0 ]]; then
     echo "ERROR: missing filename"
     return 1
   else
     local -r filepath=$1
-    if [[ ${file_path} == /* ]];then
+    if [[ ${filepath} == /* ]];then
       alias gcf="vim ${filepath}"
     else
       alias gcf="vim $(pwd)/${filepath}"
     fi
-    _log_as_info "Mark ${filepath} as current. Use \"gcf\" to open file"
+    _i_log_as_info "Mark ${filepath} as current. Use \"gcf\" to open file"
   fi
 }
-# ----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
+
+#***********************************************************************************************************************
 # Users
-# ----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
 function _su_to_current_directory() {
   local -r su_user=$1
   su -l -s /bin/bash -c "cd $PWD; script -q /dev/null" ${su_user}
 }
+#***********************************************************************************************************************
 
-# ----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
 # Help
-# ----------------------------------------------------------------------------------------------------------------------
-function nixlper_help() {
+#***********************************************************************************************************************
+function _help() {
   read -rp "Nixlper help, please hit a topic (can be a pattern, for example \"bookma\": " topic_input
   topic_input=${topic_input:-""}
 
@@ -202,10 +250,12 @@ function nixlper_help() {
     fi
   fi
 }
-# ----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
+
+#***********************************************************************************************************************
 # Bindings
-# ----------------------------------------------------------------------------------------------------------------------
-function _load_bindings() {
+#***********************************************************************************************************************
+function _i_load_bindings() {
   # bookmarks
   bind -x '"\C-x\C-d": _display_existing_bookmarks'
   bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
@@ -218,82 +268,73 @@ function _load_bindings() {
   # instant access to this file
   bind -x '"\C-x\C-o": vim ${NIXLPER_INSTALL_DIR}/nixlper.sh'
 }
-# ----------------------------------------------------------------------------------------------------------------------
-# Init
-# ----------------------------------------------------------------------------------------------------------------------
-function _test_prerequisites() {
-  if [[ -z ${NIXLPER_INSTALL_DIR} ]]; then
-    _log_as_error "NIXLPER_INSTALL_DIR is not defined, please run \"install\" command"
-    return 1
-  fi
-  if [[ -z ${NIXLPER_INSTALL_DIR} ]]; then
-    _log_as_error "NIXLPER_BOOKMARKS_FILE is not defined, please run \"install\" command"
-    return 1
-  fi
-}
+#***********************************************************************************************************************
 
-function _init() {
-  _create_bookmarks_file_if_not_existing
-  _load_bookmarks
-  _load_bindings
-}
-# ----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
 # Install nixlper
-# ----------------------------------------------------------------------------------------------------------------------
-function _install() {
+#***********************************************************************************************************************
+function _i_install() {
   touch ~/.bashrc
   if grep "nixlper.sh" ~/.bashrc; then
-    _log_as_info ".bashrc has already a reference nixlper, action is skipped"
+    _i_log_as_info ".bashrc has already a reference nixlper, action is skipped"
   else
-    _log_as_info "Backup existing .bashrc"
+    _i_log_as_info "Backup existing .bashrc"
     cp ~/.bashrc ~/.bashrc.ori
-    _log_as_info "Update .bashrc with nixlper"
+    _i_log_as_info "Update .bashrc with nixlper"
     echo "" >> ~/.bashrc
-    echo "################################################################################################" >> ~/.bashrc
-    echo "# nilxper installation" >> ~/.bashrc
+    echo "################################ nixlper start #################################################" >> ~/.bashrc
+    echo "# nixlper installation" >> ~/.bashrc
     echo "################################################################################################" >> ~/.bashrc
     echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
     echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
     echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
-    echo "################################################################################################" >> ~/.bashrc
+    echo "################################ nixlper stop ##################################################" >> ~/.bashrc
     source ~/.bashrc
   fi
 }
+#***********************************************************************************************************************
+########################################################################################################################
 
-# **********************************************************************************************************************
-# Commands exposed to user
-# **********************************************************************************************************************
-# ----------------------------------------------------------------------------------------------------------------------
+########################################################################################################################
+# EXPOSED PART (exposed to end users)                                                                                  #
+########################################################################################################################
+#***********************************************************************************************************************
 # Folders
-# ----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
 # Go to folder from a filepath
 function cdf() {
     [[ "$1" == "--help" ]] && echo "$FUNCNAME go to the folder containing the provided path
 
     Usage; $0 PATH" && return 0
 
-    [[ $# -lt 1 ]] && _log_as_error "Please specify a filepath." && return 1
+    [[ $# -lt 1 ]] && _i_log_as_error "Please specify a filepath." && return 1
     local -r folderpath=$(dirname "$1")
     cd "${folderpath}" || return 1
-    _log_as_info "Now in ${folderpath}"
+    _i_log_as_info "Now in ${folderpath}"
 }
-# Set current items
+#***********************************************************************************************************************
+
+#***********************************************************************************************************************
+# Aliases
+#***********************************************************************************************************************
 alias c=_mark_folder_as_current
 alias cf=_mark_file_as_current
 alias sucd=_su_to_current_directory
+#***********************************************************************************************************************
+########################################################################################################################
 
-# **********************************************************************************************************************
-# Main part
-# **********************************************************************************************************************
+########################################################################################################################
+# ENTRY POINT                                                                                                          #
+########################################################################################################################
 function main() {
   if [[ $# -eq 0 ]]; then
-    if _test_prerequisites; then
-      _init
+    if _i_test_prerequisites; then
+      _i_init
     fi
   else
     local -r command=$1
     if [[ "${command}" == "install" ]]; then
-      _install
+      _i_install
     else
       echo "command ${command} is unknown, use one the following ones:
       install: to install NIXLPER"
@@ -302,3 +343,4 @@ function main() {
 }
 
 main "$@"
+########################################################################################################################

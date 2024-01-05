@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.FixCrLfFilter
+
 plugins {
     id("distribution")
     id("com.gorylenko.gradle-git-properties") version "2.4.1"
@@ -22,18 +24,33 @@ tasks.distTar {
 
 fun AbstractArchiveTask.buildContent() {
     into("/") {
-        from("src/main/bash/nixlper.sh")
+        from("src/main/bash/nixlper.sh") {
+            setUnixMode()
+        }
         from("src/main/template/version.template") {
             filter { it.replace("\${project.name}", project.name) }
             filter { it.replace("\${project.version}", project.version.toString()) }
             filter { it.replace("\${VERSION_SHA}", gitId) }
             filter { it.replace("\${VERSION_TIME}", gitTime) }
-            // 4) Unix end of line, must be used when using replacement like above
-            filter(org.apache.tools.ant.filters.FixCrLfFilter::class, "eol" to org.apache.tools.ant.filters.FixCrLfFilter.CrLf.newInstance("unix"))
+            setUnixMode()
             rename { _ -> "version" }
         }
     }
     into("/help") {
+        setUnixMode()
         from("src/main/help")
     }
+}
+
+fun CopySpec.setUnixMode() {
+    dos2Unix()
+    set755Mode()
+}
+
+fun CopySpec.dos2Unix() {
+    filter(FixCrLfFilter::class, "eol" to FixCrLfFilter.CrLf.newInstance("unix"))
+}
+
+fun CopySpec.set755Mode() {
+    fileMode = 493 // 755 in octal
 }
