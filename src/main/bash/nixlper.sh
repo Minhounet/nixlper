@@ -102,7 +102,7 @@ function _add_or_remove_bookmark() {
   _display_existing_bookmarks
 
   # test existence using path with " &&" for ending part
-  local -r matching_bookmark=$(_get_matching_bookmark_for_current_folder)
+  local -r matching_bookmark=$(_i_get_matching_bookmark_for_current_folder)
 
   if [[ -z "${matching_bookmark}" ]]; then
     echo "-------------------------------------------------------------------------------------------------------------"
