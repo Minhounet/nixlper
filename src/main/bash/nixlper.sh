@@ -134,7 +134,7 @@ function _add_or_remove_bookmark() {
     if [[ ${answer_delete_bookmark} == "y" ]]; then
       # shellcheck disable=SC2001
       local -r bookmark_name=$(echo "${current_location}" | sed  's/.*(\(.*\))/\1/g') # Alias is between "(" and ")" chars.
-      _delete_bookmark "${bookmark_name}"
+      _i_delete_bookmark "${bookmark_name}"
       unalias "${bookmark_name}"
       _i_log_as_info "Bookmark ${bookmark_name} is deleted"
     else
