@@ -86,7 +86,7 @@ function _display_existing_bookmarks() {
   local -r matching_bookmark=$(_i_get_matching_bookmark_for_current_folder)
   if [[ -z "${matching_bookmark}"  ]]; then
     echo "-> $(pwd) (not bookmarked)"
-    echo "HINT: use \"CTRL + X, B\" to bookmark it)"
+    echo "HINT: use \"CTRL + X THEN B\" to bookmark it)"
   else
     local -r current_location=$(echo "${matching_bookmark}" | sed -E "${SED_PATTERN_EXTRACT_ALIAS}")
     echo "-> ${current_location}"
