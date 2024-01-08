@@ -80,19 +80,26 @@ function _i_init() {
 # Bookmarks mains actions
 #-----------------------------------------------------------------------------------------------------------------------
 function _display_existing_bookmarks() {
+  additional_option=""
+  if [[ $# -eq 1 ]]; then
+    additional_option=$1
+  fi
   _i_log_as_info "Current bookmarks are: "
   sed -E "${SED_PATTERN_EXTRACT_ALIAS}" "${NIXLPER_BOOKMARKS_FILE}"
   echo ""
-  local -r matching_bookmark=$(_i_get_matching_bookmark_for_current_folder)
-  if [[ -z "${matching_bookmark}"  ]]; then
-    echo "-> $(pwd) (not bookmarked)"
-    echo "HINT: use \"CTRL + X THEN B\" to bookmark it)"
-  else
-    local -r current_location=$(echo "${matching_bookmark}" | sed -E "${SED_PATTERN_EXTRACT_ALIAS}")
-    echo "-------------------------------------------------------------------------------------------------------------"
-    echo "currently in ${current_location}"
-    echo "-------------------------------------------------------------------------------------------------------------"
-    echo ""
+   # _display_existing_bookmarks is called in _add_or_remove_bookmark and we don't want to display message below
+  if [[ "${additional_option}" != "HIDE" ]]; then
+    local -r matching_bookmark=$(_i_get_matching_bookmark_for_current_folder)
+    if [[ -z "${matching_bookmark}"  ]]; then
+      echo "-> $(pwd) (not bookmarked)"
+      echo "HINT: use \"CTRL + X THEN B\" to bookmark it)"
+    else
+      local -r current_location=$(echo "${matching_bookmark}" | sed -E "${SED_PATTERN_EXTRACT_ALIAS}")
+      echo "-------------------------------------------------------------------------------------------------------------"
+      echo "currently in ${current_location}"
+      echo "-------------------------------------------------------------------------------------------------------------"
+      echo ""
+    fi
   fi
 }
 
@@ -102,7 +109,7 @@ function _display_existing_bookmarks() {
 #   - if so, propose to add it to the bookmarks
 #   - if no, propose to remove it from bookmarks
 function _add_or_remove_bookmark() {
-  _display_existing_bookmarks
+  _display_existing_bookmarks "HIDE"
 
   # test existence using path with " &&" for ending part
   local -r matching_bookmark=$(_i_get_matching_bookmark_for_current_folder)
