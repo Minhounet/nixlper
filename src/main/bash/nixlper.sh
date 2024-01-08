@@ -89,7 +89,10 @@ function _display_existing_bookmarks() {
     echo "HINT: use \"CTRL + X THEN B\" to bookmark it)"
   else
     local -r current_location=$(echo "${matching_bookmark}" | sed -E "${SED_PATTERN_EXTRACT_ALIAS}")
-    echo "-> ${current_location}"
+    echo "-------------------------------------------------------------------------------------------------------------"
+    echo "currently in ${current_location}"
+    echo "-------------------------------------------------------------------------------------------------------------"
+    echo ""
   fi
 }
 
