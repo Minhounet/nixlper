@@ -271,7 +271,7 @@ function _i_load_bindings() {
     bind -x '"\C-x\C-d": _display_existing_bookmarks'
     bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
     # help
-    bind '"\C-x\C-h": "nixlper_help\15"'
+    bind '"\C-x\C-h": "_help\15"'
 
     # files
     bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
