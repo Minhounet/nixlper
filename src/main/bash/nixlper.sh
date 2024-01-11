@@ -245,7 +245,9 @@ function _su_to_current_directory() {
 # Help
 #***********************************************************************************************************************
 function _help() {
-  read -rp "Nixlper help, please hit a topic (can be a pattern, for example \"bookma\": " topic_input
+  echo "Nixlper Help: existing topics are:"
+  ls "${NIXLPER_INSTALL_DIR}"/help | sed 's/help_/- /g' | sed 's/_/ /g'
+  read -rp "Please enter a value (can be a pattern, for example \"bookm\": " topic_input
   topic_input=${topic_input:-""}
 
   if [[ -z ${topic_input} ]]; then
