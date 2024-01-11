@@ -112,8 +112,10 @@ cd /opt/nixlper
 
 - `cdf FILEPATH`: Go the folder of the file
 
+
 - `c`: mark current folder, use `gc` to go this folder from any place
-`cf FILEPATH` : mark file as current, use `gcf` to open it in vim from any place.
+- `cf FILEPATH` : mark file as current, use `gcf` to open it in vim from any place.
+
 
 - `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history.
 
