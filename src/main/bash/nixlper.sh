@@ -266,7 +266,7 @@ function _help() {
 # Bindings
 #***********************************************************************************************************************
 function _i_load_bindings() {
-  if [ -n "$PS1" ]; then
+  if [[ $- == *i* ]]; then
     # bookmarks
     bind -x '"\C-x\C-d": _display_existing_bookmarks'
     bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
