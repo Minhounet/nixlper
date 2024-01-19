@@ -5,10 +5,12 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 ## Table of Contents
 
 - [Description](#description)
-- [Prerequisites](#prerequisites)
+- [Prerequisites for sh build](#prerequisites-for-sh-build)
+- [Prerequisites when using Gradle build](#prerequisites-when-using-gradle-build)
   - [Java (mandatory)](#java-mandatory)
   - [Gradle (optional)](#gradle-optional)
 - [Build](#build)
+  - [Build with sh](#build-with-sh)
   - [Build with Gradle wrapper](#build-with-gradle-wrapper)
   - [Build with local Gradle installation](#build-with-local-gradle-installation)
 - [Installation](#installation)
@@ -24,7 +26,11 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 The goal of the bash project is to provide useful Unix commands for various purpose. It takes the philosophy from [Total commander](https://www.ghisler.com/accueil.htm) 
 and this is why it contains a lots of key shortcuts
 
-## Prerequisites
+## Prerequisites for sh build
+You need a bash command line, I personally use [Git bash](https://git-scm.com/downloads). 
+
+## Prerequisites when using Gradle build
+You may use Gradle if you don't have a bash command line for example, this may be a little overkill but it works :).
 
 ### Java (mandatory)
 
@@ -36,7 +42,18 @@ This project is built using [Gradle](https://gradle.org/releases/) 8.4, but you 
 installation you build the project using the [Gradle wrapper](#build-with-gradle-wrapper).
 
 ## Build
-You can either build with Gradle wrapper or with your local Gradle installation.
+You can use one of the build methods below:
+- sh build
+- Gradle build
+- Gradle wrapper build
+
+### Build with sh
+
+The sh command is simple and straightforward.
+```bash
+# Execute the command
+./build.sh
+```
 
 ### Build with Gradle wrapper
 Perform the following command in the project:
