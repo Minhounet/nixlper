@@ -277,6 +277,7 @@ function _i_load_bindings() {
 
     # files
     bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
+    bind '"\C-x\C-r":"rm -rf $(pwd)/\33\5*"' #\33\5 is ESC then CTRL+E
 
     # navigation
     bind '"\C-x\C-u": "cd ..\15"'
