@@ -278,6 +278,9 @@ function _i_load_bindings() {
     # files
     bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
 
+    # navigation
+    bind '"\C-x\C-u": "cd ..\15"'
+
     # instant access to this file
     bind -x '"\C-x\C-o": vim ${NIXLPER_INSTALL_DIR}/nixlper.sh'
   fi
