@@ -19,6 +19,7 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 - [Features](#features)
   - [Bookmarks](#bookmarks)
   - [Files and folders](#files-and-folders)
+  - [Users](#users)
 - [License](#license)
 
 ## Description
@@ -135,6 +136,11 @@ cd /opt/nixlper
 
 
 - `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history.
+- `CTRL + X then R`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete current folder contents and to avoid `rm -rf *` in your bash history.
+
+### Users
+
+- `sucd USER`: perform a su - USER and stay in current folder
 
 ### Display help
 
