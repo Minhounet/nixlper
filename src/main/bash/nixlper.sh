@@ -361,40 +361,70 @@ function _i_load_bindings() {
 # Install/Uninstall nixlper
 #***********************************************************************************************************************
 function _i_install() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Install Nixlper"
   touch ~/.bashrc
   if grep "nixlper.sh" ~/.bashrc; then
-    _i_log_as_info ".bashrc has already a reference nixlper, action is skipped"
+    echo ".bashrc has already a reference nixlper, action is skipped"
+    echo "-> SKIPPED (Install Nixlper)"
   else
-    _i_log_as_info "Backup existing .bashrc"
+    echo "Backup existing .bashrc"
     cp ~/.bashrc ~/.bashrc.ori
-    _i_log_as_info "Update .bashrc with nixlper"
+    _i_set_bashrc_config
+    echo "Please execute one the following commands to finalize the installation:
+    - source ~/.bashrc
+    - logout then login again"
+    echo "-> DONE (Install Nixlper)"
+  fi
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
+function _i_update() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Update Nixlper configuration"
+  _i_delete_bashrc_config
+  _i_set_bashrc_config
+  echo "-> DONE (Update Nixlper configuration)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
+function _i_uninstall() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Uninstall Nixlper"
+  local -r install_dir="${NIXLPER_INSTALL_DIR}"
+  echo "Delete ${NIXLPER_BOOKMARKS_FILE} file"
+  rm -rf "${NIXLPER_BOOKMARKS_FILE}"
+  _i_delete_bashrc_config
+  echo "Delete environment variables"
+  unset NIXLPER_INSTALL_DIR
+  unset NIXLPER_BOOKMARKS_FILE
+  echo "To permanently remove Nixlper, please remove all items from ${install_dir} with command below:
+  rm -rf ${install_dir}"
+  echo "-> DONE (Uninstall Nixlper)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
+function _i_set_bashrc_config() {
+    echo "  Update .bashrc with nixlper"
     echo "" >> ~/.bashrc
     echo "################################ nixlper start #################################################" >> ~/.bashrc
     echo "# nixlper installation" >> ~/.bashrc
+    sed 's/^/# /g' "${NIXLPER_INSTALL_DIR}"/version | grep -v PROJECT >> ~/.bashrc
     echo "################################################################################################" >> ~/.bashrc
     echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
     echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
     echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
     echo "################################ nixlper stop ##################################################" >> ~/.bashrc
     source ~/.bashrc
-    echo "Please execute one the following commands to finalize the installation:
-    - source ~/.bashrc
-    - logout then login again"
-  fi
+    echo "  -> DONE (Update .bashrc with nixlper)"
 }
 
-function _i_uninstall() {
-  local -r install_dir="${NIXLPER_INSTALL_DIR}"
-  echo "Delete ${NIXLPER_BOOKMARKS_FILE} file"
-  rm -rf "${NIXLPER_BOOKMARKS_FILE}"
-  echo "Remove installation from .bashrc file"
+function _i_delete_bashrc_config() {
+  echo "  Remove installation from .bashrc file"
   sed -i  '/nixlper start/,/nixlper stop/d' ~/.bashrc
-  echo "Delete environment variables"
-  unset NIXLPER_INSTALL_DIR
-  unset NIXLPER_BOOKMARKS_FILE
-  echo "To permanently remove Nixlper, please remove all items from ${install_dir} with command below:
-  rm -rf ${install_dir}"
+  echo "  -> DONE (Remove installation from .bashrc file)"
 }
+
 #***********************************************************************************************************************
 ########################################################################################################################
 
@@ -440,12 +470,16 @@ function main() {
     install)
       _i_install
       ;;
+    update)
+      _i_update
+      ;;
     uninstall)
       _i_uninstall
       ;;
     *)
       echo "command ${command} is unknown, use one the following ones:
             install: to install NIXLPER
+            update: to update NIXLPER with higher version
             uninstall: to uninstall NIXLPER, installation will be removed"
     esac
   fi
