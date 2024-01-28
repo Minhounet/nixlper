@@ -20,6 +20,7 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
   - [Bookmarks](#bookmarks)
   - [Files and folders](#files-and-folders)
   - [Users](#users)
+  - [Navigation](#navigation)
 - [License](#license)
 
 ## Description
@@ -141,6 +142,10 @@ cd /opt/nixlper
 ### Users
 
 - `sucd USER`: perform a su - USER and stay in current folder
+
+### Navigation
+
+- `CTRL + X THEN U`: perform a "cd .."
 
 ### Display help
 
