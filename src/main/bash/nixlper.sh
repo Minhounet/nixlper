@@ -304,7 +304,12 @@ function navigate() {
   for i in ${folders_output}; do
     # shellcheck disable=SC2139
     alias n${increment}="navigate $i"
-    echo "navigate $(pwd)/${i:2} # (n${increment})"
+    if [[ ${increment} -lt 10 ]]; then
+      bind -x '"\C-x'${increment}'": navigate '${i}''
+      echo "navigate $(pwd)/${i:2} # (n${increment} / CTRL + X, ${increment})"
+    else
+      echo "navigate $(pwd)/${i:2} # (n${increment})"
+    fi
     ((increment++))
   done
 
@@ -314,8 +319,9 @@ function navigate() {
   echo "cd $(dirname $(pwd)) # CTRL + X THEN U"
 
   echo "---------------------------------------------------------------------------------------------------------------"
-  echo "HINT: double click then right click for copy/paste"
-  echo "HINT: use alias nNUMBER to navigate, alias vNUMBER to open a file"
+  echo "HINT 1: double click then right click for copy/paste (FILES AND FOLDERS/MOUSE MODE)"
+  echo "HINT 2: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)"
+  echo "HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
   echo "-> Currently in $(pwd)"
   echo "---------------------------------------------------------------------------------------------------------------"
   echo ""
