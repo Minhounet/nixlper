@@ -70,7 +70,28 @@ function _i_init() {
   _i_create_bookmarks_file_if_not_existing
   _i_load_bookmarks
   _i_load_bindings
+  _i_load_custom_libraries
 }
+
+# Custom scripts can be put in custom folder if specific things are needed
+function _i_load_custom_libraries() {
+  local -r custom_dir=${NIXLPER_INSTALL_DIR}/custom
+  if [[ -d "${custom_dir}" ]]; then
+    TODO "Source custom files"
+    for i in "${custom_dir}"/* ; do
+      echo "Load $i"
+      # shellcheck source=/dev/null
+      # shellcheck disable=SC2086
+      # (putting " " does not expand correctly for my purpose)
+      source $i
+    done
+  else
+    echo "custom directory does not exist, create it. All scripts put in this folder will be sourced during next login"
+    mkdir -p "${custom_dir}"
+    touch "${custom_dir}/script_template.sh"
+  fi
+}
+
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
