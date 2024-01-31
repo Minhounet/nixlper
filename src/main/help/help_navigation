@@ -13,17 +13,17 @@
     vim fileN # (vN)
     ----
     Go to subfolder
-    navigate absolute_path_1 # (n1)
-    navigate absolute_path_2 # (n2)
+    navigate absolute_path_1 # (n1 / CTRL + X, 1)
+    navigate absolute_path_2 # (n2 / CTRL + X, 2)
     ..
-    navigate absolute_path_n # (nN)
+    navigate absolute_path_n # (nN / CTRL + X, N)
     ----
     Go to parent folder..
     cd parent_folder # CTRL + X THEN U
     ------------------------------------------------------------------------------------------------------------------------
-    HINT: double click then right click for copy/paste"
-    HINT: use alias nNUMBER to navigate, alias vNUMBER to open a file"
+    HINT 1: double click then right click for copy/paste (FILES AND FOLDERS/MOUSE MODE)
+    HINT 2: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)
+    HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
     -> Currently in current_folder"
     ------------------------------------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------
