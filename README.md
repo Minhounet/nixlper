@@ -146,8 +146,10 @@ cd /opt/nixlper
 ### Navigation
 
 - `CTRL + X THEN U`: perform a "cd .."
-- `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste
+- `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste. Navigation
+can use tree or flat mode. "tree" is the default value.
 
+See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
 
 ### Display help
 
