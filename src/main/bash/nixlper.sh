@@ -390,7 +390,18 @@ function _mark_file_as_current() {
 #***********************************************************************************************************************
 # Make the navigation easier, calling this function display the following output depending on the display mode
 #
-# Tree mode (TODO)
+# Tree mode
+# ---------------------------------------------------------------------------------------------------------------
+# ..  ↑ CTRL + X THEN U
+# ├── first item (→ or ↓) SHORTCUT_COMMAND
+# ├── ..
+# ├── item N (→ or ↓) SHORTCUT_COMMAND
+# ├── ..
+# └── last item (→ or ↓) SHORTCUT_COMMAND
+# HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)
+# HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
+# -> Currently in /appli/install
+#---------------------------------------------------------------------------------------------------------------
 #
 # Flat mode
 # ---------------------------------------------------------------------------------------------------------------
@@ -415,58 +426,100 @@ function _mark_file_as_current() {
 # ---------------------------------------------------------------------------------------------------------------
 function navigate() {
   if [[ "${NIXLPER_NAVIGATE_MODE}" == "tree" ]]; then
-    TODO "display navigate with tree"
+    _i_navigate_tree "$@"
   else
     _i_navigate_flat "$@"
   fi
 }
 
-function _i_navigate_flat() {
-    if [[ $# -ne 0 ]]; then
-      cd "$1" || return 1
-    fi
-
-    local -r files_output=$(find . -mindepth 1 -maxdepth 1 -type f)
-    local -r folders_output=$(find . -mindepth 1 -maxdepth 1 -type d)
-
-    echo ""
-    echo "---------------------------------------------------------------------------------------------------------------"
-    echo "Open.."
-    local increment=1
-    for i in ${files_output}; do
+function _i_navigate_tree() {
+  if [[ $# -ne 0 ]]; then
+    cd "$1" || return 1
+  fi
+  echo ""
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "..  ↑ CTRL + X THEN U"
+  local -r colored_tree_output=$(tree -L 1 -C | tail -n +2 | head -n -2)
+  IFS=$'\n'
+  local folder_increment=1
+  local file_increment=1
+  local uncolored_line
+  local current_item
+  for i in ${colored_tree_output}; do
+    uncolored_line=$(echo $i | sed 's,\x1B\[[0-9;]*[a-zA-Z],,g')
+    current_item=$(echo "${uncolored_line}" | cut -d' ' -f2)
+    if [[ -f "${current_item}" ]]; then
       # shellcheck disable=SC2139
-      alias v${increment}="vim $i"
-      echo "vim ${i:2} # (v${increment})"
-      ((increment++))
-    done
-
-    echo "----"
-    echo "Go to subfolder.."
-    increment=1
-    for i in ${folders_output}; do
+      alias v${file_increment}="vim $current_item"
+      echo "$i → v${file_increment}"
+      ((file_increment++))
+    elif [[ -d "${current_item}" ]]; then
       # shellcheck disable=SC2139
-      alias n${increment}="navigate $i"
+      alias n${folder_increment}="navigate $current_item"
       if [[ ${increment} -lt 10 ]]; then
-        bind -x '"\C-x'${increment}'": navigate '${i}''
-        echo "navigate $(pwd)/${i:2} # (n${increment} / CTRL + X, ${increment})"
+        bind -x '"\C-x'${folder_increment}'": navigate '${current_item}''
+        echo "$i ↓ n${folder_increment}/CTRL + X, ${folder_increment}"
       else
-        echo "navigate $(pwd)/${i:2} # (n${increment})"
+        echo "$i ↓ n${folder_increment}"
       fi
-      ((increment++))
-    done
+      ((folder_increment++))
+    else
+      echo "$i"
+    fi
+  done
+  echo "HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)"
+  echo "HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
+  echo "-> Currently in $(pwd)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo ""
+}
 
-    echo "----"
-    echo "Go to parent folder.."
-    # shellcheck disable=SC2046
-    echo "cd $(dirname $(pwd)) # CTRL + X THEN U"
+function _i_navigate_flat() {
+  if [[ $# -ne 0 ]]; then
+    cd "$1" || return 1
+  fi
 
-    echo "---------------------------------------------------------------------------------------------------------------"
-    echo "HINT 1: double click then right click for copy/paste (FILES AND FOLDERS/MOUSE MODE)"
-    echo "HINT 2: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)"
-    echo "HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
-    echo "-> Currently in $(pwd)"
-    echo "---------------------------------------------------------------------------------------------------------------"
-    echo ""
+  local -r files_output=$(find . -mindepth 1 -maxdepth 1 -type f)
+  local -r folders_output=$(find . -mindepth 1 -maxdepth 1 -type d)
+
+  echo ""
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Open.."
+  local increment=1
+  for i in ${files_output}; do
+    # shellcheck disable=SC2139
+    alias v${increment}="vim $i"
+    echo "vim ${i:2} # (v${increment})"
+    ((increment++))
+  done
+
+  echo "----"
+  echo "Go to subfolder.."
+  increment=1
+  for i in ${folders_output}; do
+    # shellcheck disable=SC2139
+    alias n${increment}="navigate $i"
+    if [[ ${increment} -lt 10 ]]; then
+      bind -x '"\C-x'${increment}'": navigate '${i}''
+      echo "navigate $(pwd)/${i:2} # (n${increment} / CTRL + X, ${increment})"
+    else
+      echo "navigate $(pwd)/${i:2} # (n${increment})"
+    fi
+    ((increment++))
+  done
+
+  echo "----"
+  echo "Go to parent folder.."
+  # shellcheck disable=SC2046
+  echo "cd $(dirname $(pwd)) # CTRL + X THEN U"
+
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "HINT 1: double click then right click for copy/paste (FILES AND FOLDERS/MOUSE MODE)"
+  echo "HINT 2: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)"
+  echo "HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
+  echo "-> Currently in $(pwd)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo ""
 }
 
 #***********************************************************************************************************************
