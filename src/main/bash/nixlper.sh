@@ -192,6 +192,7 @@ function _i_set_bashrc_config() {
     echo "################################################################################################" >> ~/.bashrc
     echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
     echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
+    echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
     echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
     echo "################################ nixlper stop ##################################################" >> ~/.bashrc
     source ~/.bashrc
@@ -387,8 +388,22 @@ function _mark_file_as_current() {
 #***********************************************************************************************************************
 # NAVIGATION
 #***********************************************************************************************************************
-# Make the navigation easier, calling this function display the following output
+# Make the navigation easier, calling this function display the following output depending on the display mode
 #
+# Tree mode
+# ---------------------------------------------------------------------------------------------------------------
+# ..  ↑ CTRL + X THEN U
+# ├── first item (→ or ↓) SHORTCUT_COMMAND
+# ├── ..
+# ├── item N (→ or ↓) SHORTCUT_COMMAND
+# ├── ..
+# └── last item (→ or ↓) SHORTCUT_COMMAND
+# HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)
+# HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
+# -> Currently in /appli/install
+#---------------------------------------------------------------------------------------------------------------
+#
+# Flat mode
 # ---------------------------------------------------------------------------------------------------------------
 # Open..
 # vim file1 # (v1)
@@ -409,8 +424,57 @@ function _mark_file_as_current() {
 # HINT: use alias nNUMBER to navigate, alias vNUMBER to open a file"
 # -> Currently in current_folder"
 # ---------------------------------------------------------------------------------------------------------------
-#
 function navigate() {
+  if [[ "${NIXLPER_NAVIGATE_MODE}" == "tree" ]]; then
+    _i_navigate_tree "$@"
+  else
+    _i_navigate_flat "$@"
+  fi
+}
+
+function _i_navigate_tree() {
+  if [[ $# -ne 0 ]]; then
+    cd "$1" || return 1
+  fi
+  echo ""
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "..  ↑ CTRL + X THEN U"
+  local -r colored_tree_output=$(tree -L 1 -C | tail -n +2 | head -n -2)
+  IFS=$'\n'
+  local folder_increment=1
+  local file_increment=1
+  local uncolored_line
+  local current_item
+  for i in ${colored_tree_output}; do
+    uncolored_line=$(echo $i | sed 's,\x1B\[[0-9;]*[a-zA-Z],,g')
+    current_item=$(echo "${uncolored_line}" | cut -d' ' -f2)
+    if [[ -f "${current_item}" ]]; then
+      # shellcheck disable=SC2139
+      alias v${file_increment}="vim $current_item"
+      echo "$i → v${file_increment}"
+      ((file_increment++))
+    elif [[ -d "${current_item}" ]]; then
+      # shellcheck disable=SC2139
+      alias n${folder_increment}="navigate $current_item"
+      if [[ ${increment} -lt 10 ]]; then
+        bind -x '"\C-x'${folder_increment}'": navigate '${current_item}''
+        echo "$i ↓ n${folder_increment}/CTRL + X, ${folder_increment}"
+      else
+        echo "$i ↓ n${folder_increment}"
+      fi
+      ((folder_increment++))
+    else
+      echo "$i"
+    fi
+  done
+  echo "HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)"
+  echo "HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
+  echo "-> Currently in $(pwd)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo ""
+}
+
+function _i_navigate_flat() {
   if [[ $# -ne 0 ]]; then
     cd "$1" || return 1
   fi
@@ -457,6 +521,7 @@ function navigate() {
   echo "---------------------------------------------------------------------------------------------------------------"
   echo ""
 }
+
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
