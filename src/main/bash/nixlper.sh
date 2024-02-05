@@ -10,6 +10,46 @@
 # - _<FUNCTION_NAME>: these ones can be exposed using a binding or an alias but not supposed to be called directly
 # - _i_<FUNCTION_NAME>: for internal use only
 ########################################################################################################################
+# Table of contents
+########################################################################################################################
+# As there is only an unique file, the table of contents is here to help to find key methods (there will not be all
+# mentioned here)
+# .
+# ├─ DEVELOPMENT PART (not exposed to end users)
+# │   ├─ CONSTANTS
+# │   │   └─ Bookmarks constants
+# │   ├─ DEV UTILITIES: useful for nixlper development
+# │   │   ├─ "to do" function
+# │   │   └─ logging functions (error, info, "action cancelled")
+# │   ├─ INITIALIZATION
+# │   │   ├─ _i_init: init NIXLPER
+# │   │   ├─ _i_test_prerequisites: check at last if Nixlper is correctly installed
+# │   │   └─ _i_load_custom_libraries: handle custom scripts to be loaded
+# │   ├─ INSTALL/UPDATE/UNINSTALL: dedicated to Nixlper install/update/uninstall
+# │   ├─ BOOKMARKS
+# │   │   ├─ Bookmarks mains actions: display existing bookmarks, add/remove bookmark
+# │   │   │   ├─ _display_existing_bookmarks
+# │   │   │   └─ _add_or_remove_bookmark
+# │   │   ├─ Bookmarks initialization: create all needed items to use bookmark features
+# │   │   └─ Bookmarks atomic actions: all atomic actions to handle bookmarks
+# │   ├─ FILES AND FOLDERS
+# │   │   ├─ _mark_folder_as_current: for immediate access to marked folder with "gc"
+# │   │   └─ _mark_file_as_current: for immediate access to marked file with "gcf"
+# │   ├─ NAVIGATION
+# │   │   └─ navigate: a way to navigate in a more interactive way combined with dedicated bindings/aliases
+# │   ├─ USERS
+# │   │   └─ _su_to_current_directory: perform a su and stay in current folder
+# │   ├─ HELP: help to existing commands
+# │   └─ BINDINGS: contains all binding definition !!!!
+# ├─ EXPOSED PART
+# │   ├─ FOLDERS
+# │   │   └─ cdf: go to folder containing the filepath
+# │   └─ ALIASES
+# │       ├─ c: mark current folder with _mark_folder_as_current
+# │       ├─ cf: mark current file with _mark_file_as_current
+# │       └─ sucd: su in current directory with _su_to_current_directory
+# └─ ENTRY POINT: contains the famous main action
+########################################################################################################################
 
 ########################################################################################################################
 # DEVELOPMENT PART (not exposed to end users)                                                                          #
@@ -53,8 +93,15 @@ function _i_log_action_cancelled() {
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Initialisation
+# INITIALIZATION
 #***********************************************************************************************************************
+function _i_init() {
+  _i_create_bookmarks_file_if_not_existing
+  _i_load_bookmarks
+  _i_load_bindings
+  _i_load_custom_libraries
+}
+
 function _i_test_prerequisites() {
   if ! grep "export NIXLPER_INSTALL_DIR" ~/.bashrc > /dev/null 2>&1 ; then
     _i_log_as_error "NIXLPER_INSTALL_DIR is not defined, please run \"install\" command"
@@ -64,13 +111,6 @@ function _i_test_prerequisites() {
     _i_log_as_error "NIXLPER_BOOKMARKS_FILE is not defined, please run \"install\" command"
     return 1
   fi
-}
-
-function _i_init() {
-  _i_create_bookmarks_file_if_not_existing
-  _i_load_bookmarks
-  _i_load_bindings
-  _i_load_custom_libraries
 }
 
 # Custom scripts can be put in custom folder if specific things are needed
@@ -94,11 +134,79 @@ function _i_load_custom_libraries() {
     touch "${custom_dir}/script_template.sh"
   fi
 }
-
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Bookmarks
+# INSTALL/UPDATE/UNINSTALL
+#***********************************************************************************************************************
+function _i_install() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Install Nixlper"
+  touch ~/.bashrc
+  if grep "nixlper.sh" ~/.bashrc; then
+    echo ".bashrc has already a reference nixlper, action is skipped"
+    echo "-> SKIPPED (Install Nixlper)"
+  else
+    echo "Backup existing .bashrc"
+    cp ~/.bashrc ~/.bashrc.ori
+    _i_set_bashrc_config
+    echo "Please execute one the following commands to finalize the installation:
+    - source ~/.bashrc
+    - logout then login again"
+    echo "-> DONE (Install Nixlper)"
+  fi
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
+function _i_update() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Update Nixlper configuration"
+  _i_delete_bashrc_config
+  _i_set_bashrc_config
+  echo "-> DONE (Update Nixlper configuration)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
+function _i_uninstall() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Uninstall Nixlper"
+  local -r install_dir="${NIXLPER_INSTALL_DIR}"
+  echo "Delete ${NIXLPER_BOOKMARKS_FILE} file"
+  rm -rf "${NIXLPER_BOOKMARKS_FILE}"
+  _i_delete_bashrc_config
+  echo "Delete environment variables"
+  unset NIXLPER_INSTALL_DIR
+  unset NIXLPER_BOOKMARKS_FILE
+  echo "To permanently remove Nixlper, please remove all items from ${install_dir} with command below:
+  rm -rf ${install_dir}"
+  echo "-> DONE (Uninstall Nixlper)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
+function _i_set_bashrc_config() {
+    echo "  Update .bashrc with nixlper"
+    echo "" >> ~/.bashrc
+    echo "################################ nixlper start #################################################" >> ~/.bashrc
+    echo "# nixlper installation" >> ~/.bashrc
+    sed 's/^/# /g' "${NIXLPER_INSTALL_DIR}"/version | grep -v PROJECT >> ~/.bashrc
+    echo "################################################################################################" >> ~/.bashrc
+    echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
+    echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
+    echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
+    echo "################################ nixlper stop ##################################################" >> ~/.bashrc
+    source ~/.bashrc
+    echo "  -> DONE (Update .bashrc with nixlper)"
+}
+
+function _i_delete_bashrc_config() {
+  echo "  Remove installation from .bashrc file"
+  sed -i  '/nixlper start/,/nixlper stop/d' ~/.bashrc
+  echo "  -> DONE (Remove installation from .bashrc file)"
+}
+#***********************************************************************************************************************
+
+#***********************************************************************************************************************
+# BOOKMARKS
 #***********************************************************************************************************************
 #-----------------------------------------------------------------------------------------------------------------------
 # Bookmarks mains actions
@@ -192,7 +300,7 @@ function _i_is_bookmark_name_free_and_not_empty() {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
-# Init bookmarks feature: create all needed items to use bookmark features
+# Bookmarks initialization
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_create_bookmarks_file_if_not_existing() {
   if [[ ! -f $NIXLPER_BOOKMARKS_FILE ]]; then
@@ -206,6 +314,9 @@ function _i_load_bookmarks() {
   source "${NIXLPER_BOOKMARKS_FILE}"
 }
 
+#-----------------------------------------------------------------------------------------------------------------------
+# Bookmarks atomic actions
+#-----------------------------------------------------------------------------------------------------------------------
 function _i_bookmark_directory() {
   [[ "$1" == "--help" ]] && echo "$FUNCNAME bookmark a specific directory storing its path into a file with a specific alias.
     Thus it is possible to reach this folder using an alias.
@@ -224,9 +335,6 @@ function _i_bookmark_directory() {
   [[ $(grep "alias ${shortcut_name}=" ${NIXLPER_BOOKMARKS_FILE}) ]] \
   || echo "alias $shortcut_name='cd $bookmarked_dir && echo \"INFO: Jump into folder $(pwd)\"'" >> "${NIXLPER_BOOKMARKS_FILE}"
 }
-#-----------------------------------------------------------------------------------------------------------------------
-# Bookmarks atomic actions
-#-----------------------------------------------------------------------------------------------------------------------
 function _i_delete_bookmark() {
   [[ "$1" == "--help" ]] && echo "$FUNCNAME delete a bookmark.
 
@@ -248,11 +356,10 @@ function _i_get_matching_bookmark_for_alias() {
   local -r matching_bookmark=$(grep " $1=" "$NIXLPER_BOOKMARKS_FILE")
   echo "${matching_bookmark}"
 }
-
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Files and folders
+# FILES AND FOLDERS
 #***********************************************************************************************************************
 function _mark_folder_as_current() {
     local -r current_folder=$(pwd)
@@ -278,7 +385,7 @@ function _mark_file_as_current() {
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Navigation
+# NAVIGATION
 #***********************************************************************************************************************
 # Make the navigation easier, calling this function display the following output
 #
@@ -350,9 +457,10 @@ function navigate() {
   echo "---------------------------------------------------------------------------------------------------------------"
   echo ""
 }
+#***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Users
+# USERS
 #***********************************************************************************************************************
 function _su_to_current_directory() {
   local -r su_user=$1
@@ -361,7 +469,7 @@ function _su_to_current_directory() {
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Help
+# HELP
 #***********************************************************************************************************************
 function _help() {
   echo "Nixlper Help: existing topics are:"
@@ -384,7 +492,7 @@ function _help() {
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Bindings
+# BINDINGS
 #***********************************************************************************************************************
 function _i_load_bindings() {
   if [[ $- == *i* ]]; then
@@ -408,82 +516,11 @@ function _i_load_bindings() {
 }
 #***********************************************************************************************************************
 
-#***********************************************************************************************************************
-# Install/Uninstall nixlper
-#***********************************************************************************************************************
-function _i_install() {
-  echo "---------------------------------------------------------------------------------------------------------------"
-  echo "Install Nixlper"
-  touch ~/.bashrc
-  if grep "nixlper.sh" ~/.bashrc; then
-    echo ".bashrc has already a reference nixlper, action is skipped"
-    echo "-> SKIPPED (Install Nixlper)"
-  else
-    echo "Backup existing .bashrc"
-    cp ~/.bashrc ~/.bashrc.ori
-    _i_set_bashrc_config
-    echo "Please execute one the following commands to finalize the installation:
-    - source ~/.bashrc
-    - logout then login again"
-    echo "-> DONE (Install Nixlper)"
-  fi
-  echo "---------------------------------------------------------------------------------------------------------------"
-}
-
-function _i_update() {
-  echo "---------------------------------------------------------------------------------------------------------------"
-  echo "Update Nixlper configuration"
-  _i_delete_bashrc_config
-  _i_set_bashrc_config
-  echo "-> DONE (Update Nixlper configuration)"
-  echo "---------------------------------------------------------------------------------------------------------------"
-}
-
-function _i_uninstall() {
-  echo "---------------------------------------------------------------------------------------------------------------"
-  echo "Uninstall Nixlper"
-  local -r install_dir="${NIXLPER_INSTALL_DIR}"
-  echo "Delete ${NIXLPER_BOOKMARKS_FILE} file"
-  rm -rf "${NIXLPER_BOOKMARKS_FILE}"
-  _i_delete_bashrc_config
-  echo "Delete environment variables"
-  unset NIXLPER_INSTALL_DIR
-  unset NIXLPER_BOOKMARKS_FILE
-  echo "To permanently remove Nixlper, please remove all items from ${install_dir} with command below:
-  rm -rf ${install_dir}"
-  echo "-> DONE (Uninstall Nixlper)"
-  echo "---------------------------------------------------------------------------------------------------------------"
-}
-
-function _i_set_bashrc_config() {
-    echo "  Update .bashrc with nixlper"
-    echo "" >> ~/.bashrc
-    echo "################################ nixlper start #################################################" >> ~/.bashrc
-    echo "# nixlper installation" >> ~/.bashrc
-    sed 's/^/# /g' "${NIXLPER_INSTALL_DIR}"/version | grep -v PROJECT >> ~/.bashrc
-    echo "################################################################################################" >> ~/.bashrc
-    echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
-    echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
-    echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
-    echo "################################ nixlper stop ##################################################" >> ~/.bashrc
-    source ~/.bashrc
-    echo "  -> DONE (Update .bashrc with nixlper)"
-}
-
-function _i_delete_bashrc_config() {
-  echo "  Remove installation from .bashrc file"
-  sed -i  '/nixlper start/,/nixlper stop/d' ~/.bashrc
-  echo "  -> DONE (Remove installation from .bashrc file)"
-}
-
-#***********************************************************************************************************************
 ########################################################################################################################
-
-########################################################################################################################
-# EXPOSED PART (exposed to end users)                                                                                  #
+# EXPOSED PART
 ########################################################################################################################
 #***********************************************************************************************************************
-# Folders
+# FOLDERS
 #***********************************************************************************************************************
 # Go to folder from a filepath
 function cdf() {
@@ -499,7 +536,7 @@ function cdf() {
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
-# Aliases
+# ALIASES
 #***********************************************************************************************************************
 alias c=_mark_folder_as_current
 alias cf=_mark_file_as_current
