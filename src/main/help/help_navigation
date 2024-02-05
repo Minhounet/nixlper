@@ -4,7 +4,24 @@
 ------------------------------------------------------------------------------------------------------------------------
 [CTRL + X THEN U] perform a "cd .."
 ------------------------------------------------------------------------------------------------------------------------
-[CTRL + X THEN N] display an interactive way to navigate to subfolders and to open files with alias/copy-paste
+[CTRL + X THEN N] display an interactive way to navigate to subfolders and to open files with alias/copy-paste using
+tree mode or flat mode.
+See NIXLPER_NAVIGATE_MODE in ~/.bashrc and use "flat" or "tree" value.
+
+Tree mode
+    ------------------------------------------------------------------------------------------------------------------------
+    ..  ↑ CTRL + X THEN U
+    ├── first item (→ or ↓) SHORTCUT_COMMAND
+    ├── ..
+    ├── item N (→ or ↓) SHORTCUT_COMMAND
+    ├── ..
+    └── last item (→ or ↓) SHORTCUT_COMMAND
+    HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)
+    HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
+    -> Currently in /appli/install
+    ------------------------------------------------------------------------------------------------------------------------
+
+Flat mode
     ------------------------------------------------------------------------------------------------------------------------
     Open..
     vim file1 # (v1)
@@ -25,5 +42,4 @@
     HINT 2: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)
     HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
     -> Currently in current_folder"
-    ------------------------------------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------
