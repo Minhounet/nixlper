@@ -77,7 +77,7 @@ function _i_init() {
 function _i_load_custom_libraries() {
   local -r custom_dir=${NIXLPER_INSTALL_DIR}/custom
   if [[ -d "${custom_dir}" ]] ; then
-    local -r nb_of_scripts=$(ls ${custom_dir} | wc -l)
+    local -r nb_of_scripts=$(find "${custom_dir}" -type f | wc -l)
     if [[ ${nb_of_scripts} -gt 0 ]]; then
       echo "Custom scripts detect under ${custom_dir}:"
       for i in "${custom_dir}"/* ; do
