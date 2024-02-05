@@ -143,11 +143,8 @@ function _add_or_remove_bookmark() {
     answer_create_bookmark=${answer_create_bookmark:-y}
     if [[ ${answer_create_bookmark} == "y" ]]; then
       read -rp "Enter bookmark name: " answer_bookmark_name
-      while [[ -z ${answer_bookmark_name} ]]; do
-          if [[ -z ${answer_bookmark_name} ]]; then
-            _i_log_as_error "Bookmark cannot be empty, please enter a value"
-            read -rp "Enter bookmark name: " answer_bookmark_name
-          fi
+      while ! _i_is_bookmark_name_free_and_not_empty "${answer_bookmark_name}"; do
+        read -rp "Enter bookmark name: " answer_bookmark_name
       done
       _i_bookmark_directory "${answer_bookmark_name}" "$(pwd)"
       _i_log_as_info "Bookmark saved"
@@ -171,6 +168,23 @@ function _add_or_remove_bookmark() {
     else
       _i_log_as_info "Action is cancelled"
     fi
+  fi
+}
+
+function _i_is_bookmark_name_free_and_not_empty() {
+  if [[ -z "$1" ]]; then
+    _i_log_as_error "Bookmark cannot be empty, please enter a value"
+    return 1
+  fi
+
+  local -r bookmark_name=$(_i_get_matching_bookmark_for_alias "$1")
+  if [[ -n "${bookmark_name}" ]]; then
+    _i_log_as_error "Bookmark name $1 is already used!"
+    return 1
+  fi
+  if [[ $1 =~ ^[nv][0-9]+$ ]]; then
+      _i_log_as_error "Cannot use $1 because these aliases are already used for navigate feature"
+      return 1
   fi
 }
 
@@ -225,6 +239,13 @@ function _i_get_matching_bookmark_for_current_folder() {
   local -r matching_bookmark=$(grep "$(pwd) &&" "$NIXLPER_BOOKMARKS_FILE")
   echo "${matching_bookmark}"
 }
+
+# Test if an alias is already defined as a bookmark
+function _i_get_matching_bookmark_for_alias() {
+  local -r matching_bookmark=$(grep " $1=" "$NIXLPER_BOOKMARKS_FILE")
+  echo "${matching_bookmark}"
+}
+
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
