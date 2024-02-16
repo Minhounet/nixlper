@@ -184,19 +184,25 @@ function _i_uninstall() {
 }
 
 function _i_set_bashrc_config() {
-    echo "  Update .bashrc with nixlper"
-    echo "" >> ~/.bashrc
-    echo "################################ nixlper start #################################################" >> ~/.bashrc
-    echo "# nixlper installation" >> ~/.bashrc
+  echo "  Update .bashrc with nixlper"
+  echo "" >> ~/.bashrc
+  echo "################################ nixlper start #################################################" >> ~/.bashrc
+  echo "# nixlper installation" >> ~/.bashrc
+  # For install NIXLPER_INSTALL_DIR, is not defined
+  if [[ -z "${NIXLPER_INSTALL_DIR}" ]]; then
+    cd "$(dirname $0)" || return 1
+    sed 's/^/# /g' "$(pwd)"/version | grep -v PROJECT >> ~/.bashrc
+  else
     sed 's/^/# /g' "${NIXLPER_INSTALL_DIR}"/version | grep -v PROJECT >> ~/.bashrc
-    echo "################################################################################################" >> ~/.bashrc
-    echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
-    echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
-    echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
-    echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
-    echo "################################ nixlper stop ##################################################" >> ~/.bashrc
-    source ~/.bashrc
-    echo "  -> DONE (Update .bashrc with nixlper)"
+  fi
+  echo "################################################################################################" >> ~/.bashrc
+  echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
+  echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
+  echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
+  echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
+  echo "################################ nixlper stop ##################################################" >> ~/.bashrc
+  source ~/.bashrc
+  echo "  -> DONE (Update .bashrc with nixlper)"
 }
 
 function _i_delete_bashrc_config() {
