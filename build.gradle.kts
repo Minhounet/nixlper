@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.qmt"
-version = "1.1.0-SNAPSHOT"
+version = "1.1.0"
 
 val gitId = tasks.named("generateGitProperties", com.gorylenko.GenerateGitPropertiesTask::class)
     .get().generatedProperties["git.commit.id.abbrev"] as String
