@@ -414,6 +414,7 @@ function _mark_file_as_current() {
 # ├── item N (→ or ↓) SHORTCUT_COMMAND
 # ├── ..
 # └── last item (→ or ↓) SHORTCUT_COMMAND
+#
 # HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)
 # HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
 # -> Currently in /appli/install
@@ -483,6 +484,7 @@ function _i_navigate_tree() {
       echo "$i"
     fi
   done
+  echo ""
   echo "HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)"
   echo "HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
   echo "-> Currently in $(pwd)"
