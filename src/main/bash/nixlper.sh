@@ -261,6 +261,16 @@ function _add_or_remove_bookmark() {
     answer_create_bookmark=${answer_create_bookmark:-y}
     if [[ ${answer_create_bookmark} == "y" ]]; then
       read -rp "Enter bookmark name: " answer_bookmark_name
+
+      if [[ -z "${answer_bookmark_name}" ]]; then
+        local -r default_value=$(basename "$(pwd)")
+        read -rp "You have not enter any value, use default value \"${default_value}\" (default is y) ?" answer_use_default_value
+        answer_use_default_value=${answer_use_default_value:-y}
+        if [[ "${answer_use_default_value}" == "y" ]]; then
+          answer_bookmark_name=${default_value}
+        fi
+      fi
+
       while ! _i_is_bookmark_name_free_and_not_empty "${answer_bookmark_name}"; do
         read -rp "Enter bookmark name: " answer_bookmark_name
       done
