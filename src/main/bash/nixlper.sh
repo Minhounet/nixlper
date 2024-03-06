@@ -479,9 +479,9 @@ function _i_restore_file_interactive() {
     local choice_restore=""
     while [[ -z ${choice_restore} ]]; do
       if [[ ${file_increment} -gt 1 ]]; then
-        read -rp "Choose a number (from 1 to ${file_increment})" choice_restore
+        read -rp "Choose a number (from 1 to ${file_increment}): " choice_restore
       else
-        read -rp "Enter 1 to restore file" choice_restore
+        read -rp "Enter 1 to restore file: " choice_restore
       fi
       if [[ -z ${choice_restore} ]]; then
         _i_log_as_error "empty answer! Please choose a number between 1 and $((file_increment))"
