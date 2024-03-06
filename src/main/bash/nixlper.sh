@@ -24,6 +24,7 @@
 # │   ├─ INITIALIZATION
 # │   │   ├─ _i_init: init NIXLPER
 # │   │   ├─ _i_test_prerequisites: check at last if Nixlper is correctly installed
+# │   │   ├─ _i_load_bindings: load existing bindings
 # │   │   └─ _i_load_custom_libraries: handle custom scripts to be loaded
 # │   ├─ INSTALL/UPDATE/UNINSTALL: dedicated to Nixlper install/update/uninstall
 # │   ├─ BOOKMARKS
