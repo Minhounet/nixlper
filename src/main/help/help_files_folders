@@ -5,16 +5,21 @@
 # Folders
 ########################################################################################################################
 ------------------------------------------------------------------------------------------------------------------------
-cdf FILEPATH : will go to the folder of the file
-------------------------------------------------------------------------------------------------------------------------
+Marking
 c : mark current folder, use "gc" to go this folder from any place
 ------------------------------------------------------------------------------------------------------------------------
 ########################################################################################################################
 # Files
 ########################################################################################################################
 ------------------------------------------------------------------------------------------------------------------------
+Marking
 cf FILEPATH : mark file as current, use "gcf" to open it in vim from any place
 ------------------------------------------------------------------------------------------------------------------------
+Safe delete
 [CTRL + X then E] display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history.
 [CTRL + X then R] display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete current folder contents and to avoid `rm -rf *` in your bash history.
+------------------------------------------------------------------------------------------------------------------------
+Save/Restore
+sn FILEPATH : save file in the snapshot area
+re [FILEPATH] : restore a file, if there is no parameters, a list of choices will be displayed for interactive restore
 ------------------------------------------------------------------------------------------------------------------------
