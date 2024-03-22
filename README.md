@@ -19,6 +19,7 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 - [Features](#features)
   - [Bookmarks](#bookmarks)
   - [Files and folders](#files-and-folders)
+  - [Processes](#processes)
   - [Users](#users)
   - [Navigation](#navigation)
 - [License](#license)
@@ -138,6 +139,10 @@ cd /opt/nixlper
 
 - `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history.
 - `CTRL + X then R`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete current folder contents and to avoid `rm -rf *` in your bash history.
+
+### Processes
+
+- `ik`: call interactive kill to kill by pattern or by port
 
 ### Users
 
