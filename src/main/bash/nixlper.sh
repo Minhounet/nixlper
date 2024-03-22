@@ -727,6 +727,7 @@ function _i_kill_by_pattern() {
     kill -9 "${kill_choices[kill_choice]}"
     _i_log_as_info "-> DONE"
   fi
+  _i_kill_by_pattern "${pattern}"
 }
 
 function _i_kill_by_port() {
