@@ -730,7 +730,26 @@ function _i_kill_by_pattern() {
 }
 
 function _i_kill_by_port() {
-  TODO "kill by port"
+  if [[ $# -eq 0 ]]; then
+    _i_log_as_error "$0: Missing port value"
+    return 1
+  fi
+  local -r port=$1
+  local -r process_pid=$(netstat -anp | grep -i ":${port} " | awk '{print $7}' | sed 's/[^0-9]*//g' )
+  if [[ -n "${process_pid}" ]]; then
+    ps -p "${process_pid}" -f
+    local answer_kill_process
+    read -rp "Kill process above? (y/n, default is n)" answer_kill_process
+    answer_kill_process=${answer_kill_process:-n}
+    if [[ ${answer_kill_process} == "y" ]]; then
+      kill -9 "${process_pid}"
+      _i_log_as_info "-> DONE"
+    else
+      _i_log_as_info "Action is aborted"
+    fi
+  else
+    _i_log_as_info "No process found by port ${port}"
+  fi
 }
 
 #***********************************************************************************************************************
