@@ -6,13 +6,7 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 
 - [Description](#description)
 - [Prerequisites for sh build](#prerequisites-for-sh-build)
-- [Prerequisites when using Gradle build](#prerequisites-when-using-gradle-build)
-  - [Java (mandatory)](#java-mandatory)
-  - [Gradle (optional)](#gradle-optional)
-- [Build](#build)
-  - [Build with sh](#build-with-sh)
-  - [Build with Gradle wrapper](#build-with-gradle-wrapper)
-  - [Build with local Gradle installation](#build-with-local-gradle-installation)
+- [Build with sh](#build-with-sh)
 - [Installation](#installation)
   - [Standard installation steps](#standard-installation-steps)
   - [Installation steps without Gradle build](#installation-steps-without-gradle-build)
@@ -32,58 +26,14 @@ and this is why it contains a lots of key shortcuts
 ## Prerequisites for sh build
 You need a bash command line, I personally use [Git bash](https://git-scm.com/downloads). 
 
-## Prerequisites when using Gradle build
-You may use Gradle if you don't have a bash command line for example, this may be a little overkill but it works :).
-
-### Java (mandatory)
-
-This project is built with [Gradle](#gradle) using [JDK 20](https://www.oracle.com/java/technologies/javase/jdk20-archive-downloads.html).
-
-### Gradle (optional)
-
-This project is built using [Gradle](https://gradle.org/releases/) 8.4, but you can go for the latest version. If you want to avoid Gradle
-installation you build the project using the [Gradle wrapper](#build-with-gradle-wrapper).
-
-## Build
-You can use one of the build methods below:
-- sh build
-- Gradle build
-- Gradle wrapper build
-
-### Build with sh
+## Build with sh
 
 The sh command is simple and straightforward.
 ```bash
 # Execute the command
 ./build.sh
 ```
-
-### Build with Gradle wrapper
-Perform the following command in the project:
-```bash
-./gradlew clean build
-```
-Build result should be like the screenshot below:
-
-![gradle_build.png](documentation/gradle_build.png)
-
-Resulting archives lays in build/distributions folder after Gradle command.
-- build/distributions/nixlper-<version>.tar
-- build/distributions/nixlper-<version>.zip
-
-## Build with local Gradle installation
-
-If you have Gradle installed on your computer, you can perform the following command in the project:
-```bash
-gradle clean build
-```
-Build result should be like the screenshot below:
-
-![gradle_build.png](documentation/gradle_build.png)
-
-Resulting archives lays in build/distributions folder after Gradle command.
-- build/distributions/nixlper-<version>.tar
-- build/distributions/nixlper-<version>.zip
+You will have in build/distributions the nixlper-<version>.tar archive
 
 ## Installation
 

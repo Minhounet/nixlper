@@ -12,51 +12,58 @@ if [[ "${CURRENT_FOLDER}" == "." ]]; then
   CURRENT_FOLDER=$(pwd)
 fi
 
-readonly PROJECT_NAME=$(sed 's/.* "\(.*\)"/\1/g' settings.gradle.kts)
-readonly PROJECT_VERSION=$(grep "version =" build.gradle.kts | sed 's/.* "\(.*\)"/\1/g')
+readonly PROJECT_NAME="nixlper"
 
-readonly SHORT_SHA=$(git log -n 1 --pretty=format:%h)
-readonly LAST_COMMIT_DATE=$(git log -n 1 --pretty=format:%ad --date=format:'%Y-%m-%d')
+readonly BUILD_DIRECTORY=${CURRENT_FOLDER}/build/distributions
 
+readonly WORK_DIRECTORY=${CURRENT_FOLDER}/build/work
+readonly WORK_HELP_DIRECTORY=${WORK_DIRECTORY}/help
+readonly SHA_VERSION_FILE=${WORK_DIRECTORY}/version
 
 function _init_folders() {
-  rm -rf "${CURRENT_FOLDER}"/build/distributions
-  rm -rf "${CURRENT_FOLDER}"/build/work
-  mkdir -p "${CURRENT_FOLDER}"/build/distributions
-  mkdir -p "${CURRENT_FOLDER}"/build/work/help
-}
-
-function _make_tar_archive() {
-  cd "${CURRENT_FOLDER}"/build/work
-  tar -cf ../distributions/"${PROJECT_NAME}"-"${PROJECT_VERSION}".tar -- *
-}
-
-function _prepare_package() {
-  cp -f src/main/bash/nixlper.sh "${CURRENT_FOLDER}"/build/work
-
-  cp -f src/main/template/version.template "${CURRENT_FOLDER}"/build/work/version
-  sed -i "s/\${project.name}/${PROJECT_NAME}/g" "${CURRENT_FOLDER}"/build/work/version
-  sed -i "s/\${project.version}/${PROJECT_VERSION}/g" "${CURRENT_FOLDER}"/build/work/version
-  sed -i "s/\${VERSION_SHA}/${SHORT_SHA}/g" "${CURRENT_FOLDER}"/build/work/version
-  sed -i "s/\${VERSION_TIME}/${LAST_COMMIT_DATE}/g" "${CURRENT_FOLDER}"/build/work/version
-
-  cp -f src/main/help/* "${CURRENT_FOLDER}"/build/work/help
-  dos2unix "${CURRENT_FOLDER}"/build/work/*.sh
-  dos2unix "${CURRENT_FOLDER}"/build/work/help/*
+  rm -rf "${BUILD_DIRECTORY}"
+  rm -rf "${WORK_DIRECTORY}"
+  mkdir -p "${BUILD_DIRECTORY}"
+  mkdir -p "${WORK_HELP_DIRECTORY}"
 }
 
 function _clean_work_dir() {
   rm -rf "${CURRENT_FOLDER}"/build/work
 }
 
+function _create_sha_version_file() {
+  local -r git_tag=$(git describe --tags --exact-match HEAD 2>&1)
+  local -r git_time=$(git log -n 1 --pretty=format:%ad --date=format:'%Y-%m-%d')
+  local -r git_short_sha=$(git log -n 1 --pretty=format:%h)
+  echo "-> Create version file (git sha)"
+  {
+    echo "PROJECT: ${PROJECT_NAME}"
+    if [[ ! ${git_tag} =~ "fatal:" ]]; then
+      echo "VERSION: ${git_tag}"
+    fi
+    echo "TECHNICAL VERSION: ${git_short_sha} (${git_time})"
+  } >> "${SHA_VERSION_FILE}"
+  echo "-> DONE"
+}
+
+function _prepare_package() {
+  _create_sha_version_file
+  cp -f src/main/bash/nixlper.sh "${WORK_DIRECTORY}"
+  cp -f src/main/help/* "${WORK_DIRECTORY}"/help
+  dos2unix "${CURRENT_FOLDER}"/build/work/*.sh
+  dos2unix "${CURRENT_FOLDER}"/build/work/help/*
+}
+
+function _make_tar_archive() {
+  cd "${CURRENT_FOLDER}"/build/work
+  tar -cf ../distributions/"${PROJECT_NAME}".tar -- *
+}
+
 function main() {
   if [[ $# -gt 0 ]]; then
     if [[ "$1" == "--help" ]]; then
       echo "Usage: $0
-
-      sh script will create in build/distributions following files:
-      - nixlper-VERSION.tar
-      è nixlper-VERSION.zip"
+      sh script will create in nixlper.tar in build/distributions directory"
     else
       echo "ERROR: \"$1\" unknown command"
     fi
@@ -79,7 +86,6 @@ function main() {
   _clean_work_dir
   echo "-> DONE"
   echo "Build done with success"
-
 }
 
 if main "$@"; then
