@@ -21,7 +21,7 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 ## Description
 
 The goal of the bash project is to provide useful Unix commands for various purpose. It takes the philosophy from [Total commander](https://www.ghisler.com/accueil.htm) 
-and this is why it contains a lots of key shortcuts
+and this is why it contains a lots of key shortcuts.
 
 ## Prerequisites for sh build
 You need a bash command line, I personally use [Git bash](https://git-scm.com/downloads). 
@@ -33,14 +33,14 @@ The sh command is simple and straightforward.
 # Execute the command
 ./build.sh
 ```
-You will have in build/distributions the nixlper-<version>.tar archive
+You will have in build/distributions the nixlper-<version>.tar archive.
 
 ## Installation
 
 ### Standard installation steps
 
-- Put the archive (zip or tar) on any server in the folder you want to install it (for instance **/opt/nixlper**).
-- Unpack it using the "unzip" command or "tar -xf" command.
+- Put the archive (zip or tar) on any server in the folder you want to install it (for instance **/opt/nixlper**)
+- Unpack it using the "unzip" command or "tar -xf" command
 - Then run ./nixlper-<version>.sh install
 
 ```bash
@@ -84,11 +84,11 @@ cd /opt/nixlper
 
 
 - `c`: mark current folder, use `gc` to go this folder from any place
-- `cf FILEPATH` : mark file as current, use `gcf` to open it in vim from any place.
+- `cf FILEPATH` : mark file as current, use `gcf` to open it in vim from any place
 
 
-- `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history.
-- `CTRL + X then R`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete current folder contents and to avoid `rm -rf *` in your bash history.
+- `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history
+- `CTRL + X then R`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete current folder contents and to avoid `rm -rf *` in your bash history
 
 ### Processes
 
@@ -101,10 +101,12 @@ cd /opt/nixlper
 ### Navigation
 
 - `CTRL + X THEN U`: perform a "cd .."
-- `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste. Navigation
-can use tree or flat mode. "tree" is the default value.
+- `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste
+  (Navigation can use tree or flat mode. "tree" is the default value)
 
 See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
+
+- `fan PATTERN`: execute "find . -iname "*PATTERN*"" then display results like `CTRL + X THEN N` command
 
 ### Display help
 

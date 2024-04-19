@@ -39,7 +39,8 @@
 # │   │   ├─ _snapshot_file: save file in snapshot folder
 # │   │   └─ _restore_file: restore file in current folder, if called without parameter, can restore any snapshot files
 # │   ├─ NAVIGATION
-# │   │   └─ navigate: a way to navigate in a more interactive way combined with dedicated bindings/aliases
+# │   │   ├─ navigate: a way to navigate in a more interactive way combined with dedicated bindings/aliases
+# │   │   └─ _find_and_navigate: execute find command and display results in "navigate" style
 # │   ├─ PROCESS
 # │   │   └─ _interactive_kill: interactive kill (kill by pattern/port)
 # │   ├─ USERS
@@ -55,7 +56,8 @@
 # │       ├─ ik: call _interactive_kill and make an interactive kill
 # │       ├─ sn: snapshot a file using _snapshot_file
 # │       ├─ re: restore a file using _restore_file
-# │       └─ sucd: su in current directory with _su_to_current_directory
+# │       ├─ sucd: su in current directory with _su_to_current_directory
+# │       └─ fan: execute _find_and_navigate
 # └─ ENTRY POINT: contains the famous main action
 ########################################################################################################################
 
@@ -503,7 +505,7 @@ function _i_restore_file_interactive() {
 #***********************************************************************************************************************
 # NAVIGATION
 #***********************************************************************************************************************
-# Make the navigation easier, calling this function display the following output depending on the display mode
+# Make the navigation easier, calling this navigate function display the following output depending on the display mode
 #
 # Tree mode
 # ---------------------------------------------------------------------------------------------------------------
@@ -638,6 +640,46 @@ function _i_navigate_flat() {
   echo "---------------------------------------------------------------------------------------------------------------"
   echo ""
 }
+
+# Execute "find . -iname "*PATTERN"" then display results in "navigate" style
+function _find_and_navigate() {
+  if [[ $# -eq 0 ]]; then
+    _i_log_as_error "Missing pattern for find_and_navigate"
+    return 1
+  elif [[ -z $1 ]]; then
+    _i_log_as_error "Pattern cannot be empty for for find_and_navigate"
+    return 1
+  else
+    local -r find_results=$(find . -iname "*$**")
+    local item_increment=1
+    if [[ -n ${find_results} ]]; then
+      local path_depth
+      local tree_chars
+      echo ".."
+      for i in ${find_results}; do
+        tree_chars="├──"
+        path_depth=$(echo "$i" | grep -o "/" | wc -l)
+        for ((j=1; j <= path_depth; j++))  ; do
+          tree_chars="${tree_chars}─"
+        done
+        if [[ -f $i ]]; then
+          # shellcheck disable=SC2139
+          alias v${item_increment}="vim $i"
+          echo "${tree_chars} ${i:2} → v${item_increment}"
+        elif [[ -d $i ]]; then
+          # shellcheck disable=SC2139
+          alias n${item_increment}="cd ${i} && navigate"
+          echo "${tree_chars} ${i:2} ↓ n${item_increment}"
+        fi
+        ((item_increment++))
+      done
+      echo ".."
+    else
+      echo "No match"
+    fi
+  fi
+}
+
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
@@ -840,6 +882,7 @@ alias ik=_interactive_kill
 alias sucd=_su_to_current_directory
 alias sn=_snapshot_file
 alias re=_restore_file
+alias fan=_find_and_navigate
 #***********************************************************************************************************************
 ########################################################################################################################
 
