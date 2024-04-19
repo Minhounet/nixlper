@@ -39,7 +39,8 @@
 # │   │   ├─ _snapshot_file: save file in snapshot folder
 # │   │   └─ _restore_file: restore file in current folder, if called without parameter, can restore any snapshot files
 # │   ├─ NAVIGATION
-# │   │   └─ navigate: a way to navigate in a more interactive way combined with dedicated bindings/aliases
+# │   │   ├─ navigate: a way to navigate in a more interactive way combined with dedicated bindings/aliases
+# │   │   └─ _find_and_navigate: execute find command and display results in "navigate" style
 # │   ├─ PROCESS
 # │   │   └─ _interactive_kill: interactive kill (kill by pattern/port)
 # │   ├─ USERS
@@ -55,7 +56,8 @@
 # │       ├─ ik: call _interactive_kill and make an interactive kill
 # │       ├─ sn: snapshot a file using _snapshot_file
 # │       ├─ re: restore a file using _restore_file
-# │       └─ sucd: su in current directory with _su_to_current_directory
+# │       ├─ sucd: su in current directory with _su_to_current_directory
+# │       └─ fan: execute _find_and_navigate
 # └─ ENTRY POINT: contains the famous main action
 ########################################################################################################################
 
@@ -639,7 +641,8 @@ function _i_navigate_flat() {
   echo ""
 }
 
-function find_and_navigate() {
+# Execute "find . -iname "*PATTERN"" then display results in "navigate" style
+function _find_and_navigate() {
   if [[ $# -eq 0 ]]; then
     _i_log_as_error "Missing pattern for find_and_navigate"
     return 1
@@ -879,7 +882,7 @@ alias ik=_interactive_kill
 alias sucd=_su_to_current_directory
 alias sn=_snapshot_file
 alias re=_restore_file
-alias fan=find_and_navigate
+alias fan=_find_and_navigate
 #***********************************************************************************************************************
 ########################################################################################################################
 

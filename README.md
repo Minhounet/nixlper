@@ -106,6 +106,8 @@ can use tree or flat mode. "tree" is the default value.
 
 See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
 
+- `fan PATTERN`: execute "find . -iname "*PATTERN*"" then display results like `CTRL + X THEN N` command
+
 ### Display help
 
 - `CTRL + X then H`: give the ability to search help per topic
