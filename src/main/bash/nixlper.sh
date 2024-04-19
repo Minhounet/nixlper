@@ -503,7 +503,7 @@ function _i_restore_file_interactive() {
 #***********************************************************************************************************************
 # NAVIGATION
 #***********************************************************************************************************************
-# Make the navigation easier, calling this function display the following output depending on the display mode
+# Make the navigation easier, calling this navigate function display the following output depending on the display mode
 #
 # Tree mode
 # ---------------------------------------------------------------------------------------------------------------
@@ -638,6 +638,35 @@ function _i_navigate_flat() {
   echo "---------------------------------------------------------------------------------------------------------------"
   echo ""
 }
+
+function find_and_navigate() {
+  if [[ $# -eq 0 ]]; then
+    _i_log_as_error "Missing pattern for find_and_navigate"
+    return 1
+  else
+    local -r find_results=$(find . -iname "*$**")
+    local item_increment=1
+    if [[ -n ${find_results} ]]; then
+      echo ".."
+      for i in ${find_results}; do
+        if [[ -f $i ]]; then
+          # shellcheck disable=SC2139
+          alias v${item_increment}="vim $i"
+          echo "├── ${i:2} → v${item_increment}"
+        elif [[ -d $i ]]; then
+          # shellcheck disable=SC2139
+          alias n${item_increment}="cd ${i} && navigate"
+          echo "├── ${i:2} ↓ n${item_increment}"
+        fi
+        ((item_increment++))
+      done
+      echo ".."
+    else
+      echo "No match"
+    fi
+  fi
+}
+
 #***********************************************************************************************************************
 
 #***********************************************************************************************************************
@@ -840,6 +869,7 @@ alias ik=_interactive_kill
 alias sucd=_su_to_current_directory
 alias sn=_snapshot_file
 alias re=_restore_file
+alias fan=find_and_navigate
 #***********************************************************************************************************************
 ########################################################################################################################
 
