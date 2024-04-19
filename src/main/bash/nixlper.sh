@@ -643,6 +643,9 @@ function find_and_navigate() {
   if [[ $# -eq 0 ]]; then
     _i_log_as_error "Missing pattern for find_and_navigate"
     return 1
+  elif [[ -z $1 ]]; then
+    _i_log_as_error "Pattern cannot be empty for for find_and_navigate"
+    return 1
   else
     local -r find_results=$(find . -iname "*$**")
     local item_increment=1
