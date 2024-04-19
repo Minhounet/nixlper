@@ -647,16 +647,23 @@ function find_and_navigate() {
     local -r find_results=$(find . -iname "*$**")
     local item_increment=1
     if [[ -n ${find_results} ]]; then
+      local path_depth
+      local tree_chars
       echo ".."
       for i in ${find_results}; do
+        tree_chars="├──"
+        path_depth=$(echo "$i" | grep -o "/" | wc -l)
+        for ((j=1; j <= path_depth; j++))  ; do
+          tree_chars="${tree_chars}─"
+        done
         if [[ -f $i ]]; then
           # shellcheck disable=SC2139
           alias v${item_increment}="vim $i"
-          echo "├── ${i:2} → v${item_increment}"
+          echo "${tree_chars} ${i:2} → v${item_increment}"
         elif [[ -d $i ]]; then
           # shellcheck disable=SC2139
           alias n${item_increment}="cd ${i} && navigate"
-          echo "├── ${i:2} ↓ n${item_increment}"
+          echo "${tree_chars} ${i:2} ↓ n${item_increment}"
         fi
         ((item_increment++))
       done
