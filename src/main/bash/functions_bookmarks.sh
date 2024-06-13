@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-#                                           FILE: bookmarks.sh                                                         #
-#                                           DESCRIPTION: functions related to bookmarks                                #
+# FILE: bookmarks.sh
+# DESCRIPTION: perform all bookmarks actions like in Total Commander (see https://www.ghisler.com/accueil.htm)
 ########################################################################################################################
-#-----------------------------------------------------------------------------------------------------------------------
+
+#***********************************************************************************************************************
 # Constants
-#-----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
 # sed pattern to display a bookmark like "/var/projects (projects_alias)" where "projects_alias" is an alias.
 SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
 
-#-----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
 # Bookmarks mains actions
+#***********************************************************************************************************************
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _display_existing_bookmarks: display existing bookmarks displaying path + related alias
 #-----------------------------------------------------------------------------------------------------------------------
 function _display_existing_bookmarks() {
   additional_option=""
@@ -36,11 +41,15 @@ function _display_existing_bookmarks() {
   fi
 }
 
+#-----------------------------------------------------------------------------------------------------------------------
+# _add_or_remove_bookmark: add or remove a bookmark from current directory
+#
 # Similarly to Total commander (https://www.ghisler.com/accueil.htm) this function behaves like:
 # - Display existing bookmarks
 # - Test if current folder is in the bookmarks
 #   - if so, propose to add it to the bookmarks
 #   - if no, propose to remove it from bookmarks
+#-----------------------------------------------------------------------------------------------------------------------
 function _add_or_remove_bookmark() {
   _display_existing_bookmarks "HIDE"
 
@@ -110,9 +119,9 @@ function _i_is_bookmark_name_free_and_not_empty() {
   fi
 }
 
-#-----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
 # Bookmarks atomic actions
-#-----------------------------------------------------------------------------------------------------------------------
+#***********************************************************************************************************************
 function _i_bookmark_directory() {
   [[ "$1" == "--help" ]] && echo "$FUNCNAME bookmark a specific directory storing its path into a file with a specific alias.
     Thus it is possible to reach this folder using an alias.
@@ -131,6 +140,7 @@ function _i_bookmark_directory() {
   [[ $(grep "alias ${shortcut_name}=" ${NIXLPER_BOOKMARKS_FILE}) ]] \
   || echo "alias $shortcut_name='cd $bookmarked_dir && echo \"INFO: Jump into folder $(pwd)\"'" >> "${NIXLPER_BOOKMARKS_FILE}"
 }
+
 function _i_delete_bookmark() {
   [[ "$1" == "--help" ]] && echo "$FUNCNAME delete a bookmark.
 

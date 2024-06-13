@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-#                                           FILE: help.sh                                                              #
-#                                           DESCRIPTION: functions related help                                        #
+# FILE: help.sh
+# DESCRIPTION: functions related to user help.
 ########################################################################################################################
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _help: look for help from a pattern (you can look for "book" for bookmarks topic for example
+#-----------------------------------------------------------------------------------------------------------------------
 function _help() {
   echo "Nixlper Help: existing topics are:"
   ls "${NIXLPER_INSTALL_DIR}"/help | sed 's/help_/- /g' | sed 's/_/ /g'

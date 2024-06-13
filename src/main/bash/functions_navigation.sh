@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-#                                           FILE: navigation.sh                                                        #
-#                                           DESCRIPTION: functions related to navigation                               #
+# FILE: navigation.sh
+# DESCRIPTION: functions related to navigation
 ########################################################################################################################
 # Make the navigation easier, calling this navigate function display the following output depending on the display mode
 #
@@ -49,6 +49,9 @@ function navigate() {
   fi
 }
 
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_navigate_tree: tree version of the navigate feature
+#-----------------------------------------------------------------------------------------------------------------------
 function _i_navigate_tree() {
   if [[ $# -ne 0 ]]; then
     cd "$1" || return 1
@@ -92,6 +95,9 @@ function _i_navigate_tree() {
   echo ""
 }
 
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_navigate_flat: flat version of navigate
+#-----------------------------------------------------------------------------------------------------------------------
 function _i_navigate_flat() {
   if [[ $# -ne 0 ]]; then
     cd "$1" || return 1
@@ -140,7 +146,9 @@ function _i_navigate_flat() {
   echo ""
 }
 
-# Execute "find . -iname "*PATTERN"" then display results in "navigate" style
+#-----------------------------------------------------------------------------------------------------------------------
+# _find_and_navigate: execute "find . -iname "*PATTERN"" then display results in "navigate" style (see above)
+#-----------------------------------------------------------------------------------------------------------------------
 function _find_and_navigate() {
   if [[ $# -eq 0 ]]; then
     _i_log_as_error "Missing pattern for find_and_navigate"

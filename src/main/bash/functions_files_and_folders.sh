@@ -1,15 +1,21 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-#                                           FILE: files_and_folders.sh                                                 #
-#                                           DESCRIPTION: functions related to files and folders                        #
+# FILE: files_and_folders.sh
+# DESCRIPTION: Operations on folders and files
 ########################################################################################################################
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _mark_folder_as_current: similar to "c" command in vi/vim
+#-----------------------------------------------------------------------------------------------------------------------
 function _mark_folder_as_current() {
     local -r current_folder=$(pwd)
     _i_log_as_info "Mark ${current_folder} as current (use \"gc\")"
     # shellcheck disable=SC2139
     alias gc="cd $current_folder && echo \"Entering current folder $current_folder\""
 }
-
+#-----------------------------------------------------------------------------------------------------------------------
+# _mark_file_as_current: like _mark_folder_as_current but for file, need a file as parameter
+#-----------------------------------------------------------------------------------------------------------------------
 function _mark_file_as_current() {
   if [[ $# -eq 0 ]]; then
     echo "ERROR: missing filename"
@@ -25,6 +31,9 @@ function _mark_file_as_current() {
   fi
 }
 
+#-----------------------------------------------------------------------------------------------------------------------
+# _snapshot_file: save a file into the snapshots area
+#-----------------------------------------------------------------------------------------------------------------------
 function _snapshot_file() {
   if [[ $# -eq 0 ]]; then
     echo "ERROR: missing filename"
@@ -48,7 +57,9 @@ function _snapshot_file() {
     _i_log_as_info "-> File ${absolute_filepath} has been saved"
   fi
 }
-
+#-----------------------------------------------------------------------------------------------------------------------
+# _restore_file: restore a file which has been saved before. Can be used in interactive mode if no argument is provided
+#-----------------------------------------------------------------------------------------------------------------------
 function _restore_file() {
   if [[ $# -eq 0 ]]; then
       _i_restore_file_interactive
@@ -72,6 +83,9 @@ function _restore_file() {
   fi
 }
 
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_restore_file_interactive: restore file in interactive mode
+#-----------------------------------------------------------------------------------------------------------------------
 function _i_restore_file_interactive() {
   local -r snapshot_dir=${NIXLPER_INSTALL_DIR}/snapshots
   cd "${snapshot_dir}" || (_i_log_as_error "snapshots dir does not exist" && return 1)
@@ -106,8 +120,12 @@ function _i_restore_file_interactive() {
   cd - || (_i_log_as_error "error when going back to original folder after restore action" && return 1)
 }
 
-# Go to folder from a filepath
-function cdf() {
+#-----------------------------------------------------------------------------------------------------------------------
+# _change_directory_from_filepath: go to folder from filepath.
+# _change_directory_from_filepath /tmp/test.sh will bring you to /tmp. Very useful when combined with locate command
+# before
+#-----------------------------------------------------------------------------------------------------------------------
+function _change_directory_from_filepath() {
     [[ "$1" == "--help" ]] && echo "$FUNCNAME go to the folder containing the provided path
 
     Usage; $0 PATH" && return 0

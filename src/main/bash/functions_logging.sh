@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-#                                           FILE: logging.sh                                                           #
-#                                           DESCRIPTION: Various logging functions                                     #
+# FILE: logging.sh
+#  DESCRIPTION: Various logging functions
 ########################################################################################################################
 function _i_log() {
   local -r category=$1
