@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-#                                           FILE: processes.sh                                                         #
-#                                           DESCRIPTION: functions related to unix processes                           #
+# FILE: processes.sh
+# DESCRIPTION: functions related to unix processes, killing feature is appreciable!
 ########################################################################################################################
 function _interactive_kill() {
   local param_killmode=""
