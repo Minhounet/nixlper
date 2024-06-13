@@ -8,8 +8,6 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 - [Prerequisites for sh build](#prerequisites-for-sh-build)
 - [Build with sh](#build-with-sh)
 - [Installation](#installation)
-  - [Standard installation steps](#standard-installation-steps)
-  - [Installation steps without Gradle build](#installation-steps-without-gradle-build)
 - [Features](#features)
   - [Bookmarks](#bookmarks)
   - [Files and folders](#files-and-folders)
@@ -37,40 +35,21 @@ You will have in build/distributions the nixlper-<version>.tar archive.
 
 ## Installation
 
-### Standard installation steps
-
-- Put the archive (zip or tar) on any server in the folder you want to install it (for instance **/opt/nixlper**)
-- Unpack it using the "unzip" command or "tar -xf" command
+- Put the archive on any server in the folder you want to install it (for instance **/opt/nixlper**)
+- Unpack it using the "tar -xf" command
 - Then run ./nixlper-<version>.sh install
 
 ```bash
 mkdir -p /opt/nixlper
 # copy archive, /tmp is example
-cp /tmp/nixlper*zip /opt/nixlper
+cp /tmp/nixlper*tar /opt/nixlper
 cd /opt/nixlper
-unzip nixlper*.zip
+tar -xf nixlper*.tar
 ./nixlper.sh install
 ```
 
 Your .bashrc file will be updated and nixlper will be ready to be used for next login.
 
-Now you are done, but if you don't use Gradle you can follow steps from [next chapter](#installation-steps-without-gradle-build).
-Otherwise, please see existing [features](#features).
-
-### Installation steps without Gradle build
-
-Gradle is not performing a lot of tasks apart from creating an archive including the version although it is recommended 
-to use. If you are too lazy to use Gradle you can simply perform the actions listed below:
-
-Copy the file [src/main/bash/nixlper.sh](src/main/bash/nixlper.sh) in a dedicated location then source it. 
-Below is an example of installation steps:
-
-```bash
-mkdir -p /opt/nixlper
-cp nixlper.sh /opt/nixlper
-cd /opt/nixlper
-./nixlper.sh install
-```
 ## Features
 
 ### Bookmarks
