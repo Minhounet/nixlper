@@ -48,7 +48,7 @@ function _create_sha_version_file() {
 
 function _prepare_package() {
   _create_sha_version_file
-  cp -f src/main/bash/nixlper.sh "${WORK_DIRECTORY}"
+  _merge_sh_sources
   cp -f src/main/help/* "${WORK_DIRECTORY}"/help
   dos2unix "${CURRENT_FOLDER}"/build/work/*.sh
   dos2unix "${CURRENT_FOLDER}"/build/work/help/*
@@ -57,6 +57,18 @@ function _prepare_package() {
 function _make_tar_archive() {
   cd "${CURRENT_FOLDER}"/build/work
   tar -cf ../distributions/"${PROJECT_NAME}".tar -- *
+}
+
+function _merge_sh_sources() {
+  cp src/main/bash/nixlper.sh "${WORK_DIRECTORY}/nixlper.tmp"
+  cat src/main/bash/function* >> "${WORK_DIRECTORY}/functions.tmp"
+  sed -i '1,${/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
+  sed -i '1,${/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
+  echo "#!/usr/bin/env bash" > "${WORK_DIRECTORY}/nixlper.sh"
+  echo "# file is generated"
+  cat "${WORK_DIRECTORY}/functions.tmp" >> "${WORK_DIRECTORY}/nixlper.sh"
+  cat "${WORK_DIRECTORY}/nixlper.tmp" >> "${WORK_DIRECTORY}/nixlper.sh"
+  rm -f "${WORK_DIRECTORY}/nixlper.tmp" "${WORK_DIRECTORY}/functions.tmp"
 }
 
 function main() {
