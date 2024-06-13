@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-#                                           FILE: build.sh                                                             #
-#                                           DESCRIPTION: sh to build the Nixlper package, alternative to Gradle        #
+# FILE: build.sh
+# DESCRIPTION: sh to build the Nixlper package, alternative to Gradle
 ########################################################################################################################
+#***********************************************************************************************************************
+# Definitions
+#***********************************************************************************************************************
 set -o nounset
 set -o errexit
 set -o pipefail
@@ -19,7 +22,9 @@ readonly BUILD_DIRECTORY=${CURRENT_FOLDER}/build/distributions
 readonly WORK_DIRECTORY=${CURRENT_FOLDER}/build/work
 readonly WORK_HELP_DIRECTORY=${WORK_DIRECTORY}/help
 readonly SHA_VERSION_FILE=${WORK_DIRECTORY}/version
-
+#***********************************************************************************************************************
+# Functions
+#***********************************************************************************************************************
 function _init_folders() {
   rm -rf "${BUILD_DIRECTORY}"
   rm -rf "${WORK_DIRECTORY}"
@@ -48,7 +53,7 @@ function _create_sha_version_file() {
 
 function _prepare_package() {
   _create_sha_version_file
-  cp -f src/main/bash/nixlper.sh "${WORK_DIRECTORY}"
+  _merge_sh_sources
   cp -f src/main/help/* "${WORK_DIRECTORY}"/help
   dos2unix "${CURRENT_FOLDER}"/build/work/*.sh
   dos2unix "${CURRENT_FOLDER}"/build/work/help/*
@@ -59,6 +64,26 @@ function _make_tar_archive() {
   tar -cf ../distributions/"${PROJECT_NAME}".tar -- *
 }
 
+function _merge_sh_sources() {
+  cp src/main/bash/nixlper.sh "${WORK_DIRECTORY}/nixlper.tmp"
+  cat src/main/bash/function* >> "${WORK_DIRECTORY}/functions.tmp"
+  sed -i '1,${/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
+  sed -i '1,${/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
+  echo "#!/usr/bin/env bash" > "${WORK_DIRECTORY}/nixlper.sh"
+  echo "###############################################################################################################" >> "${WORK_DIRECTORY}/nixlper.sh"
+  echo "# file is generated" >> "${WORK_DIRECTORY}/nixlper.sh"
+  echo "###############################################################################################################" >> "${WORK_DIRECTORY}/nixlper.sh"
+  echo "# FUNCTIONS" >> "${WORK_DIRECTORY}/nixlper.sh"
+  cat "${WORK_DIRECTORY}/functions.tmp" >> "${WORK_DIRECTORY}/nixlper.sh"
+  echo "###############################################################################################################" >> "${WORK_DIRECTORY}/nixlper.sh"
+  echo "# MAIN" >> "${WORK_DIRECTORY}/nixlper.sh"
+  echo "###############################################################################################################" >> "${WORK_DIRECTORY}/nixlper.sh"
+  cat "${WORK_DIRECTORY}/nixlper.tmp" >> "${WORK_DIRECTORY}/nixlper.sh"
+  rm -f "${WORK_DIRECTORY}/nixlper.tmp" "${WORK_DIRECTORY}/functions.tmp"
+}
+#***********************************************************************************************************************
+# Entry point
+#***********************************************************************************************************************
 function main() {
   if [[ $# -gt 0 ]]; then
     if [[ "$1" == "--help" ]]; then
