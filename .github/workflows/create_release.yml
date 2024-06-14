@@ -1,0 +1,11 @@
+name: release-new-version
+run-name: Release a new version of Nixlper
+on: [workflow_call]
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Say hello
+        run: echo "Hello, world"
