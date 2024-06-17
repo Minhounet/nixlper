@@ -60,8 +60,17 @@ function _prepare_package() {
 }
 
 function _make_tar_archive() {
+  local git_tag
+  git_tag=$(git describe --tags --exact-match HEAD 2>&1)
+
+  if [[ ! ${git_tag} =~ "fatal:" ]]; then
+    git_tag="-${git_tag}"
+  else
+    git_tag=""
+  fi
+
   cd "${CURRENT_FOLDER}"/build/work
-  tar -cf ../distributions/"${PROJECT_NAME}".tar -- *
+  tar -cf ../distributions/"${PROJECT_NAME}${git_tag}".tar -- *
 }
 
 function _merge_sh_sources() {
