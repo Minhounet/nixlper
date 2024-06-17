@@ -19,6 +19,8 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
+      - name: debug git tag
+        run: git describe --tags --exact-match HEAD 2>&1
       - name: Install dos2unix
         run: sudo apt-get update && sudo apt-get install -y dos2unix
       - name: Checkout repository
