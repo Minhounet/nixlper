@@ -7,14 +7,7 @@ on:
         description: 'Enter tag name'
         required: true
       release_description:
-        description: 'Enter release description'
-        required: true
-        default: |
-          This release includes:
-          - Feature 1
-          - Feature 2
-          ...
-          - Feature n
+        description: 'Enter release description (can be updated after creation)'
 jobs:
   create-release:
     runs-on: ubuntu-latest
