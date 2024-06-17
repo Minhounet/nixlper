@@ -8,6 +8,9 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 - [Prerequisites for sh build](#prerequisites-for-sh-build)
 - [Build with sh](#build-with-sh)
 - [Installation](#installation)
+  - [First install](#first-install)
+  - [Update existing install](#update-existing-install)
+  - [Uninstall](#uninstall)
 - [Features](#features)
   - [Bookmarks](#bookmarks)
   - [Files and folders](#files-and-folders)
@@ -20,6 +23,7 @@ This is my personnal helper in Unix environment. I took the philosophy from [Tot
 
 The goal of the bash project is to provide useful Unix commands for various purpose. It takes the philosophy from [Total commander](https://www.ghisler.com/accueil.htm) 
 and this is why it contains a lots of key shortcuts.
+Now, you can decide to build it by yourself following [next chapter](#prerequisites-for-sh-build) or you can simply download the lastest release from Github.
 
 ## Prerequisites for sh build
 You need a bash command line, I personally use [Git bash](https://git-scm.com/downloads). 
@@ -35,9 +39,12 @@ You will have in build/distributions the nixlper-<version>.tar archive.
 
 ## Installation
 
+### First install
+
+Perform the commands below for the first install:
 - Put the archive on any server in the folder you want to install it (for instance **/opt/nixlper**)
 - Unpack it using the "tar -xf" command
-- Then run ./nixlper-<version>.sh install
+- Then run ./nixlper.sh install
 
 ```bash
 mkdir -p /opt/nixlper
@@ -49,6 +56,18 @@ tar -xf nixlper*.tar
 ```
 
 Your .bashrc file will be updated and nixlper will be ready to be used for next login.
+
+### Update existing install
+
+For an update just follow the same steps except for last command which will be:
+`./nixlper.sh update`
+
+### Uninstall
+
+This is pretty simple, just perform the command below from the install path:
+`./nixlper uninstall`
+
+"Sorry that you uninstall it! :("
 
 ## Features
 
