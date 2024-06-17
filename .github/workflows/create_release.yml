@@ -48,8 +48,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/distributions/nixlper-{{ github.event.inputs.tag_name }}.tar
-          asset_name: nixlper-{{ github.event.inputs.tag_name }}.tar
+          asset_path: build/distributions/nixlper-${{ github.event.inputs.tag_name }}.tar
+          asset_name: nixlper-${{ github.event.inputs.tag_name }}.tar
           asset_content_type: application/gzip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
