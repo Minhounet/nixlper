@@ -201,7 +201,7 @@ function _find_and_navigate() {
 #-----------------------------------------------------------------------------------------------------------------------
 # _toggle_size_display_during_navigation: enable/disable size display during navigate call
 #-----------------------------------------------------------------------------------------------------------------------
-function _toggle_size_display_during_navigation() {
+function toggle_navigation_mode() {
   if [[ "${NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE}" -eq 0 ]]; then
     NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE=1
     echo "\"Display length during navigate\" DISABLED"
