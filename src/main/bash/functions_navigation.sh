@@ -3,8 +3,14 @@
 # FILE: navigation.sh
 # DESCRIPTION: functions related to navigation
 ########################################################################################################################
-# Make the navigation easier, calling this navigate function display the following output depending on the display mode
-#
+#-----------------------------------------------------------------------------------------------------------------------
+# Constants
+#-----------------------------------------------------------------------------------------------------------------------
+export NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE=1
+
+#-----------------------------------------------------------------------------------------------------------------------
+# navigate: Make the navigation easier, calling this navigate function display the following output depending on the display mode
+#-----------------------------------------------------------------------------------------------------------------------
 # Tree mode
 # ---------------------------------------------------------------------------------------------------------------
 # ..  ↑ CTRL + X THEN U
@@ -65,26 +71,31 @@ function _i_navigate_tree() {
   local file_increment=1
   local uncolored_line
   local current_item
+  local current_length=""
   for i in ${colored_tree_output}; do
     uncolored_line=$(echo $i | sed 's,\x1B\[[0-9;]*[a-zA-Z],,g')
     current_item=$(echo "${uncolored_line}" | cut -d' ' -f2)
+    if [[ "${NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE}" -eq 0 ]]; then
+      current_length=" ($(du -sh ${current_item}| awk '{print $1}'))"
+    fi
+
     if [[ -f "${current_item}" ]]; then
       # shellcheck disable=SC2139
       alias v${file_increment}="vim $current_item"
-      echo "$i → v${file_increment}"
+      echo "$i${current_length} → v${file_increment}"
       ((file_increment++))
     elif [[ -d "${current_item}" ]]; then
       # shellcheck disable=SC2139
       alias n${folder_increment}="navigate $current_item"
       if [[ ${increment} -lt 10 ]]; then
         bind -x '"\C-x'${folder_increment}'": navigate '${current_item}''
-        echo "$i ↓ n${folder_increment}/CTRL + X, ${folder_increment}"
+        echo "$i${current_length} ↓ n${folder_increment}/CTRL + X, ${folder_increment}"
       else
-        echo "$i ↓ n${folder_increment}"
+        echo "$i${current_length} ↓ n${folder_increment}"
       fi
       ((folder_increment++))
     else
-      echo "$i"
+      echo "$i${current_length}"
     fi
   done
   echo ""
@@ -184,5 +195,18 @@ function _find_and_navigate() {
     else
       echo "No match"
     fi
+  fi
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _toggle_size_display_during_navigation: enable/disable size display during navigate call
+#-----------------------------------------------------------------------------------------------------------------------
+function toggle_navigation_mode() {
+  if [[ "${NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE}" -eq 0 ]]; then
+    NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE=1
+    echo "\"Display length during navigate\" DISABLED"
+  else
+    NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE=0
+    echo "\"Display length during navigate\" ENABLED"
   fi
 }
