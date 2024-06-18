@@ -104,6 +104,9 @@ This is pretty simple, just perform the command below from the install path:
 
 See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
 
+
+- `toggle_navigation_mode`: toggle items sizes display during navigate action (very useful when your hard drive is full!)
+
 - `fan PATTERN`: execute "find . -iname "*PATTERN*"" then display results like `CTRL + X THEN N` command
 
 ### Display help
