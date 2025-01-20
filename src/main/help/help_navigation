@@ -46,7 +46,9 @@ Flat mode
     -> Currently in current_folder"
     ------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------
-- toggle_navigation_mode: toggle items sizes display during navigate action (very useful when your hard drive is full!
+- toggle_navigation_mode:
+    - toggle items sizes display during navigate action (very useful when your hard drive is full!)
+    - Also display permissions for files when option is on
 ------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------
 - fan PATTERN: execute "find . -iname "*PATTERN*"" then display results like navigate function
