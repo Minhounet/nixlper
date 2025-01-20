@@ -71,31 +71,31 @@ function _i_navigate_tree() {
   local file_increment=1
   local uncolored_line
   local current_item
-  local current_length=""
+  local current_additional_info=""
   for i in ${colored_tree_output}; do
     uncolored_line=$(echo $i | sed 's,\x1B\[[0-9;]*[a-zA-Z],,g')
     current_item=$(echo "${uncolored_line}" | cut -d' ' -f2)
     if [[ "${NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE}" -eq 0 ]]; then
-      current_length=" ($(du -sh ${current_item}| awk '{print $1}'))"
+      current_additional_info=" ($(du -sh ${current_item}| awk '{print $1}'))($(ls -l ${current_item} | awk '{print $1, $2, $3, $4 }'))"
     fi
 
     if [[ -f "${current_item}" ]]; then
       # shellcheck disable=SC2139
       alias v${file_increment}="vim $current_item"
-      echo "$i${current_length} → v${file_increment}"
+      echo "$i${current_additional_info} → v${file_increment}"
       ((file_increment++))
     elif [[ -d "${current_item}" ]]; then
       # shellcheck disable=SC2139
       alias n${folder_increment}="navigate $current_item"
       if [[ ${increment} -lt 10 ]]; then
         bind -x '"\C-x'${folder_increment}'": navigate '${current_item}''
-        echo "$i${current_length} ↓ n${folder_increment}/CTRL + X, ${folder_increment}"
+        echo "$i ↓ n${folder_increment}/CTRL + X, ${folder_increment}"
       else
-        echo "$i${current_length} ↓ n${folder_increment}"
+        echo "$i ↓ n${folder_increment}"
       fi
       ((folder_increment++))
     else
-      echo "$i${current_length}"
+      echo "$i${current_additional_info}"
     fi
   done
   echo ""
