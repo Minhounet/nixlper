@@ -16,4 +16,4 @@ testStringEquality() {
 }
 
 cd "${SCRIPT_DIRECTORY}"
-source ../../lib/shunit2-2.1.8/shunit2
+source ../../../lib/shunit2-2.1.8/shunit2
