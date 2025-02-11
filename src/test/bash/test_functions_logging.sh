@@ -1,6 +1,7 @@
 #! /bin/bash
 
 readonly SCRIPT_DIRECTORY=$(dirname "$(realpath "$0")")
+cd "${SCRIPT_DIRECTORY}" || exit 1
 
 function setUp() {
   source ../../main/bash/functions_logging.sh
@@ -27,5 +28,5 @@ function date() {
   echo "mockedDate"
 }
 
-cd "${SCRIPT_DIRECTORY}"
+
 source ../../../lib/shunit2-2.1.8/shunit2
