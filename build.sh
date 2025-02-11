@@ -90,6 +90,11 @@ function _merge_sh_sources() {
   cat "${WORK_DIRECTORY}/nixlper.tmp" >> "${WORK_DIRECTORY}/nixlper.sh"
   rm -f "${WORK_DIRECTORY}/nixlper.tmp" "${WORK_DIRECTORY}/functions.tmp"
 }
+
+function _execute_unit_tests() {
+  "${CURRENT_FOLDER}"/src/test/bash/test_functions_logging.sh
+}
+
 #***********************************************************************************************************************
 # Entry point
 #***********************************************************************************************************************
@@ -104,8 +109,11 @@ function main() {
   fi
 
   echo "---------------------------------------------------------------------------------------------------------------"
-  echo "BuildNixlper archive"
+  echo "Build Nixlper archive"
   echo "---------------------------------------------------------------------------------------------------------------"
+
+  echo "Execute unit tests"
+  _execute_unit_tests
 
   echo "Clean and create output dirs"
   _init_folders
