@@ -142,6 +142,7 @@ function _i_set_bashrc_config() {
   echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
   echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
   echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
+  echo "export NIXLPER_EDITOR=vim" >> ~/.bashrc
   echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
   echo "################################ nixlper stop ##################################################" >> ~/.bashrc
   source ~/.bashrc
@@ -175,7 +176,7 @@ function _i_load_bindings() {
     bind -x '"\C-x\C-n": navigate'
 
     # instant access to this file
-    bind -x '"\C-x\C-o": vim ${NIXLPER_INSTALL_DIR}/nixlper.sh'
+    bind -x '"\C-x\C-o": $NIXLPER_EDITOR ${NIXLPER_INSTALL_DIR}/nixlper.sh'
   fi
 }
 #***********************************************************************************************************************

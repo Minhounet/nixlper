@@ -81,7 +81,7 @@ function _i_navigate_tree() {
 
     if [[ -f "${current_item}" ]]; then
       # shellcheck disable=SC2139
-      alias v${file_increment}="vim $current_item"
+      alias v${file_increment}="$NIXLPER_EDITOR $current_item"
       echo "$i${current_additional_info} → v${file_increment}"
       ((file_increment++))
     elif [[ -d "${current_item}" ]]; then
@@ -123,8 +123,8 @@ function _i_navigate_flat() {
   local increment=1
   for i in ${files_output}; do
     # shellcheck disable=SC2139
-    alias v${increment}="vim $i"
-    echo "vim ${i:2} # (v${increment})"
+    alias v${increment}="$NIXLPER_EDITOR $i"
+    echo "$NIXLPER_EDITOR ${i:2} # (v${increment})"
     ((increment++))
   done
 
@@ -182,7 +182,7 @@ function _find_and_navigate() {
         done
         if [[ -f $i ]]; then
           # shellcheck disable=SC2139
-          alias v${item_increment}="vim $i"
+          alias v${item_increment}="$NIXLPER_EDITOR $i"
           echo "${tree_chars} ${i:2} → v${item_increment}"
         elif [[ -d $i ]]; then
           # shellcheck disable=SC2139

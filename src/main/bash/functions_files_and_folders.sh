@@ -23,9 +23,9 @@ function _mark_file_as_current() {
   else
     local -r filepath=$1
     if [[ ${filepath} == /* ]];then
-      alias gcf="vim ${filepath}"
+      alias gcf="$NIXLPER_EDITOR ${filepath}"
     else
-      alias gcf="vim $(pwd)/${filepath}"
+      alias gcf="$NIXLPER_EDITOR $(pwd)/${filepath}"
     fi
     _i_log_as_info "Mark ${filepath} as current. Use \"gcf\" to open file"
   fi
