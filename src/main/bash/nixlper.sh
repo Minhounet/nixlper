@@ -192,8 +192,10 @@ alias sucd=_su_to_current_directory
 alias sn=_snapshot_file
 alias re=_restore_file
 alias fan=_find_and_navigate
-#***********************************************************************************************************************
+# Prepend current path in PATH variable updating the .bashrc if not already done
+alias ap='DIR=$(pwd); if ! grep -q "$DIR" ~/.bashrc; then echo "export PATH=$DIR:\$PATH" >> ~/.bashrc && echo "Prepended $DIR to PATH in .bashrc"; else echo "$DIR is already in .bashrc"; fi; source ~/.bashrc'
 
+#***********************************************************************************************************************
 ########################################################################################################################
 # ENTRY POINT                                                                                                          #
 ########################################################################################################################

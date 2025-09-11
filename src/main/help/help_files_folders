@@ -23,3 +23,5 @@ Save/Restore
 sn FILEPATH : save file in the snapshot area
 re [FILEPATH] : restore a file, if there is no parameters, a list of choices will be displayed for interactive restore
 ------------------------------------------------------------------------------------------------------------------------
+ap : prepend current path to PATH using .bashrc. .bashrc is sourced after command
+------------------------------------------------------------------------------------------------------------------------
