@@ -40,7 +40,7 @@ function _create_sha_version_file() {
   local -r git_tag=$(git describe --tags --exact-match HEAD 2>&1)
   local -r git_time=$(git log -n 1 --pretty=format:%ad --date=format:'%Y-%m-%d')
   local -r git_short_sha=$(git log -n 1 --pretty=format:%h)
-  echo "-> Create version file (git sha)"
+  echo "👉 Create version file (git sha)"
   {
     echo "PROJECT: ${PROJECT_NAME}"
     if [[ ! ${git_tag} =~ "fatal:" ]]; then
@@ -48,7 +48,7 @@ function _create_sha_version_file() {
     fi
     echo "TECHNICAL VERSION: ${git_short_sha} (${git_time})"
   } >> "${SHA_VERSION_FILE}"
-  echo "-> DONE"
+  _log_ok
 }
 
 function _prepare_package() {
@@ -95,6 +95,24 @@ function _execute_unit_tests() {
   "${CURRENT_FOLDER}"/src/test/bash/test_functions_logging.sh
 }
 
+function _log_info() {
+  echo "ℹ️ $1"	
+}
+
+function _log_ok() {
+	echo "👍"
+	echo ""
+}
+
+function _log_error() {
+	echo "🔴 $1"
+	return 1
+}
+
+function _log_separator() {
+  echo "====================================================================================================="
+}
+
 #***********************************************************************************************************************
 # Entry point
 #***********************************************************************************************************************
@@ -104,36 +122,37 @@ function main() {
       echo "Usage: $0
       sh script will create in nixlper.tar in build/distributions directory"
     else
-      echo "ERROR: \"$1\" unknown command"
+      _log_error "\"$1\" unknown command "
     fi
   fi
 
-  echo "---------------------------------------------------------------------------------------------------------------"
-  echo "Build Nixlper archive"
-  echo "---------------------------------------------------------------------------------------------------------------"
+  _log_separator
+  _log_info "Build Nixlper archive"
+  _log_separator
 
-  echo "Execute unit tests"
+  _log_info "Execute unit tests"
   _execute_unit_tests
 
-  echo "Clean and create output dirs"
+  _log_info "Clean and create output dirs"
   _init_folders
-  echo "-> DONE"
-  echo "Prepare Nixlper package"
+  _log_ok
+  _log_info "Prepare Nixlper package"
   _prepare_package
-  echo "-> DONE"
-  echo "Create tar archive"
+  _log_ok
+  _log_info "Create tar archive"
   _make_tar_archive
-  echo "-> DONE"
-  echo "Clean working dir"
+  _log_ok
+  _log_info "Clean working dir"
   _clean_work_dir
-  echo "-> DONE"
+  _log_ok
   echo "Build done with success"
+  _log_separator
 }
 
 if main "$@"; then
-  echo "---------------------------------------------------------------------------------------------------------------"
-  echo "Archive lays in ${CURRENT_FOLDER}/build/distributions"
-  echo "---------------------------------------------------------------------------------------------------------------"
+  _log_separator
+  _log_info "Archive lays in ${CURRENT_FOLDER}/build/distributions"
+  _log_separator
 else
-  echo "ERROR: error during Nixlper build"
+  _log_error "ERROR: error during Nixlper build"
 fi
