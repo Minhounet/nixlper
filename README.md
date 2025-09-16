@@ -2,22 +2,7 @@
 
 This is my personnal helper in Unix environment. I took the philosophy from [Total commander](https://www.ghisler.com/accueil.htm) and tried to apply it in Unix.
 
-## Table of Contents
-
-- [Description](#description)
-- [Prerequisites for sh build](#prerequisites-for-sh-build)
-- [Build with sh](#build-with-sh)
-- [Installation](#installation)
-  - [First install](#first-install)
-  - [Update existing install](#update-existing-install)
-  - [Uninstall](#uninstall)
-- [Features](#features)
-  - [Bookmarks](#bookmarks)
-  - [Files and folders](#files-and-folders)
-  - [Processes](#processes)
-  - [Users](#users)
-  - [Navigation](#navigation)
-- [License](#license)
+[[_TOC_]]
 
 ## Description
 
@@ -110,6 +95,11 @@ See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
   - Also display permissions for files when option is on
 
 - `fan PATTERN`: execute "find . -iname "*PATTERN*"" then display results like `CTRL + X THEN N` command
+
+### Macros
+- `CTRL + P`: start recording
+- `CTRL + P, CTRL + P`: stop recording
+- `CTRL + X, CTRL + X`: play recorded commands
 
 ### Display help
 
