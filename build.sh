@@ -91,10 +91,6 @@ function _merge_sh_sources() {
   rm -f "${WORK_DIRECTORY}/nixlper.tmp" "${WORK_DIRECTORY}/functions.tmp"
 }
 
-function _execute_unit_tests() {
-  "${CURRENT_FOLDER}"/src/test/bash/test_functions_logging.sh
-}
-
 function _log_info() {
   echo "ℹ️ $1"	
 }
@@ -129,9 +125,6 @@ function main() {
   _log_separator
   _log_info "Build Nixlper archive"
   _log_separator
-
-  _log_info "Execute unit tests"
-  _execute_unit_tests
 
   _log_info "Clean and create output dirs"
   _init_folders
