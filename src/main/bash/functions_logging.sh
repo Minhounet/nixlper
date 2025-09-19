@@ -16,5 +16,8 @@ function _i_log_as_info() {
   _i_log "INFO" $@
 }
 function _i_log_action_cancelled() {
-  _i_log_as_info "Action is cancelled"
+  _i_log_as_info "🔴Action is cancelled"
+}
+function _i_log_ok() {
+  _i_log_as_info "👍"
 }
