@@ -58,11 +58,28 @@ function _prepare_binding() {
 
   bind -r "\C-x\C-x" 2>/dev/null
 
-  # 🔥We decided to join all command with ";" to avoid return line issues. 
+  # Join all commands with ';' to avoid new line issues
   local joined
   joined=$(echo "$commands" | paste -sd ';' -)
 
-  bind -x "\"\C-x\C-x\":( $joined )"
+  # The bind command string
+  local bind_command="bind -x '\"\\C-x\\C-x\":( $joined )'"
 
-  _i_log_as_info "Ctrl+x Ctrl+x bound to your recorded commands."
+  # Bind it in the current shell
+  eval "$bind_command"
+  
+  # Save it to a file for later replay
+  echo "$bind_command" > "$NIXLPER_LAST_MACRO_BINDING_FILE"
+
+  _i_log_as_info "Ctrl+x Ctrl+x bound to your recorded commands and saved to $NIXLPER_LAST_MACRO_BINDING_FILE"
+}
+
+function bind_last_macro() {
+  if [[ ! -f "$NIXLPER_LAST_MACRO_BINDING_FILE" ]]; then
+    _i_log_as_error "Cannot bind last macro because nothing has been recorded"
+  fi
+  _i_log_as_info "Launch last macro binding below:"
+  cat "$NIXLPER_LAST_MACRO_BINDING_FILE"
+  eval $(cat "$NIXLPER_LAST_MACRO_BINDING_FILE")
+  _i_log_ok
 }

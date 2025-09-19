@@ -141,6 +141,7 @@ function _i_set_bashrc_config() {
   echo "################################################################################################" >> ~/.bashrc
   echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
   echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
+  echo "export NIXLPER_LAST_MACRO_BINDING_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_last_macro_binding_file" >> ~/.bashrc
   echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
   echo "export NIXLPER_EDITOR=vim" >> ~/.bashrc
   echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
@@ -180,7 +181,7 @@ function _i_load_bindings() {
 
     bind -x '"\C-p":start_recording'
     bind -x  '"\C-p\C-p": finalize_recording'
-
+    bind -x  '"\C-p\C-l": bind_last_macro'
   fi
 }
 
