@@ -51,6 +51,24 @@ function _create_sha_version_file() {
   _log_ok
 }
 
+# Ensure that given files end with a newline (LF). If any file doesn't, log an error and return non-zero.
+function _ensure_trailing_newline_in() {
+  local file
+  for file in "$@"; do
+    if [[ ! -f "${file}" ]]; then
+      _log_error "Missing file: ${file}"
+      return 1
+    fi
+    # Get the numeric value of the last byte; newline (LF) == 10
+    local last_byte
+    last_byte=$(tail -c1 "${file}" 2>/dev/null | od -An -t u1 2>/dev/null | tr -d '[:space:]' || true)
+    if [[ "${last_byte}" != "10" ]]; then
+      _log_error "File '${file}' does not end with a newline"
+      return 1
+    fi
+  done
+}
+
 function _prepare_package() {
   _create_sha_version_file
   _merge_sh_sources
@@ -76,6 +94,10 @@ function _make_tar_archive() {
 function _merge_sh_sources() {
   cp src/main/bash/nixlper.sh "${WORK_DIRECTORY}/nixlper.tmp"
   cat src/main/bash/function* >> "${WORK_DIRECTORY}/functions.tmp"
+
+  # Fail the build if any source that will be merged does not end with a newline (return line)
+  _ensure_trailing_newline_in src/main/bash/nixlper.sh src/main/bash/function*
+
   sed -i '1,${/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
   sed -i '1,${/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
   echo "#!/usr/bin/env bash" > "${WORK_DIRECTORY}/nixlper.sh"
@@ -92,7 +114,7 @@ function _merge_sh_sources() {
 }
 
 function _log_info() {
-  echo "ℹ️ $1"	
+  echo "ℹ️ $1"
 }
 
 function _log_ok() {
