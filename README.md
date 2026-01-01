@@ -8,6 +8,19 @@ The goal of the bash project is to provide useful Unix commands for various purp
 and this is why it contains a lots of key shortcuts.
 Now, you can decide to build it by yourself following [next chapter](#prerequisites-for-sh-build) or you can simply download the lastest release from Github.
 
+## Architecture
+
+This project consists of multiple modular `.sh` scripts located in `src/main`.
+The build process (via `build.sh`) concatenates and packages them into
+a single distributable archive. After extraction, the main entry script
+`nixlper.sh` orchestrates the internal modules.
+
+This approach allows:
+- Easier development and maintenance of individual modules.
+- A single installable script for end users.
+
+The build output is found in `build/distributions/`.
+
 ## Prerequisites for sh build
 You need a bash command line, I personally use [Git bash](https://git-scm.com/downloads). 
 
