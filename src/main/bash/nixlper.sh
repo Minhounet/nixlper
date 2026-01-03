@@ -201,6 +201,9 @@ function _i_load_bindings() {
     bind -x '"\C-p":start_recording'
     bind -x  '"\C-p\C-p": finalize_recording'
     bind -x  '"\C-p\C-l": bind_last_macro'
+
+    # command palette
+    bind -x '"\C-x\C-a": find_action'
   fi
 }
 
@@ -227,6 +230,7 @@ alias fan=_find_and_navigate
 alias ap='DIR=$(pwd); if ! grep -q "$DIR" ~/.bashrc; then echo "export PATH=$DIR:\$PATH" >> ~/.bashrc && echo "Prepended $DIR to PATH in .bashrc"; else echo "$DIR is already in .bashrc"; fi; source ~/.bashrc'
 alias sr=start_recording
 alias fr=finalize_recording
+alias fa=find_action
 
 #***********************************************************************************************************************
 ########################################################################################################################

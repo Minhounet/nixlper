@@ -176,3 +176,58 @@ function _get_command_details() {
   fi
 }
 
+#-----------------------------------------------------------------------------------------------------------------------
+# find_action: Display command palette popup with searchable command list
+# Alias: fa
+# Keybind: CTRL+X+A
+# @cmd-palette
+# @description: Search and select commands interactively
+# @category: Command Palette
+# @keybind: CTRL+X+A
+# @alias: fa
+#-----------------------------------------------------------------------------------------------------------------------
+function find_action() {
+  # Check if fzf is available
+  if ! command -v fzf &> /dev/null; then
+    _i_log_as_error "fzf is not installed. Command palette requires fzf."
+    echo "Install fzf: https://github.com/junegunn/fzf#installation"
+    return 1
+  fi
+
+  # Build and format the command registry
+  local commands_list=""
+  while read -r line; do
+    _format_command_for_display "$line"
+  done < <(_build_command_registry)
+
+  # Display the command palette with fzf
+  local selected
+  selected=$(while read -r line; do _format_command_for_display "$line"; done < <(_build_command_registry) | \
+    fzf \
+      --ansi \
+      --header="╔═══════════════════════════════════════════════════════════════════════════╗
+║                    NIXLPER COMMAND PALETTE (Find Action)                  ║
+║  Type to search commands by name, description, or category                ║
+║  ESC: Cancel  |  ENTER: Show selection (execution coming in Phase 3)     ║
+╚═══════════════════════════════════════════════════════════════════════════╝" \
+      --header-lines=0 \
+      --prompt="Search commands > " \
+      --height=80% \
+      --border=rounded \
+      --preview-window=hidden \
+      --color="header:cyan,prompt:green,pointer:yellow")
+
+  # For now, just display what was selected (Phase 2 - no execution yet)
+  if [[ -n "$selected" ]]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Selected command:"
+    echo "$selected"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "Note: Command execution will be implemented in Phase 3"
+  else
+    echo "Command palette cancelled"
+  fi
+}
+
