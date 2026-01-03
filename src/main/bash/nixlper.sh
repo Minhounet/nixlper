@@ -196,6 +196,7 @@ function _i_load_bindings() {
 alias c=_mark_folder_as_current
 alias cdf=_change_directory_from_filepath
 alias cf=_mark_file_as_current
+alias cpcb=_copy_fullpath_to_clipboard
 alias ik=_interactive_kill
 alias sucd=_su_to_current_directory
 alias sn=_snapshot_file
