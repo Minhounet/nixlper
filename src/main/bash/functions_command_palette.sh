@@ -132,6 +132,11 @@ function _format_command_for_display() {
 #-----------------------------------------------------------------------------------------------------------------------
 # _get_command_details: Get detailed information about a command for preview
 # Args: $1 = selected line from fzf
+#
+# NOTE: This function is currently UNUSED and may be redundant since the one-line display already shows
+# description, category, and keybinding. Consider removing if preview window doesn't add value.
+# TODO: Evaluate for removal after Phase 2 implementation - keep only if we add useful preview info
+# (e.g., parameters, examples, related commands)
 #-----------------------------------------------------------------------------------------------------------------------
 function _get_command_details() {
   local selected="$1"
