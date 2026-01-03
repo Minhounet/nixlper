@@ -1,0 +1,62 @@
+name: Auto Delete Merged Branches
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-branch:
+    # Only run if the PR was merged (not just closed)
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check branch name safety
+        id: check-branch
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          echo "Branch to delete: $BRANCH_NAME"
+
+          # Safety check: never delete main, master, develop, or release branches
+          if [[ "$BRANCH_NAME" == "main" ]] || \
+             [[ "$BRANCH_NAME" == "master" ]] || \
+             [[ "$BRANCH_NAME" == "develop" ]] || \
+             [[ "$BRANCH_NAME" == "development" ]] || \
+             [[ "$BRANCH_NAME" =~ ^release/.* ]]; then
+            echo "ERROR: Attempting to delete protected branch: $BRANCH_NAME"
+            echo "safe=false" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "Branch is safe to delete"
+            echo "safe=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Delete merged branch
+        if: steps.check-branch.outputs.safe == 'true'
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          echo "Deleting branch: $BRANCH_NAME"
+
+          # Delete the branch
+          git push origin --delete "$BRANCH_NAME" || {
+            echo "Failed to delete branch $BRANCH_NAME"
+            echo "This might be normal if the branch was already deleted"
+            exit 0
+          }
+
+          echo "Successfully deleted branch: $BRANCH_NAME"
+
+      - name: Comment on PR
+        if: steps.check-branch.outputs.safe == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🗑️ Branch `${{ github.event.pull_request.head.ref }}` has been automatically deleted after merge.'
+            })
