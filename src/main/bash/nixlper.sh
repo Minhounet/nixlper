@@ -168,6 +168,9 @@ function _i_load_bindings() {
     # help
     bind '"\C-x\C-h": "_help\15"'
 
+    # version and logo
+    bind -x '"\C-x\C-v": _display_logo_and_version'
+
     # files
     bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
     bind '"\C-x\C-r":"rm -rf $(pwd)/\33\5*"' #\33\5 is ESC then CTRL+R
