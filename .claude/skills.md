@@ -1,4 +1,6 @@
 # Nixlper-Specific Skills
+## sense of humor
+I believe genuinely that we can do work seriously but still make jokes. So I am not against puns or play of words in my code as long that everything works fine. For example jokes can be sometimes in the comments or in the log.
 
 ## Modular Bash Development
 - Create reusable bash functions
@@ -70,6 +72,7 @@ Each module in src/main/ should:
 5. Test individually
 6. Test with shellcheck and Refactor if not risky
 7. Build and test complete package
+8. Tell what was not really tested and need attention
 
 ### Non exposed functions
 1. add _ for functions only used internally

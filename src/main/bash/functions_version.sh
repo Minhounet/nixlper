@@ -4,6 +4,10 @@
 # DESCRIPTION: functions related to version display
 ########################################################################################################################
 
+# @cmd-palette
+# @description: Display nixlper logo and version
+# @category: Version
+# @keybind: CTRL+X+V
 function _display_logo_and_version() {
   local version_file="${NIXLPER_INSTALL_DIR}/version"
 

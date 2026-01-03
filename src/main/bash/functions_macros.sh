@@ -11,12 +11,22 @@
 START_MARKER="###START_RECORD###"
 END_MARKER="###END_RECORD###"
 
+# @cmd-palette
+# @description: Start recording bash commands
+# @category: Macros
+# @keybind: CTRL+P
+# @alias: sr
 function start_recording() {
   history -s "$START_MARKER"
   history -a
   _i_log_as_info "Recording started. Run your commands now."
 }
 
+# @cmd-palette
+# @description: Stop and save macro recording
+# @category: Macros
+# @keybind: CTRL+P+CTRL+P
+# @alias: fr
 function finalize_recording() {
   _stop_record
   _clean_markers
@@ -74,6 +84,10 @@ function _prepare_binding() {
   _i_log_as_info "Ctrl+x Ctrl+x bound to your recorded commands and saved to $NIXLPER_LAST_MACRO_BINDING_FILE"
 }
 
+# @cmd-palette
+# @description: Replay last recorded macro
+# @category: Macros
+# @keybind: CTRL+P+CTRL+L
 function bind_last_macro() {
   if [[ ! -f "$NIXLPER_LAST_MACRO_BINDING_FILE" ]]; then
     _i_log_as_error "Cannot bind last macro because nothing has been recorded"
