@@ -6,65 +6,89 @@
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _build_command_registry: Build a searchable registry of all available commands
-# Output format: command_name | description | category | keybinding | type
+# Dynamically parses @cmd-palette annotations from source files
+# Output format: command_name | description | category | keybinding | alias
 #-----------------------------------------------------------------------------------------------------------------------
 function _build_command_registry() {
-  cat <<'EOF'
-# BOOKMARKS
-_display_existing_bookmarks|Display existing bookmarks with aliases|Bookmarks|CTRL+X+D|keybind
-_add_or_remove_bookmark|Add or remove bookmark for current folder|Bookmarks|CTRL+X+B|keybind
-projects_alias|Jump to bookmarked path (dynamic aliases)|Bookmarks||alias
+  local bash_dir="${NIXLPER_INSTALL_DIR}"
 
-# FILES & FOLDERS
-c|Mark current folder (use 'gc' to return)|Files & Folders||alias
-cf|Mark file as current (use 'gcf' to open)|Files & Folders||alias
-cdf|Change to the folder containing a file|Files & Folders||alias
-cpcb|Copy full file path to clipboard|Files & Folders||alias
-cpdcb|Copy directory path to clipboard|Files & Folders||alias
-sn|Snapshot file to snapshots area|Files & Folders||alias
-re|Restore file from snapshots|Files & Folders||alias
-fan|Find and navigate using pattern matching|Files & Folders||alias
-_mark_folder_as_current|Mark current folder (internal function)|Files & Folders||function
-_mark_file_as_current|Mark file as current (internal function)|Files & Folders||function
-_change_directory_from_filepath|Change to directory from file path|Files & Folders||function
-_copy_fullpath_to_clipboard|Copy full path to clipboard|Files & Folders||function
-_copy_directory_to_clipboard|Copy directory to clipboard|Files & Folders||function
-_snapshot_file|Snapshot file to snapshots area|Files & Folders||function
-_restore_file|Restore file from snapshots|Files & Folders||function
-_find_and_navigate|Find and navigate by pattern|Files & Folders||function
+  # If we're in development (source tree), use src/main/bash
+  if [[ -d "${NIXLPER_INSTALL_DIR}/src/main/bash" ]]; then
+    bash_dir="${NIXLPER_INSTALL_DIR}/src/main/bash"
+  fi
 
-# NAVIGATION
-navigate|Navigate folders interactively (tree/flat mode)|Navigation|CTRL+X+N|keybind
-toggle_navigation_mode|Toggle size/permissions display in navigate|Navigation||function
-n1_n2_etc|Navigate to folder N (dynamic aliases)|Navigation|CTRL+X+NUMBER|keybind
-v1_v2_etc|Open file N in editor (dynamic aliases)|Navigation||alias
-cd_..|Go up one directory|Navigation|CTRL+X+U|keybind
+  # Find all bash files and parse annotations
+  local files=$(find "$bash_dir" -name "*.sh" -o -name "nixlper.sh" 2>/dev/null)
 
-# PROCESSES
-ik|Interactive kill by pattern or port|Processes||alias
-_interactive_kill|Interactive kill process (internal)|Processes||function
+  # Parse each file for @cmd-palette annotations
+  for file in $files; do
+    _parse_cmd_palette_annotations "$file"
+  done
+}
 
-# MACROS
-start_recording|Start recording bash commands|Macros|CTRL+P|keybind
-finalize_recording|Stop and save macro recording|Macros|CTRL+P+CTRL+P|keybind
-bind_last_macro|Replay last recorded macro|Macros|CTRL+P+CTRL+L|keybind
-sr|Start recording (alias)|Macros||alias
-fr|Finalize recording (alias)|Macros||alias
+#-----------------------------------------------------------------------------------------------------------------------
+# _parse_cmd_palette_annotations: Parse @cmd-palette annotations from a file
+# Args: $1 = file path
+#-----------------------------------------------------------------------------------------------------------------------
+function _parse_cmd_palette_annotations() {
+  local file="$1"
+  local in_annotation=0
+  local description=""
+  local category=""
+  local keybind=""
+  local alias_name=""
+  local cmd_name=""
 
-# USERS
-sucd|Switch user and maintain current directory|Users||alias
-_su_to_current_directory|Switch user to current dir (internal)|Users||function
+  while IFS= read -r line; do
+    # Check if we're starting a new annotation block
+    if [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@cmd-palette ]]; then
+      in_annotation=1
+      description=""
+      category=""
+      keybind=""
+      alias_name=""
+      cmd_name=""
+      continue
+    fi
 
-# HELP & VERSION
-_help|Interactive help search|Help|CTRL+X+H|keybind
-_display_logo_and_version|Display nixlper logo and version|Version|CTRL+X+V|keybind
+    # Parse annotation fields
+    if [[ $in_annotation -eq 1 ]]; then
+      if [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@description:[[:space:]]*(.*) ]]; then
+        description="${BASH_REMATCH[1]}"
+      elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@category:[[:space:]]*(.*) ]]; then
+        category="${BASH_REMATCH[1]}"
+      elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@keybind:[[:space:]]*(.*) ]]; then
+        keybind="${BASH_REMATCH[1]}"
+      elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@alias:[[:space:]]*(.*) ]]; then
+        alias_name="${BASH_REMATCH[1]}"
+      elif [[ "$line" =~ ^[[:space:]]*function[[:space:]]+([a-zA-Z0-9_]+) ]] || [[ "$line" =~ ^[[:space:]]*alias[[:space:]]+([a-zA-Z0-9_]+)= ]]; then
+        # Found the function or alias definition - extract command name
+        cmd_name="${BASH_REMATCH[1]}"
 
-# UTILITIES
-ap|Prepend current path to PATH in .bashrc|Utilities||alias
-delete_current_folder|Display safe rm command for current folder|Utilities|CTRL+X+E|keybind
-delete_folder_contents|Display safe rm command for folder contents|Utilities|CTRL+X+R|keybind
-open_nixlper|Open nixlper.sh in editor|Utilities|CTRL+X+O|keybind
-EOF
+        # Use alias name if available, otherwise use function name
+        if [[ -n "$alias_name" ]]; then
+          cmd_name="$alias_name"
+        fi
+
+        # Output the parsed command
+        if [[ -n "$cmd_name" && -n "$description" ]]; then
+          echo "${cmd_name}|${description}|${category}|${keybind}|${alias_name}"
+        fi
+
+        # Reset for next annotation
+        in_annotation=0
+      elif [[ "$line" =~ ^[[:space:]]*bind ]]; then
+        # Handle bind statements (keybindings without functions)
+        # Extract a command name from the description or keybind
+        if [[ -n "$keybind" && -n "$description" ]]; then
+          # Create a pseudo command name from the keybind
+          cmd_name=$(echo "$keybind" | tr '+' '_' | tr -d ' ')
+          echo "${cmd_name}|${description}|${category}|${keybind}|"
+        fi
+        in_annotation=0
+      fi
+    fi
+  done < "$file"
 }
 
 #-----------------------------------------------------------------------------------------------------------------------

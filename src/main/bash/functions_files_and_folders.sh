@@ -6,6 +6,10 @@
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _mark_folder_as_current: similar to "c" command in vi/vim
+# @cmd-palette
+# @description: Mark current folder (use 'gc' to return)
+# @category: Files & Folders
+# @alias: c
 #-----------------------------------------------------------------------------------------------------------------------
 function _mark_folder_as_current() {
     local -r current_folder=$(pwd)
@@ -15,6 +19,10 @@ function _mark_folder_as_current() {
 }
 #-----------------------------------------------------------------------------------------------------------------------
 # _mark_file_as_current: like _mark_folder_as_current but for file, need a file as parameter
+# @cmd-palette
+# @description: Mark file as current (use 'gcf' to open)
+# @category: Files & Folders
+# @alias: cf
 #-----------------------------------------------------------------------------------------------------------------------
 function _mark_file_as_current() {
   if [[ $# -eq 0 ]]; then
@@ -33,6 +41,10 @@ function _mark_file_as_current() {
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _snapshot_file: save a file into the snapshots area
+# @cmd-palette
+# @description: Snapshot file to snapshots area
+# @category: Files & Folders
+# @alias: sn
 #-----------------------------------------------------------------------------------------------------------------------
 function _snapshot_file() {
   if [[ $# -eq 0 ]]; then
@@ -59,6 +71,10 @@ function _snapshot_file() {
 }
 #-----------------------------------------------------------------------------------------------------------------------
 # _restore_file: restore a file which has been saved before. Can be used in interactive mode if no argument is provided
+# @cmd-palette
+# @description: Restore file from snapshots
+# @category: Files & Folders
+# @alias: re
 #-----------------------------------------------------------------------------------------------------------------------
 function _restore_file() {
   if [[ $# -eq 0 ]]; then
@@ -124,6 +140,10 @@ function _i_restore_file_interactive() {
 # _change_directory_from_filepath: go to folder from filepath.
 # _change_directory_from_filepath /tmp/test.sh will bring you to /tmp. Very useful when combined with locate command
 # before
+# @cmd-palette
+# @description: Change to the folder containing a file
+# @category: Files & Folders
+# @alias: cdf
 #-----------------------------------------------------------------------------------------------------------------------
 function _change_directory_from_filepath() {
     [[ "$1" == "--help" ]] && echo "$FUNCNAME go to the folder containing the provided path

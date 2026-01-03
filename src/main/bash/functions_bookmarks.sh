@@ -16,6 +16,10 @@ SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _display_existing_bookmarks: display existing bookmarks displaying path + related alias
+# @cmd-palette
+# @description: Display existing bookmarks with aliases
+# @category: Bookmarks
+# @keybind: CTRL+X+D
 #-----------------------------------------------------------------------------------------------------------------------
 function _display_existing_bookmarks() {
   additional_option=""
@@ -49,6 +53,10 @@ function _display_existing_bookmarks() {
 # - Test if current folder is in the bookmarks
 #   - if so, propose to add it to the bookmarks
 #   - if no, propose to remove it from bookmarks
+# @cmd-palette
+# @description: Add or remove bookmark for current folder
+# @category: Bookmarks
+# @keybind: CTRL+X+B
 #-----------------------------------------------------------------------------------------------------------------------
 function _add_or_remove_bookmark() {
   _display_existing_bookmarks "HIDE"

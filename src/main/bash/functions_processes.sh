@@ -3,6 +3,10 @@
 # FILE: processes.sh
 # DESCRIPTION: functions related to unix processes, killing feature is appreciable!
 ########################################################################################################################
+# @cmd-palette
+# @description: Interactive kill by pattern or port
+# @category: Processes
+# @alias: ik
 function _interactive_kill() {
   local param_killmode=""
   local value=""

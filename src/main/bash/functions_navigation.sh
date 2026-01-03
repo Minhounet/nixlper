@@ -10,6 +10,10 @@ export NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE=1
 
 #-----------------------------------------------------------------------------------------------------------------------
 # navigate: Make the navigation easier, calling this navigate function display the following output depending on the display mode
+# @cmd-palette
+# @description: Navigate folders interactively (tree/flat mode)
+# @category: Navigation
+# @keybind: CTRL+X+N
 #-----------------------------------------------------------------------------------------------------------------------
 # Tree mode
 # ---------------------------------------------------------------------------------------------------------------
@@ -159,6 +163,10 @@ function _i_navigate_flat() {
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _find_and_navigate: execute "find . -iname "*PATTERN"" then display results in "navigate" style (see above)
+# @cmd-palette
+# @description: Find and navigate using pattern matching
+# @category: Navigation
+# @alias: fan
 #-----------------------------------------------------------------------------------------------------------------------
 function _find_and_navigate() {
   if [[ $# -eq 0 ]]; then
@@ -200,6 +208,9 @@ function _find_and_navigate() {
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _toggle_size_display_during_navigation: enable/disable size display during navigate call
+# @cmd-palette
+# @description: Toggle size/permissions display in navigate
+# @category: Navigation
 #-----------------------------------------------------------------------------------------------------------------------
 function toggle_navigation_mode() {
   if [[ "${NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE}" -eq 0 ]]; then

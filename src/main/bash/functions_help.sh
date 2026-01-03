@@ -6,6 +6,10 @@
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _help: look for help from a pattern (you can look for "book" for bookmarks topic for example
+# @cmd-palette
+# @description: Interactive help search
+# @category: Help
+# @keybind: CTRL+X+H
 #-----------------------------------------------------------------------------------------------------------------------
 function _help() {
   echo "Nixlper Help: existing topics are:"
