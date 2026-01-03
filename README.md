@@ -81,6 +81,10 @@ This is pretty simple, just perform the command below from the install path:
 - `cf FILEPATH` : mark file as current, use `gcf` to open it in vim from any place
 
 
+- `cpcb [FILEPATH]`: copy full path of file to clipboard (defaults to current directory if no argument)
+- `cpdcb FILEPATH`: copy full path of directory containing the file to clipboard
+
+
 - `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history
 - `CTRL + X then R`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete current folder contents and to avoid `rm -rf *` in your bash history
 
