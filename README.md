@@ -116,6 +116,10 @@ See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
 
 - `CTRL + X then H`: give the ability to search help per topic
 
+### Version and Logo
+
+- `CTRL + X then V`: display the Nixlper logo with version information and git SHA
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
