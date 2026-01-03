@@ -177,6 +177,59 @@ function _get_command_details() {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
+# _execute_command: Execute a command selected from the command palette
+# Args: $1 = selected formatted line from fzf
+#-----------------------------------------------------------------------------------------------------------------------
+function _execute_command() {
+  local selected="$1"
+
+  # Extract command name from the formatted display string
+  # Format is: [KEYBIND]  COMMAND_NAME  DESCRIPTION {CATEGORY}
+  # or:                    COMMAND_NAME  DESCRIPTION {CATEGORY} (no keybind)
+
+  # Remove keybinding part if present and extract command name
+  local cmd_name=$(echo "$selected" | sed 's/^\[.*\][[:space:]]*//' | awk '{print $1}')
+
+  if [[ -z "$cmd_name" ]]; then
+    _i_log_as_error "Could not extract command name from selection"
+    return 1
+  fi
+
+  # Look up the command in the registry to get its details
+  local registry_line=$(_build_command_registry | grep "^${cmd_name}|")
+
+  if [[ -z "$registry_line" ]]; then
+    _i_log_as_error "Command '${cmd_name}' not found in registry"
+    return 1
+  fi
+
+  local keybinding=$(echo "$registry_line" | cut -d'|' -f4)
+
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "Executing: $cmd_name"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+
+  # Check if this is a keybinding-only command (pseudo commands like CTRL_X_E)
+  if [[ "$cmd_name" =~ ^CTRL.*$ ]] && [[ -n "$keybinding" ]]; then
+    echo "Note: This is a keybinding command: $keybinding"
+    echo "Please use the keybinding directly in your terminal."
+    echo ""
+    return 0
+  fi
+
+  # Check if the command exists as a function or alias
+  if type -t "$cmd_name" &>/dev/null; then
+    # Execute the command
+    eval "$cmd_name"
+  else
+    _i_log_as_error "Command '${cmd_name}' is not available (not a function, alias, or executable)"
+    return 1
+  fi
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
 # find_action: Display command palette popup with searchable command list
 # Alias: fa
 # Keybind: CTRL+X+A
@@ -208,7 +261,7 @@ function find_action() {
       --header="╔═══════════════════════════════════════════════════════════════════════════╗
 ║                    NIXLPER COMMAND PALETTE (Find Action)                  ║
 ║  Type to search commands by name, description, or category                ║
-║  ESC: Cancel  |  ENTER: Show selection (execution coming in Phase 3)     ║
+║  ESC: Cancel  |  ENTER: Execute selected command                         ║
 ╚═══════════════════════════════════════════════════════════════════════════╝" \
       --header-lines=0 \
       --prompt="Search commands > " \
@@ -217,15 +270,9 @@ function find_action() {
       --preview-window=hidden \
       --color="header:cyan,prompt:green,pointer:yellow")
 
-  # For now, just display what was selected (Phase 2 - no execution yet)
+  # Execute the selected command
   if [[ -n "$selected" ]]; then
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Selected command:"
-    echo "$selected"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "Note: Command execution will be implemented in Phase 3"
+    _execute_command "$selected"
   else
     echo "Command palette cancelled"
   fi
