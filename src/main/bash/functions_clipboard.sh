@@ -31,6 +31,10 @@ function _i_get_clipboard_tool() {
 #   cpcb                    # Copies current directory full path
 #   cpcb myfile.txt         # Copies full path of myfile.txt
 #   cpcb ../some/path       # Copies full path of relative path
+# @cmd-palette
+# @description: Copy full file path to clipboard
+# @category: Files & Folders
+# @alias: cpcb
 ########################################################################################################################
 function _copy_fullpath_to_clipboard() {
   local target="${1:-.}"
@@ -78,6 +82,10 @@ function _copy_fullpath_to_clipboard() {
 #   cpdcb myfile.txt        # Copies full path of directory containing myfile.txt
 #   cpdcb /path/to/file.sh  # Copies /path/to
 #   cpdcb .                 # Copies current directory
+# @cmd-palette
+# @description: Copy directory path to clipboard
+# @category: Files & Folders
+# @alias: cpdcb
 ########################################################################################################################
 function _copy_directory_to_clipboard() {
   local target="$1"
