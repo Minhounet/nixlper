@@ -171,31 +171,15 @@ function _i_load_bindings() {
     # version and logo
     bind -x '"\C-x\C-v": _display_logo_and_version'
 
-    # files
-    # @cmd-palette
-    # @description: Display safe rm command to delete current folder
-    # @category: Utilities
-    # @keybind: CTRL+X+E
+    # files (bind-only keybindings - use CTRL+X+E and CTRL+X+R directly)
     bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
-    # @cmd-palette
-    # @description: Display safe rm command to delete folder contents
-    # @category: Utilities
-    # @keybind: CTRL+X+R
     bind '"\C-x\C-r":"rm -rf $(pwd)/\33\5*"' #\33\5 is ESC then CTRL+R
 
-    # navigation
-    # @cmd-palette
-    # @description: Go up one directory
-    # @category: Navigation
-    # @keybind: CTRL+X+U
+    # navigation (bind-only keybindings - use CTRL+X+U directly)
     bind '"\C-x\C-u": "cd ..\15"'
     bind -x '"\C-x\C-n": navigate'
 
-    # instant access to this file
-    # @cmd-palette
-    # @description: Open nixlper.sh in editor
-    # @category: Utilities
-    # @keybind: CTRL+X+O
+    # instant access to this file (bind-only - use CTRL+X+O directly)
     bind -x '"\C-x\C-o": $NIXLPER_EDITOR ${NIXLPER_INSTALL_DIR}/nixlper.sh'
 
     bind -x '"\C-p":start_recording'

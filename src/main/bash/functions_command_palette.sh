@@ -78,13 +78,8 @@ function _parse_cmd_palette_annotations() {
         # Reset for next annotation
         in_annotation=0
       elif [[ "$line" =~ ^[[:space:]]*bind ]]; then
-        # Handle bind statements (keybindings without functions)
-        # Extract a command name from the description or keybind
-        if [[ -n "$keybind" && -n "$description" ]]; then
-          # Create a pseudo command name from the keybind
-          cmd_name=$(echo "$keybind" | tr '+' '_' | tr -d ' ')
-          echo "${cmd_name}|${description}|${category}|${keybind}|"
-        fi
+        # Skip bind-only statements (keybindings without executable functions)
+        # These can't be executed programmatically - user must use the keybinding
         in_annotation=0
       fi
     fi
@@ -210,14 +205,6 @@ function _execute_command() {
   echo "Executing: $cmd_name"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""
-
-  # Check if this is a keybinding-only command (pseudo commands like CTRL_X_E)
-  if [[ "$cmd_name" =~ ^CTRL.*$ ]] && [[ -n "$keybinding" ]]; then
-    echo "Note: This is a keybinding command: $keybinding"
-    echo "Please use the keybinding directly in your terminal."
-    echo ""
-    return 0
-  fi
 
   # Check if the command exists as a function or alias
   if type -t "$cmd_name" &>/dev/null; then
