@@ -78,8 +78,13 @@ function _parse_cmd_palette_annotations() {
         # Reset for next annotation
         in_annotation=0
       elif [[ "$line" =~ ^[[:space:]]*bind ]]; then
-        # Skip bind-only statements (keybindings without executable functions)
-        # These can't be executed programmatically - user must use the keybinding
+        # Handle bind-only statements (keybindings without executable functions)
+        # Show them in palette with info, but they can't be executed programmatically
+        if [[ -n "$keybind" && -n "$description" ]]; then
+          # Create a descriptive command name from the keybind
+          cmd_name=$(echo "$keybind" | tr '+' '_' | tr -d ' ')
+          echo "${cmd_name}|${description}|${category}|${keybind}|keybind-only"
+        fi
         in_annotation=0
       fi
     fi
@@ -199,9 +204,22 @@ function _execute_command() {
   fi
 
   local keybinding=$(echo "$registry_line" | cut -d'|' -f4)
+  local cmd_type=$(echo "$registry_line" | cut -d'|' -f5)
 
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+  # Check if this is a keybinding-only command
+  if [[ "$cmd_type" == "keybind-only" ]]; then
+    echo "Keybinding: $keybinding"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "This is a keybinding-only command."
+    echo "Please use the keybinding directly in your terminal: $keybinding"
+    echo ""
+    return 0
+  fi
+
   echo "Executing: $cmd_name"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""
