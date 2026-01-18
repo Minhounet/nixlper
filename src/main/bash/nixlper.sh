@@ -172,19 +172,38 @@ function _i_load_bindings() {
     bind -x '"\C-x\C-v": _display_logo_and_version'
 
     # files
+    # @cmd-palette
+    # @description: Display safe rm command to delete current folder
+    # @category: Utilities
+    # @keybind: CTRL+X+E
     bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
+    # @cmd-palette
+    # @description: Display safe rm command to delete folder contents
+    # @category: Utilities
+    # @keybind: CTRL+X+R
     bind '"\C-x\C-r":"rm -rf $(pwd)/\33\5*"' #\33\5 is ESC then CTRL+R
 
     # navigation
+    # @cmd-palette
+    # @description: Go up one directory
+    # @category: Navigation
+    # @keybind: CTRL+X+U
     bind '"\C-x\C-u": "cd ..\15"'
     bind -x '"\C-x\C-n": navigate'
 
     # instant access to this file
+    # @cmd-palette
+    # @description: Open nixlper.sh in editor
+    # @category: Utilities
+    # @keybind: CTRL+X+O
     bind -x '"\C-x\C-o": $NIXLPER_EDITOR ${NIXLPER_INSTALL_DIR}/nixlper.sh'
 
     bind -x '"\C-p":start_recording'
     bind -x  '"\C-p\C-p": finalize_recording'
     bind -x  '"\C-p\C-l": bind_last_macro'
+
+    # command palette
+    bind -x '"\C-x\C-a": find_action'
   fi
 }
 
@@ -204,9 +223,14 @@ alias sn=_snapshot_file
 alias re=_restore_file
 alias fan=_find_and_navigate
 # Prepend current path in PATH variable updating the .bashrc if not already done
+# @cmd-palette
+# @description: Prepend current path to PATH in .bashrc
+# @category: Utilities
+# @alias: ap
 alias ap='DIR=$(pwd); if ! grep -q "$DIR" ~/.bashrc; then echo "export PATH=$DIR:\$PATH" >> ~/.bashrc && echo "Prepended $DIR to PATH in .bashrc"; else echo "$DIR is already in .bashrc"; fi; source ~/.bashrc'
 alias sr=start_recording
 alias fr=finalize_recording
+alias fa=find_action
 
 #***********************************************************************************************************************
 ########################################################################################################################
