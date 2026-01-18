@@ -176,11 +176,13 @@ function _i_load_bindings() {
     # @description: Display safe rm command to delete current folder
     # @category: Utilities
     # @keybind: CTRL+X+E
+    # @template
     bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
     # @cmd-palette
     # @description: Display safe rm command to delete folder contents
     # @category: Utilities
     # @keybind: CTRL+X+R
+    # @template
     bind '"\C-x\C-r":"rm -rf $(pwd)/\33\5*"' #\33\5 is ESC then CTRL+R
 
     # navigation
