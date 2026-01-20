@@ -130,6 +130,7 @@ function _format_command_for_display() {
   local display=""
   local keybind_part=""
   local category_part=""
+  local type_indicator=""
 
   # Add keybinding if exists (aligned to 20 chars)
   if [[ -n "$keybinding" ]]; then
@@ -138,13 +139,18 @@ function _format_command_for_display() {
     keybind_part=$(printf "%-20s" "")
   fi
 
+  # Add type indicator for aliases
+  if [[ -n "$cmd_type" && "$cmd_type" == "$cmd_name" && "$cmd_type" != "bind" ]]; then
+    type_indicator="[alias] "
+  fi
+
   # Add category tag
   if [[ -n "$category" ]]; then
     category_part=" {$category}"
   fi
 
   # Output the formatted line (35 chars for command name to handle longer names)
-  printf "%s%-35s%s%s\n" "$keybind_part" "$cmd_name" "$description" "$category_part"
+  printf "%s%-35s%s%s%s\n" "$keybind_part" "$cmd_name" "${type_indicator}${description}" "$category_part"
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -226,6 +232,9 @@ function _clean_bind_command() {
 # Args: $1 = selected formatted line from fzf
 #-----------------------------------------------------------------------------------------------------------------------
 function _execute_command() {
+  # Enable alias expansion for eval
+  shopt -s expand_aliases
+
   local selected="$1"
 
   # Extract command name from the formatted display string
