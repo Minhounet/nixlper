@@ -5,25 +5,66 @@
 ########################################################################################################################
 
 #-----------------------------------------------------------------------------------------------------------------------
+# _register_keybindings: Register all keybind commands
+#-----------------------------------------------------------------------------------------------------------------------
+function _register_keybindings() {
+  echo "CTRL_X_D|Display existing bookmarks with aliases|Bookmarks|CTRL+X+D|bind|_display_existing_bookmarks|0"
+  echo "CTRL_X_B|Add or remove bookmark for current folder|Bookmarks|CTRL+X+B|bind|_add_or_remove_bookmark\15|0"
+  echo "CTRL_X_H|Interactive help search|Help|CTRL+X+H|bind|_help\15|0"
+  echo "CTRL_X_V|Display nixlper logo and version|Version|CTRL+X+V|bind|_display_logo_and_version|0"
+  echo "CTRL_X_E|Display safe rm command to delete current folder|Utilities|CTRL+X+E|bind|rm -rf \$(pwd)/\33\5 && cd ..|1"
+  echo "CTRL_X_R|Display safe rm command to delete folder contents|Utilities|CTRL+X+R|bind|rm -rf \$(pwd)/\33\5*|1"
+  echo "CTRL_X_U|Go up one directory|Navigation|CTRL+X+U|bind|cd ..\15|0"
+  echo "CTRL_X_N|Navigate folders interactively (tree/flat mode)|Navigation|CTRL+X+N|bind|navigate|0"
+  echo "CTRL_X_O|Open nixlper.sh in editor|Utilities|CTRL+X+O|bind|\$NIXLPER_EDITOR \${NIXLPER_INSTALL_DIR}/nixlper.sh|0"
+  echo "CTRL_X_A|Search and select commands interactively|Command Palette|CTRL+X+A|bind|find_action|0"
+  echo "CTRL_P|Start recording bash commands|Macros|CTRL+P|bind|start_recording|0"
+  echo "CTRL_P_CTRL_P|Stop and save macro recording|Macros|CTRL+P+CTRL+P|bind|finalize_recording|0"
+  echo "CTRL_P_CTRL_L|Replay last recorded macro|Macros|CTRL+P+CTRL+L|bind|bind_last_macro|0"
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _register_aliases: Register all alias commands
+#-----------------------------------------------------------------------------------------------------------------------
+function _register_aliases() {
+  echo "fa|Search and select commands interactively|Command Palette|CTRL+X+A|fa|0"
+  echo "ik|Interactive kill by pattern or port|Processes||ik|0"
+  echo "sr|Start recording bash commands|Macros|CTRL+P|sr|0"
+  echo "fr|Stop and save macro recording|Macros|CTRL+P+CTRL+P|fr|0"
+  echo "c|Mark current folder (use 'gc' to return)|Files & Folders||c|0"
+  echo "cf|Mark file as current (use 'gcf' to open)|Files & Folders||cf|0"
+  echo "sn|Snapshot file to snapshots area|Files & Folders||sn|0"
+  echo "re|Restore file from snapshots|Files & Folders||re|0"
+  echo "cdf|Change to the folder containing a file|Files & Folders||cdf|0"
+  echo "cpcb|Copy full file path to clipboard|Files & Folders||cpcb|0"
+  echo "cpdcb|Copy directory path to clipboard|Files & Folders||cpdcb|0"
+  echo "sucd|Switch user and maintain current directory|Users||sucd|0"
+  echo "ap|Prepend current path to PATH in .bashrc|Utilities||ap|0"
+  echo "fan|Find and navigate using pattern matching|Navigation||fan|0"
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _register_functions: Register all function commands (that aren't already registered as bindings)
+#-----------------------------------------------------------------------------------------------------------------------
+function _register_functions() {
+  echo "_display_existing_bookmarks|Display existing bookmarks with aliases|Bookmarks|CTRL+X+D||0"
+  echo "_add_or_remove_bookmark|Add or remove bookmark for current folder|Bookmarks|CTRL+X+B||0"
+  echo "_help|Interactive help search|Help|CTRL+X+H||0"
+  echo "_display_logo_and_version|Display nixlper logo and version|Version|CTRL+X+V||0"
+  echo "navigate|Navigate folders interactively (tree/flat mode)|Navigation|CTRL+X+N||0"
+  echo "bind_last_macro|Replay last recorded macro|Macros|CTRL+P+CTRL+L||0"
+  echo "toggle_navigation_mode|Toggle size/permissions display in navigate|Navigation|||0"
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
 # _build_command_registry: Build a searchable registry of all available commands
-# Dynamically parses @cmd-palette annotations from source files
-# Output format: command_name | description | category | keybinding | alias
+# Uses programmatic registration instead of parsing to survive build process
+# Output format: command_name | description | category | keybinding | alias | is_template
 #-----------------------------------------------------------------------------------------------------------------------
 function _build_command_registry() {
-  local bash_dir="${NIXLPER_INSTALL_DIR}"
-
-  # If we're in development (source tree), use src/main/bash
-  if [[ -d "${NIXLPER_INSTALL_DIR}/src/main/bash" ]]; then
-    bash_dir="${NIXLPER_INSTALL_DIR}/src/main/bash"
-  fi
-
-  # Find all bash files and parse annotations
-  local files=$(find "$bash_dir" -name "*.sh" -o -name "nixlper.sh" 2>/dev/null)
-
-  # Parse each file for @cmd-palette annotations
-  for file in $files; do
-    _parse_cmd_palette_annotations "$file"
-  done
+  _register_keybindings
+  _register_aliases
+  _register_functions
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
