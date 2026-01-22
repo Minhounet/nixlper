@@ -76,8 +76,12 @@ function _make_tar_archive() {
 function _merge_sh_sources() {
   cp src/main/bash/nixlper.sh "${WORK_DIRECTORY}/nixlper.tmp"
   cat src/main/bash/function* >> "${WORK_DIRECTORY}/functions.tmp"
-  sed -i '1,${/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
-  sed -i '1,${/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
+
+  # Remove comments but preserve @cmd-palette annotations
+  # Keep lines with: @cmd-palette, @description, @category, @keybind, @alias, @template
+  sed -i '/^#[[:space:]]*@\(cmd-palette\|description\|category\|keybind\|alias\|template\)/!{/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
+  sed -i '/^#[[:space:]]*@\(cmd-palette\|description\|category\|keybind\|alias\|template\)/!{/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
+
   echo "#!/usr/bin/env bash" > "${WORK_DIRECTORY}/nixlper.sh"
   echo "###############################################################################################################" >> "${WORK_DIRECTORY}/nixlper.sh"
   echo "# file is generated" >> "${WORK_DIRECTORY}/nixlper.sh"
