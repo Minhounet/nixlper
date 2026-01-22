@@ -7,23 +7,21 @@
 #-----------------------------------------------------------------------------------------------------------------------
 # _build_command_registry: Build a searchable registry of all available commands
 # Dynamically parses @cmd-palette annotations from source files
-# Output format: command_name | description | category | keybinding | alias
+# Output format: command_name | description | category | keybinding | alias | is_template
 #-----------------------------------------------------------------------------------------------------------------------
 function _build_command_registry() {
-  local bash_dir="${NIXLPER_INSTALL_DIR}"
-
-  # If we're in development (source tree), use src/main/bash
+  # Check if we're in development (source tree) or installed (merged file)
   if [[ -d "${NIXLPER_INSTALL_DIR}/src/main/bash" ]]; then
-    bash_dir="${NIXLPER_INSTALL_DIR}/src/main/bash"
+    # Development: parse all source files
+    local bash_dir="${NIXLPER_INSTALL_DIR}/src/main/bash"
+    local files=$(find "$bash_dir" -name "*.sh" -o -name "nixlper.sh" 2>/dev/null)
+    for file in $files; do
+      _parse_cmd_palette_annotations "$file"
+    done
+  else
+    # Installed: parse the merged nixlper.sh file
+    _parse_cmd_palette_annotations "${NIXLPER_INSTALL_DIR}/nixlper.sh"
   fi
-
-  # Find all bash files and parse annotations
-  local files=$(find "$bash_dir" -name "*.sh" -o -name "nixlper.sh" 2>/dev/null)
-
-  # Parse each file for @cmd-palette annotations
-  for file in $files; do
-    _parse_cmd_palette_annotations "$file"
-  done
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -38,6 +36,7 @@ function _parse_cmd_palette_annotations() {
   local keybind=""
   local alias_name=""
   local cmd_name=""
+  local is_template=0
 
   while IFS= read -r line; do
     # Check if we're starting a new annotation block
@@ -48,6 +47,7 @@ function _parse_cmd_palette_annotations() {
       keybind=""
       alias_name=""
       cmd_name=""
+      is_template=0
       continue
     fi
 
@@ -61,6 +61,8 @@ function _parse_cmd_palette_annotations() {
         keybind="${BASH_REMATCH[1]}"
       elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@alias:[[:space:]]*(.*) ]]; then
         alias_name="${BASH_REMATCH[1]}"
+      elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@template ]]; then
+        is_template=1
       elif [[ "$line" =~ ^[[:space:]]*function[[:space:]]+([a-zA-Z0-9_]+) ]] || [[ "$line" =~ ^[[:space:]]*alias[[:space:]]+([a-zA-Z0-9_]+)= ]]; then
         # Found the function or alias definition - extract command name
         cmd_name="${BASH_REMATCH[1]}"
@@ -72,18 +74,32 @@ function _parse_cmd_palette_annotations() {
 
         # Output the parsed command
         if [[ -n "$cmd_name" && -n "$description" ]]; then
-          echo "${cmd_name}|${description}|${category}|${keybind}|${alias_name}"
+          echo "${cmd_name}|${description}|${category}|${keybind}|${alias_name}|${is_template}"
         fi
 
         # Reset for next annotation
         in_annotation=0
       elif [[ "$line" =~ ^[[:space:]]*bind ]]; then
-        # Handle bind-only statements (keybindings without executable functions)
-        # Show them in palette with info, but they can't be executed programmatically
+        # Handle bind statements - extract the command being bound
         if [[ -n "$keybind" && -n "$description" ]]; then
           # Create a descriptive command name from the keybind
           cmd_name=$(echo "$keybind" | tr '+' '_' | tr -d ' ')
-          echo "${cmd_name}|${description}|${category}|${keybind}|keybind-only"
+
+          # Extract the command from the bind statement
+          # Pattern 1: bind '"\C-x\C-u": "COMMAND_HERE"' - quoted command
+          # Pattern 2: bind -x '"\C-x\C-u": COMMAND_HERE' - unquoted command
+          local bind_command=""
+
+          if [[ "$line" =~ :[[:space:]]*\"([^\"]+)\" ]]; then
+            # Quoted command (regular bind)
+            bind_command="${BASH_REMATCH[1]}"
+          elif [[ "$line" =~ :[[:space:]]*(.+)\'[[:space:]]*$ ]]; then
+            # Unquoted command (bind -x) - capture everything after colon until closing quote
+            bind_command="${BASH_REMATCH[1]}"
+          fi
+
+          # Store: cmd_name|description|category|keybind|type|bind_command|is_template
+          echo "${cmd_name}|${description}|${category}|${keybind}|bind|${bind_command}|${is_template}"
         fi
         in_annotation=0
       fi
@@ -112,6 +128,7 @@ function _format_command_for_display() {
   local display=""
   local keybind_part=""
   local category_part=""
+  local type_indicator=""
 
   # Add keybinding if exists (aligned to 20 chars)
   if [[ -n "$keybinding" ]]; then
@@ -120,13 +137,18 @@ function _format_command_for_display() {
     keybind_part=$(printf "%-20s" "")
   fi
 
+  # Add type indicator for aliases
+  if [[ -n "$cmd_type" && "$cmd_type" == "$cmd_name" && "$cmd_type" != "bind" ]]; then
+    type_indicator="[alias] "
+  fi
+
   # Add category tag
   if [[ -n "$category" ]]; then
     category_part=" {$category}"
   fi
 
   # Output the formatted line (35 chars for command name to handle longer names)
-  printf "%s%-35s%s%s\n" "$keybind_part" "$cmd_name" "$description" "$category_part"
+  printf "%s%-35s%s%s%s\n" "$keybind_part" "$cmd_name" "${type_indicator}${description}" "$category_part"
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -177,10 +199,40 @@ function _get_command_details() {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
+# _clean_bind_command: Clean escape sequences from a bind command string
+# Args: $1 = raw bind command with escape sequences
+# Returns: cleaned command ready for execution
+#-----------------------------------------------------------------------------------------------------------------------
+function _clean_bind_command() {
+  local raw_command="$1"
+
+  # Remove common escape sequences:
+  # \15 = carriage return (octal)
+  # \33\5 = ESC + CTRL+E (cursor movement)
+  # Other escape sequences can be added as needed
+
+  local cleaned_command="$raw_command"
+
+  # Remove \15 (carriage return - used to execute the command)
+  cleaned_command="${cleaned_command//\\15/}"
+
+  # Remove \33\5 (ESC + CTRL+E - cursor movement to end of line)
+  cleaned_command="${cleaned_command//\\33\\5/}"
+
+  # Remove trailing/leading whitespace
+  cleaned_command=$(echo "$cleaned_command" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+  echo "$cleaned_command"
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
 # _execute_command: Execute a command selected from the command palette
 # Args: $1 = selected formatted line from fzf
 #-----------------------------------------------------------------------------------------------------------------------
 function _execute_command() {
+  # Enable alias expansion for eval
+  shopt -s expand_aliases
+
   local selected="$1"
 
   # Extract command name from the formatted display string
@@ -205,19 +257,48 @@ function _execute_command() {
 
   local keybinding=$(echo "$registry_line" | cut -d'|' -f4)
   local cmd_type=$(echo "$registry_line" | cut -d'|' -f5)
+  local bind_command=$(echo "$registry_line" | cut -d'|' -f6)
+  local is_template=$(echo "$registry_line" | cut -d'|' -f7)
 
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-  # Check if this is a keybinding-only command
-  if [[ "$cmd_type" == "keybind-only" ]]; then
-    echo "Keybinding: $keybinding"
+  # Handle bind commands by extracting and executing the underlying command
+  if [[ "$cmd_type" == "bind" ]]; then
+    if [[ -z "$bind_command" ]]; then
+      echo "Keybinding: $keybinding"
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      echo ""
+      echo "Could not extract command from bind statement."
+      echo "Please use the keybinding directly: $keybinding"
+      echo ""
+      return 0
+    fi
+
+    # Clean the bind command by removing escape sequences
+    local cleaned_command=$(_clean_bind_command "$bind_command")
+
+    # Check if this is a template command (for display only, not execution)
+    if [[ "$is_template" == "1" ]]; then
+      echo "Template command: $cleaned_command"
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      echo ""
+      echo "This is a template command for interactive editing."
+      echo "Please use the keybinding directly: $keybinding"
+      echo ""
+      echo "The command template is:"
+      echo "  $cleaned_command"
+      echo ""
+      return 0
+    fi
+
+    echo "Executing: $cleaned_command"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "This is a keybinding-only command."
-    echo "Please use the keybinding directly in your terminal: $keybinding"
-    echo ""
-    return 0
+
+    # Execute the cleaned command
+    eval "$cleaned_command"
+    return $?
   fi
 
   echo "Executing: $cmd_name"

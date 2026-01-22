@@ -162,13 +162,14 @@ function _i_delete_bashrc_config() {
 #***********************************************************************************************************************
 function _i_load_bindings() {
   if [[ $- == *i* ]]; then
-    # bookmarks
+    # bookmarks - annotations already in functions_bookmarks.sh
     bind -x '"\C-x\C-d": _display_existing_bookmarks'
     bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
-    # help
+
+    # help - annotation already in functions_help.sh
     bind '"\C-x\C-h": "_help\15"'
 
-    # version and logo
+    # version and logo - annotation already in functions_version.sh
     bind -x '"\C-x\C-v": _display_logo_and_version'
 
     # files
@@ -176,11 +177,13 @@ function _i_load_bindings() {
     # @description: Display safe rm command to delete current folder
     # @category: Utilities
     # @keybind: CTRL+X+E
+    # @template
     bind '"\C-x\C-e":"rm -rf $(pwd)/\33\5 && cd .."' #\33\5 is ESC then CTRL+E
     # @cmd-palette
     # @description: Display safe rm command to delete folder contents
     # @category: Utilities
     # @keybind: CTRL+X+R
+    # @template
     bind '"\C-x\C-r":"rm -rf $(pwd)/\33\5*"' #\33\5 is ESC then CTRL+R
 
     # navigation
@@ -189,6 +192,7 @@ function _i_load_bindings() {
     # @category: Navigation
     # @keybind: CTRL+X+U
     bind '"\C-x\C-u": "cd ..\15"'
+    # navigate - annotation already in functions_navigation.sh
     bind -x '"\C-x\C-n": navigate'
 
     # instant access to this file
@@ -198,11 +202,12 @@ function _i_load_bindings() {
     # @keybind: CTRL+X+O
     bind -x '"\C-x\C-o": $NIXLPER_EDITOR ${NIXLPER_INSTALL_DIR}/nixlper.sh'
 
+    # macros - annotations already in functions_macros.sh
     bind -x '"\C-p":start_recording'
     bind -x  '"\C-p\C-p": finalize_recording'
     bind -x  '"\C-p\C-l": bind_last_macro'
 
-    # command palette
+    # command palette - annotation already in functions_command_palette.sh
     bind -x '"\C-x\C-a": find_action'
   fi
 }
