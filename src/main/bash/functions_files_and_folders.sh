@@ -155,3 +155,29 @@ function _change_directory_from_filepath() {
     cd "${folderpath}" || return 1
     _i_log_as_info "Now in ${folderpath}"
 }
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _open_latest_file: Opens the most recently modified file in the current repository.
+# @cmd-palette
+# @description: Open the most recently modified file in the current repository
+# @category: Files & Folders
+# @alias: olf
+#-----------------------------------------------------------------------------------------------------------------------
+function _open_latest_file() {
+    local latest_file
+    local editor="${NIXLPER_EDITOR:-vim}" # Use NIXLPER_EDITOR if set, otherwise default to vim
+
+    # Find the latest modified file, excluding common build/version control directories
+    latest_file=$(find . -type f \
+        -not -path "./.git/*" \
+        -not -path "./build/*" \
+        -not -path "./.gemini/*" \
+        -print0 | xargs -0 stat -c '%Y %n' 2>/dev/null | sort -rn | head -n 1 | cut -d' ' -f2-)
+
+    if [[ -n "${latest_file}" ]]; then
+        _i_log_as_info "Opening latest modified file: ${latest_file} with ${editor}"
+        "${editor}" "${latest_file}"
+    else
+        _i_log_as_error "No files found or could not determine the latest file."
+    fi
+}
