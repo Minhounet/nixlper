@@ -181,3 +181,92 @@ function _open_latest_file() {
         _i_log_as_error "No files found or could not determine the latest file."
     fi
 }
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _rename_file_pattern: rename a file by removing or replacing a pattern
+# @cmd-palette
+# @description: Rename file by removing or replacing a pattern
+# @category: Files & Folders
+# @alias: rn
+#-----------------------------------------------------------------------------------------------------------------------
+function _rename_file_pattern() {
+    [[ "$1" == "--help" ]] && echo "$FUNCNAME: Rename file by removing or replacing a pattern
+
+Usage: $0 FILENAME PATTERN [REPLACEMENT]
+
+  FILENAME    - File to rename
+  PATTERN     - Pattern to remove or replace
+  REPLACEMENT - (Optional) Replacement text. If not provided, pattern is removed
+
+Examples:
+  $0 file_peppa.txt _peppa              # Results in: file.txt
+  $0 test-old.txt -old -new             # Results in: test-new.txt
+  $0 document_draft.pdf _draft          # Results in: document.pdf
+" && return 0
+
+    # Validate arguments
+    if [[ $# -lt 2 ]]; then
+        _i_log_as_error "Missing required arguments. Usage: rn FILENAME PATTERN [REPLACEMENT]"
+        return 1
+    fi
+
+    local -r original_file="$1"
+    local -r pattern="$2"
+    local -r replacement="${3:-}" # Default to empty string if not provided
+
+    # Check if file exists
+    if [[ ! -e "${original_file}" ]]; then
+        _i_log_as_error "File not found: ${original_file}"
+        return 1
+    fi
+
+    # Get directory and filename
+    local dir_path
+    local filename
+    if [[ "${original_file}" == */* ]]; then
+        dir_path=$(dirname "${original_file}")
+        filename=$(basename "${original_file}")
+    else
+        dir_path="."
+        filename="${original_file}"
+    fi
+
+    # Replace pattern in filename
+    local new_filename="${filename//$pattern/$replacement}"
+
+    # Check if anything changed
+    if [[ "${filename}" == "${new_filename}" ]]; then
+        _i_log_as_error "Pattern '${pattern}' not found in filename '${filename}'"
+        return 1
+    fi
+
+    # Build full paths
+    local new_file
+    if [[ "${dir_path}" == "." ]]; then
+        new_file="${new_filename}"
+    else
+        new_file="${dir_path}/${new_filename}"
+    fi
+
+    # Check if target file already exists
+    if [[ -e "${new_file}" ]] && [[ "${new_file}" != "${original_file}" ]]; then
+        read -rp "File ${new_file} already exists. Overwrite? (y/n, default is n): " overwrite_answer
+        overwrite_answer=${overwrite_answer:-n}
+        if [[ "${overwrite_answer}" != "y" ]]; then
+            _i_log_as_info "-> Rename cancelled"
+            return 1
+        fi
+        rm -f "${new_file}"
+    fi
+
+    # Perform the rename
+    mv "${original_file}" "${new_file}"
+
+    if [[ $? -eq 0 ]]; then
+        _i_log_as_info "-> Renamed: ${original_file} → ${new_file}"
+        _i_log_ok
+    else
+        _i_log_as_error "Failed to rename file"
+        return 1
+    fi
+}
