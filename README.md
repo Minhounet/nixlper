@@ -35,7 +35,30 @@ You will have in build/distributions the nixlper-<version>.tar archive.
 
 ## Installation
 
-### First install
+### Quick install (recommended)
+
+The easiest way to install or update Nixlper is to use the install script.
+It automatically detects whether Nixlper is already installed and performs a first install or an update accordingly.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/master/install.sh | bash
+```
+
+Or download and run it manually:
+
+```bash
+curl -fsSL -o install.sh https://raw.githubusercontent.com/Minhounet/nixlper/master/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+The script will:
+- Fetch the latest release from GitHub
+- Detect if Nixlper is already installed
+- **First install**: ask for an install directory (default `/opt/nixlper`), download, extract, and configure `.bashrc`
+- **Update**: download the new version into the existing install directory, preserving your custom scripts
+
+### Manual install
 
 Perform the commands below for the first install:
 - Put the archive on any server in the folder you want to install it (for instance **/opt/nixlper**)
@@ -53,7 +76,7 @@ tar -xf nixlper*.tar
 
 Your .bashrc file will be updated and nixlper will be ready to be used for next login.
 
-### Update existing install
+### Manual update
 
 For an update just follow the same steps except for last command which will be:
 `./nixlper.sh update`
