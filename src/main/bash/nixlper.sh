@@ -11,6 +11,7 @@
 # General initialization
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_init() {
+  _i_check_tools
   _i_create_bookmarks_file_if_not_existing
   _i_create_snapshot_folder
   _i_load_bookmarks
