@@ -207,6 +207,47 @@ function _find_and_navigate() {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
+# _grep_and_navigate: execute "grep -rn PATTERN ." then display results with shortcuts to open files at matching lines
+# @cmd-palette
+# @description: Grep files for pattern and open file at matching line
+# @category: Navigation
+# @alias: fag
+#-----------------------------------------------------------------------------------------------------------------------
+function _grep_and_navigate() {
+  if [[ $# -eq 0 ]]; then
+    _i_log_as_error "Missing pattern for grep_and_navigate"
+    return 1
+  elif [[ -z $1 ]]; then
+    _i_log_as_error "Pattern cannot be empty for grep_and_navigate"
+    return 1
+  else
+    local grep_results
+    grep_results=$(grep -rn "$*" . 2>/dev/null)
+    local item_increment=1
+    if [[ -n ${grep_results} ]]; then
+      echo ".."
+      local file_path
+      local line_number
+      local matched_content
+      IFS=$'\n'
+      for i in ${grep_results}; do
+        file_path=$(echo "$i" | cut -d':' -f1)
+        line_number=$(echo "$i" | cut -d':' -f2)
+        matched_content=$(echo "$i" | cut -d':' -f3-)
+        # shellcheck disable=SC2139
+        alias v${item_increment}="$NIXLPER_EDITOR +${line_number} ${file_path}"
+        echo "${file_path}:${line_number}:${matched_content} → v${item_increment}"
+        ((item_increment++))
+      done
+      unset IFS
+      echo ".."
+    else
+      echo "No match"
+    fi
+  fi
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
 # _toggle_size_display_during_navigation: enable/disable size display during navigate call
 # @cmd-palette
 # @description: Toggle size/permissions display in navigate
