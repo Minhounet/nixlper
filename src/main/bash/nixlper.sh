@@ -215,6 +215,22 @@ function _i_load_bindings() {
 
 #***********************************************************************************************************************
 
+function _refresh_current_directory() {
+  echo "✨ Refreshing current directory..."
+  if [[ -d "$(pwd)" ]]; then
+    # Current directory still exists
+    clear
+    ls -l --color=auto
+    echo "Directory refreshed: $(pwd)"
+  else
+    # Current directory might have been deleted
+    echo "⚠️ Warning: Current directory '$(pwd)' no longer exists or is inaccessible."
+    cd ~ || return 1 # Attempt to move to home, exit if even that fails
+    echo "Moved to home directory: $(pwd)"
+    ls -l --color=auto
+  fi
+}
+
 #***********************************************************************************************************************
 # ALIASES
 #***********************************************************************************************************************
@@ -229,6 +245,7 @@ alias sn=_snapshot_file
 alias re=_restore_file
 alias fan=_find_and_navigate
 alias olf=_open_latest_file
+alias rf=_refresh_current_directory
 # Prepend current path in PATH variable updating the .bashrc if not already done
 # @cmd-palette
 # @description: Prepend current path to PATH in .bashrc
