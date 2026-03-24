@@ -244,6 +244,7 @@ alias sucd=_su_to_current_directory
 alias sn=_snapshot_file
 alias re=_restore_file
 alias fan=_find_and_navigate
+alias fag=_grep_and_navigate
 alias olf=_open_latest_file
 alias rf=_refresh_current_directory
 # Prepend current path in PATH variable updating the .bashrc if not already done
