@@ -191,7 +191,9 @@ function _find_and_navigate() {
         if [[ -f $i ]]; then
           # shellcheck disable=SC2139
           alias v${item_increment}="$NIXLPER_EDITOR $i"
-          echo "${tree_chars} ${i:2} → v${item_increment}"
+          # shellcheck disable=SC2139
+          alias cdf${item_increment}="cd $(dirname $i) && navigate"
+          echo "${tree_chars} ${i:2} → v${item_increment} | cdf${item_increment}"
         elif [[ -d $i ]]; then
           # shellcheck disable=SC2139
           alias n${item_increment}="cd ${i} && navigate"
