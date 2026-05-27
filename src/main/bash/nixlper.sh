@@ -11,7 +11,9 @@
 # General initialization
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_init() {
-  _i_check_tools
+  if [[ "${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}" != "true" ]]; then
+    _i_check_tools
+  fi
   _i_create_bookmarks_file_if_not_existing
   _i_create_snapshot_folder
   _i_load_bookmarks
@@ -36,9 +38,13 @@ function _i_load_custom_libraries() {
   if [[ -d "${custom_dir}" ]] ; then
     local -r nb_of_scripts=$(find "${custom_dir}" -type f | wc -l)
     if [[ ${nb_of_scripts} -gt 0 ]]; then
-      echo "Custom scripts detect under ${custom_dir}:"
+      if [[ "${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}" != "true" ]]; then
+        echo "Custom scripts detect under ${custom_dir}:"
+      fi
       for i in "${custom_dir}"/* ; do
-        echo "Load $i"
+        if [[ "${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}" != "true" ]]; then
+          echo "Load $i"
+        fi
         # shellcheck source=/dev/null
         # shellcheck disable=SC2086
         # (putting " " does not expand correctly for my purpose)
@@ -46,7 +52,9 @@ function _i_load_custom_libraries() {
     done
     fi
   else
-    echo "custom directory does not exist, create it. All scripts put in this folder will be sourced during next login"
+    if [[ "${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}" != "true" ]]; then
+      echo "custom directory does not exist, create it. All scripts put in this folder will be sourced during next login"
+    fi
     mkdir -p "${custom_dir}"
     local -r script_template_path="${custom_dir}/script_template.sh"
     touch "${script_template_path}"
@@ -145,6 +153,7 @@ function _i_set_bashrc_config() {
   echo "export NIXLPER_LAST_MACRO_BINDING_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_last_macro_binding_file" >> ~/.bashrc
   echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
   echo "export NIXLPER_EDITOR=vim" >> ~/.bashrc
+  echo "export NIXLPER_DISABLE_WELCOME_MESSAGE=false" >> ~/.bashrc
   echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
   echo "################################ nixlper stop ##################################################" >> ~/.bashrc
   source ~/.bashrc
