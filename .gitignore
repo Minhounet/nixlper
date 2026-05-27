@@ -48,3 +48,4 @@ gradle
 /.send.sh
 /src/main/bash/.nixlper_bookmarks.bak
 /src/main/.nixlper_bookmarks
+/build.properties
