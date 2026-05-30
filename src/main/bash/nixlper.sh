@@ -242,6 +242,16 @@ function _refresh_current_directory() {
 }
 
 #***********************************************************************************************************************
+# CONFIGURATION LOADING
+# 1. System config (/etc/nixlper/nixlper.conf) — managed by RPM/DEB, uses :- so already-set
+#    vars from ~/.bashrc (manual install) are not overridden.
+# 2. User config (~/.config/nixlper/nixlper.conf) — personal overrides, plain export wins
+#    over system defaults.
+#***********************************************************************************************************************
+[[ -f /etc/nixlper/nixlper.conf ]] && source /etc/nixlper/nixlper.conf
+[[ -f "${HOME}/.config/nixlper/nixlper.conf" ]] && source "${HOME}/.config/nixlper/nixlper.conf"
+
+#***********************************************************************************************************************
 # ALIASES
 #***********************************************************************************************************************
 [[ "${NIXLPER_LOADED:-false}" == "true" ]] && return 0
