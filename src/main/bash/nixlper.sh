@@ -22,11 +22,11 @@ function _i_init() {
 }
 
 function _i_test_prerequisites() {
-  if ! grep "export NIXLPER_INSTALL_DIR" ~/.bashrc > /dev/null 2>&1 ; then
+  if [[ -z "${NIXLPER_INSTALL_DIR:-}" ]]; then
     _i_log_as_error "NIXLPER_INSTALL_DIR is not defined, please run \"install\" command"
     return 1
   fi
-  if ! grep "export NIXLPER_BOOKMARKS_FILE" ~/.bashrc > /dev/null 2>&1 ; then
+  if [[ -z "${NIXLPER_BOOKMARKS_FILE:-}" ]]; then
     _i_log_as_error "NIXLPER_BOOKMARKS_FILE is not defined, please run \"install\" command"
     return 1
   fi
@@ -34,7 +34,7 @@ function _i_test_prerequisites() {
 
 # Custom scripts can be put in custom folder if specific things are needed
 function _i_load_custom_libraries() {
-  local -r custom_dir=${NIXLPER_INSTALL_DIR}/custom
+  local -r custom_dir="${NIXLPER_CUSTOM_DIR:-${NIXLPER_INSTALL_DIR}/custom}"
   if [[ -d "${custom_dir}" ]] ; then
     local -r nb_of_scripts=$(find "${custom_dir}" -type f | wc -l)
     if [[ ${nb_of_scripts} -gt 0 ]]; then
@@ -63,7 +63,7 @@ function _i_load_custom_libraries() {
 }
 
 function _i_create_snapshot_folder() {
-  local -r snapshot_dir=${NIXLPER_INSTALL_DIR}/snapshots
+  local -r snapshot_dir="${NIXLPER_SNAPSHOT_DIR:-${NIXLPER_INSTALL_DIR}/snapshots}"
   if [[ ! -d "${snapshot_dir}" ]] ; then
     echo "Snapshots directory does not exist, create it"
     mkdir -p "${snapshot_dir}"
@@ -77,6 +77,7 @@ function _i_create_snapshot_folder() {
 function _i_create_bookmarks_file_if_not_existing() {
   if [[ ! -f $NIXLPER_BOOKMARKS_FILE ]]; then
     echo "Bookmarks file does not exist, create ${NIXLPER_BOOKMARKS_FILE}"
+    mkdir -p "$(dirname "${NIXLPER_BOOKMARKS_FILE}")"
     touch "${NIXLPER_BOOKMARKS_FILE}"
     chmod 777 "${NIXLPER_BOOKMARKS_FILE}"
   fi
@@ -243,6 +244,8 @@ function _refresh_current_directory() {
 #***********************************************************************************************************************
 # ALIASES
 #***********************************************************************************************************************
+[[ "${NIXLPER_LOADED:-false}" == "true" ]] && return 0
+export NIXLPER_LOADED=true
 alias c=_mark_folder_as_current
 alias cdf=_change_directory_from_filepath
 alias cf=_mark_file_as_current
