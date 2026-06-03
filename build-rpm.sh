@@ -20,7 +20,7 @@ _log_error() { echo "❌ $1" >&2; }
 #-----------------------------------------------------------------------------------------------------------------------
 _get_version() {
   local tag
-  tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
+  tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//;s/-/_/g' || true)
   if [[ -n "${tag}" ]]; then
     echo "${tag}"
   else
