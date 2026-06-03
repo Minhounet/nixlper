@@ -16,22 +16,11 @@ _log_ok()    { echo "✅ $1"; }
 _log_error() { echo "❌ $1" >&2; }
 
 #-----------------------------------------------------------------------------------------------------------------------
-# Version — strip leading 'v' from git tag (e.g. v1.2.3 → 1.2.3).
-# Fallback to short SHA for dev builds.
+# DEB version: always 0~<sha> — starts with a digit (Debian policy) and tracks the exact commit.
 #-----------------------------------------------------------------------------------------------------------------------
 _get_version() {
-  local tag
-  tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
-  if [[ -n "${tag}" ]]; then
-    if [[ ! "${tag}" =~ ^[0-9] ]]; then
-      _log_error "Tag '${tag}' is not a valid DEB version — must start with a digit (e.g. 1.2.3)"
-      return 1
-    fi
-    echo "${tag}"
-  else
-    # DEB version must start with a digit; prefix dev SHA with 0~
-    echo "0~$(git log -n 1 --pretty=format:%h)"
-  fi
+  # Use 0~<sha> always: starts with a digit (Debian policy) and tracks the exact commit.
+  echo "0~$(git log -n 1 --pretty=format:%h)"
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -72,7 +61,10 @@ main() {
   bash "${SCRIPT_DIR}/build.sh"
   _log_ok "Tar built"
 
-  local -r tar_path=$(_get_tar_path "${version}")
+  # build.sh names the tar after the git tag (or bare project name), not the DEB version
+  local -r git_tag
+  git_tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
+  local -r tar_path=$(_get_tar_path "${git_tag}")
   _log_info "Using tar: ${tar_path}"
 
   # Set up clean staging tree
