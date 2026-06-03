@@ -52,7 +52,7 @@ function _snapshot_file() {
     return 1
   fi
   local -r absolute_filepath=$(pwd)/$1
-  local -r snapshot_dir=${NIXLPER_INSTALL_DIR}/snapshots
+  local -r snapshot_dir="${NIXLPER_SNAPSHOT_DIR:-${NIXLPER_INSTALL_DIR}/snapshots}"
   if [[ -f ${snapshot_dir}${absolute_filepath} ]]; then
     read -rp "File ${absolute_filepath} has already been saved, overwrite files? (default is y)" overwrite_file_answer
     overwrite_file_answer=${overwrite_file_answer:-y}
@@ -81,7 +81,7 @@ function _restore_file() {
       _i_restore_file_interactive
   else
     local -r absolute_filepath=$(pwd)/$1
-    local -r snapshot_dir=${NIXLPER_INSTALL_DIR}/snapshots
+    local -r snapshot_dir="${NIXLPER_SNAPSHOT_DIR:-${NIXLPER_INSTALL_DIR}/snapshots}"
     if [[ -f ${snapshot_dir}${absolute_filepath} ]]; then
       read -rp "Restore ${absolute_filepath} ? (default is y)" restore_file_answer
       restore_file_answer=${restore_file_answer:-y}
@@ -103,7 +103,7 @@ function _restore_file() {
 # _i_restore_file_interactive: restore file in interactive mode
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_restore_file_interactive() {
-  local -r snapshot_dir=${NIXLPER_INSTALL_DIR}/snapshots
+  local -r snapshot_dir="${NIXLPER_SNAPSHOT_DIR:-${NIXLPER_INSTALL_DIR}/snapshots}"
   cd "${snapshot_dir}" || (_i_log_as_error "snapshots dir does not exist" && return 1)
   if [[ $(find . -type f | wc -l) -gt 0 ]]; then
 
