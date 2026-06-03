@@ -23,6 +23,10 @@ _get_version() {
   local tag
   tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
   if [[ -n "${tag}" ]]; then
+    if [[ ! "${tag}" =~ ^[0-9] ]]; then
+      _log_error "Tag '${tag}' is not a valid DEB version — must start with a digit (e.g. 1.2.3)"
+      return 1
+    fi
     echo "${tag}"
   else
     # DEB version must start with a digit; prefix dev SHA with 0~
