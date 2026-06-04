@@ -30,8 +30,9 @@ jobs:
         run: |
           TAG="${{ github.ref_name }}"
           VERSION="${TAG#v}"
+          RPM_VERSION="${VERSION//-/_}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          RPM_PATH=$(find "${HOME}/rpmbuild/RPMS" -name "nixlper-${VERSION}-*.rpm" | head -1)
+          RPM_PATH=$(find "${HOME}/rpmbuild/RPMS" -name "nixlper-${RPM_VERSION}-*.rpm" | head -1)
           echo "rpm_path=${RPM_PATH}" >> "$GITHUB_OUTPUT"
           echo "rpm_name=$(basename "${RPM_PATH}")" >> "$GITHUB_OUTPUT"
 
