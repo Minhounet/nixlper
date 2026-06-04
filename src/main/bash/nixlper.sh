@@ -136,6 +136,75 @@ function _i_uninstall() {
   echo "---------------------------------------------------------------------------------------------------------------"
 }
 
+function _i_install_system() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Install Nixlper system-wide"
+  if [[ ${EUID} -ne 0 ]]; then
+    _i_log_as_error "System install requires root. Run: sudo ./install.sh --system"
+    return 1
+  fi
+
+  local install_dir
+  if [[ -z "${NIXLPER_INSTALL_DIR:-}" ]]; then
+    cd "$(dirname "$0")" || return 1
+    install_dir="$(pwd)"
+  else
+    install_dir="${NIXLPER_INSTALL_DIR}"
+  fi
+
+  mkdir -p /etc/nixlper
+  cat > /etc/nixlper/nixlper.conf <<EOF
+# nixlper system configuration — edit to set system-wide defaults.
+# Users can override any value in ~/.config/nixlper/nixlper.conf.
+
+export NIXLPER_INSTALL_DIR="\${NIXLPER_INSTALL_DIR:-${install_dir}}"
+export NIXLPER_NAVIGATE_MODE="\${NIXLPER_NAVIGATE_MODE:-tree}"
+export NIXLPER_EDITOR="\${NIXLPER_EDITOR:-vim}"
+export NIXLPER_DISABLE_WELCOME_MESSAGE="\${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}"
+
+# Per-user paths — \$HOME expands at login time for each user.
+export NIXLPER_BOOKMARKS_FILE="\${NIXLPER_BOOKMARKS_FILE:-\${HOME}/.local/share/nixlper/bookmarks}"
+export NIXLPER_LAST_MACRO_BINDING_FILE="\${NIXLPER_LAST_MACRO_BINDING_FILE:-\${HOME}/.local/share/nixlper/last_macro_binding}"
+export NIXLPER_SNAPSHOT_DIR="\${NIXLPER_SNAPSHOT_DIR:-\${HOME}/.local/share/nixlper/snapshots}"
+export NIXLPER_CUSTOM_DIR="\${NIXLPER_CUSTOM_DIR:-\${HOME}/.config/nixlper/custom}"
+EOF
+  chmod 644 /etc/nixlper/nixlper.conf
+
+  printf 'source %s/nixlper.sh\n' "${install_dir}" > /etc/profile.d/nixlper.sh
+  chmod 644 /etc/profile.d/nixlper.sh
+
+  echo "-> DONE (Install Nixlper system-wide)"
+  echo "Nixlper will be activated for all users at next login."
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
+function _i_update_system() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Update Nixlper system-wide"
+  if [[ ${EUID} -ne 0 ]]; then
+    _i_log_as_error "System update requires root. Run: sudo ./install.sh --system"
+    return 1
+  fi
+  # The new nixlper.sh is already in place (extracted by install.sh).
+  # /etc/profile.d/nixlper.sh and /etc/nixlper/nixlper.conf are left untouched.
+  echo "-> DONE (Update Nixlper system-wide)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
+function _i_uninstall_system() {
+  echo "---------------------------------------------------------------------------------------------------------------"
+  echo "Uninstall Nixlper system-wide"
+  if [[ ${EUID} -ne 0 ]]; then
+    _i_log_as_error "System uninstall requires root. Run: sudo ./nixlper.sh uninstall-system"
+    return 1
+  fi
+  rm -f /etc/profile.d/nixlper.sh
+  rm -f /etc/nixlper/nixlper.conf
+  rmdir /etc/nixlper 2>/dev/null || true
+  echo "-> DONE (Uninstall Nixlper system-wide)"
+  echo "---------------------------------------------------------------------------------------------------------------"
+}
+
 function _i_set_bashrc_config() {
   echo "  Update .bashrc with nixlper"
   echo "" >> ~/.bashrc
@@ -300,11 +369,23 @@ function main() {
     uninstall)
       _i_uninstall
       ;;
+    install-system)
+      _i_install_system
+      ;;
+    update-system)
+      _i_update_system
+      ;;
+    uninstall-system)
+      _i_uninstall_system
+      ;;
     *)
       echo "command ${command} is unknown, use one the following ones:
-            install: to install NIXLPER
-            update: to update NIXLPER with higher version
-            uninstall: to uninstall NIXLPER, installation will be removed"
+            install: to install NIXLPER (current user)
+            update: to update NIXLPER (current user)
+            uninstall: to uninstall NIXLPER (current user)
+            install-system: to install NIXLPER for all users (requires root)
+            update-system: to update NIXLPER for all users (requires root)
+            uninstall-system: to uninstall NIXLPER for all users (requires root)"
     esac
   fi
 }

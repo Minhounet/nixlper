@@ -37,7 +37,8 @@ You will have in build/distributions the nixlper-<version>.tar archive.
 
 > **Scope overview**
 > - **Quick install / Manual install** — current user only: configures `~/.bashrc`.
-> - **RPM / DEB** — all users: activates nixlper system-wide via `/etc/profile.d/nixlper.sh`.
+> - **Quick install `--system` / Manual `install-system`** — all users: writes `/etc/profile.d/nixlper.sh` (requires `sudo`).
+> - **RPM / DEB** — all users: same mechanism, managed by the package manager.
 
 ### Quick install (recommended)
 
@@ -62,6 +63,29 @@ The script will:
 - Detect if Nixlper is already installed
 - **First install**: ask for an install directory (default `/opt/nixlper`), download, extract, and configure `.bashrc`
 - **Update**: download the new version into the existing install directory, preserving your custom scripts
+
+### Quick install — system-wide (all users)
+
+To install for all users, pass `--system`. This requires running as root and writes
+`/etc/profile.d/nixlper.sh` and `/etc/nixlper/nixlper.conf` instead of touching `~/.bashrc`.
+
+```bash
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/master/install.sh)" -- --system
+```
+
+Or download and run manually:
+
+```bash
+curl -fsSL -o install.sh https://raw.githubusercontent.com/Minhounet/nixlper/master/install.sh
+chmod +x install.sh
+sudo ./install.sh --system
+```
+
+To uninstall a system-wide install:
+
+```bash
+sudo /opt/nixlper/nixlper.sh uninstall-system
+```
 
 ### Manual install
 
