@@ -81,12 +81,6 @@ chmod +x install.sh
 sudo ./install.sh --system
 ```
 
-To uninstall a system-wide install:
-
-```bash
-sudo /opt/nixlper/nixlper.sh uninstall-system
-```
-
 ### Manual install
 
 This method also activates nixlper **for the current user only** by adding a block to `~/.bashrc`.
@@ -111,6 +105,21 @@ Your .bashrc file will be updated and nixlper will be ready to be used for next 
 
 For an update just follow the same steps except for last command which will be:
 `./nixlper.sh update`
+
+### Manual uninstall
+
+Run the command below from the install directory:
+
+```bash
+cd /opt/nixlper
+./nixlper.sh uninstall
+```
+
+For a system-wide install:
+
+```bash
+sudo /opt/nixlper/nixlper.sh uninstall-system
+```
 
 ### RPM install (RHEL / Fedora / Rocky Linux)
 
@@ -169,13 +178,6 @@ sudo apt remove nixlper
 # or
 sudo dpkg -r nixlper
 ```
-
-### Uninstall
-
-This is pretty simple, just perform the command below from the install path:
-`./nixlper uninstall`
-
-"Sorry that you uninstall it! :("
 
 ## Features
 
