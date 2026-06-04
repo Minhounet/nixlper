@@ -18,15 +18,20 @@ _log_error() { echo "❌ $1" >&2; }
 #-----------------------------------------------------------------------------------------------------------------------
 # Version — strip leading 'v' from git tag so RPM Version: is plain numeric (e.g. 1.2.3 not v1.2.3)
 #-----------------------------------------------------------------------------------------------------------------------
-_get_version() {
+# Returns the raw tag (strip leading v only) — used to locate the tar produced by build.sh.
+_get_raw_version() {
   local tag
   tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
   if [[ -n "${tag}" ]]; then
     echo "${tag}"
   else
-    # Fallback to short SHA for dev builds
     git log -n 1 --pretty=format:%h
   fi
+}
+
+# Returns an RPM-safe version: hyphens replaced with underscores (RPM forbids '-' in Version).
+_get_version() {
+  _get_raw_version | sed 's/-/_/g'
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -60,7 +65,8 @@ main() {
     exit 1
   fi
 
-  # Resolve version
+  # Resolve versions: raw for tar filename, sanitized for RPM spec
+  local -r raw_version=$(_get_raw_version)
   local -r version=$(_get_version)
   local -r changelog_date=$(date "+%a %b %d %Y")
   _log_info "Version: ${version}"
@@ -70,8 +76,8 @@ main() {
   bash "${SCRIPT_DIR}/build.sh"
   _log_ok "Tar built"
 
-  # Locate tar
-  local -r tar_path=$(_get_tar_path "${version}")
+  # Locate tar using the raw tag (build.sh names it with the unmodified tag)
+  local -r tar_path=$(_get_tar_path "${raw_version}")
   _log_info "Using tar: ${tar_path}"
 
   # Set up rpmbuild tree
