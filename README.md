@@ -35,10 +35,15 @@ You will have in build/distributions the nixlper-<version>.tar archive.
 
 ## Installation
 
+> **Scope overview**
+> - **Quick install / Manual install** — current user only: configures `~/.bashrc`.
+> - **RPM / DEB** — all users: activates nixlper system-wide via `/etc/profile.d/nixlper.sh`.
+
 ### Quick install (recommended)
 
 The easiest way to install or update Nixlper is to use the install script.
 It automatically detects whether Nixlper is already installed and performs a first install or an update accordingly.
+This method activates nixlper **for the current user only** by adding a block to `~/.bashrc`.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/master/install.sh | bash
@@ -59,6 +64,8 @@ The script will:
 - **Update**: download the new version into the existing install directory, preserving your custom scripts
 
 ### Manual install
+
+This method also activates nixlper **for the current user only** by adding a block to `~/.bashrc`.
 
 Perform the commands below for the first install:
 - Put the archive on any server in the folder you want to install it (for instance **/opt/nixlper**)
