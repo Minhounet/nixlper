@@ -81,6 +81,64 @@ Your .bashrc file will be updated and nixlper will be ready to be used for next 
 For an update just follow the same steps except for last command which will be:
 `./nixlper.sh update`
 
+### RPM install (RHEL / Fedora / Rocky Linux)
+
+Download the latest `.rpm` from the [GitHub Releases](https://github.com/Minhounet/nixlper/releases) page, then install it:
+
+```bash
+# With dnf (recommended — handles dependencies)
+sudo dnf install nixlper-*.rpm
+
+# Or with rpm directly
+sudo rpm -ivh nixlper-*.rpm
+```
+
+To upgrade an existing installation:
+
+```bash
+sudo dnf upgrade nixlper-*.rpm
+# or
+sudo rpm -Uvh nixlper-*.rpm
+```
+
+After installation, nixlper is automatically activated for all users via `/etc/profile.d/nixlper.sh` at next login.
+System-wide defaults live in `/etc/nixlper/nixlper.conf` (preserved on upgrade).
+Per-user overrides go in `~/.config/nixlper/nixlper.conf`.
+
+To remove:
+
+```bash
+sudo dnf remove nixlper
+# or
+sudo rpm -e nixlper
+```
+
+### DEB install (Debian / Ubuntu)
+
+Download the latest `.deb` from the [GitHub Releases](https://github.com/Minhounet/nixlper/releases) page, then install it:
+
+```bash
+# With apt (recommended — handles dependencies)
+sudo apt install ./nixlper_*_all.deb
+
+# Or with dpkg directly
+sudo dpkg -i nixlper_*_all.deb
+```
+
+To upgrade, simply re-run the install command with the new `.deb` file.
+
+After installation, nixlper is automatically activated for all users via `/etc/profile.d/nixlper.sh` at next login.
+System-wide defaults live in `/etc/nixlper/nixlper.conf` (preserved on upgrade).
+Per-user overrides go in `~/.config/nixlper/nixlper.conf`.
+
+To remove:
+
+```bash
+sudo apt remove nixlper
+# or
+sudo dpkg -r nixlper
+```
+
 ### Uninstall
 
 This is pretty simple, just perform the command below from the install path:
