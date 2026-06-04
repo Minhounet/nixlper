@@ -62,8 +62,7 @@ main() {
   _log_ok "Tar built"
 
   # build.sh names the tar after the git tag (or bare project name), not the DEB version
-  local -r git_tag
-  git_tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
+  local -r git_tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
   local -r tar_path=$(_get_tar_path "${git_tag}")
   _log_info "Using tar: ${tar_path}"
 
