@@ -35,6 +35,9 @@ jobs:
           RPM_PATH=$(find "${HOME}/rpmbuild/RPMS" -name "nixlper-${RPM_VERSION}-*.rpm" | head -1)
           echo "rpm_path=${RPM_PATH}" >> "$GITHUB_OUTPUT"
           echo "rpm_name=$(basename "${RPM_PATH}")" >> "$GITHUB_OUTPUT"
+          DEB_PATH=$(find build/distributions -name "nixlper_*_all.deb" | head -1)
+          echo "deb_path=${DEB_PATH}" >> "$GITHUB_OUTPUT"
+          echo "deb_name=$(basename "${DEB_PATH}")" >> "$GITHUB_OUTPUT"
 
       - name: Create Release
         id: create_release
@@ -72,8 +75,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/distributions/nixlper_${{ steps.paths.outputs.version }}_all.deb
-          asset_name: nixlper_${{ steps.paths.outputs.version }}_all.deb
+          asset_path: ${{ steps.paths.outputs.deb_path }}
+          asset_name: ${{ steps.paths.outputs.deb_name }}
           asset_content_type: application/vnd.debian.binary-package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
