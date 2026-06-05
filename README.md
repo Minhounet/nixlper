@@ -35,10 +35,16 @@ You will have in build/distributions the nixlper-<version>.tar archive.
 
 ## Installation
 
+> **Scope overview**
+> - **Quick install / Manual install** — current user only: configures `~/.bashrc`.
+> - **Quick install `--system` / Manual `install-system`** — all users: writes `/etc/profile.d/nixlper.sh` (requires `sudo`).
+> - **RPM / DEB** — all users: same mechanism, managed by the package manager.
+
 ### Quick install (recommended)
 
 The easiest way to install or update Nixlper is to use the install script.
 It automatically detects whether Nixlper is already installed and performs a first install or an update accordingly.
+This method activates nixlper **for the current user only** by adding a block to `~/.bashrc`.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/master/install.sh | bash
@@ -58,7 +64,26 @@ The script will:
 - **First install**: ask for an install directory (default `/opt/nixlper`), download, extract, and configure `.bashrc`
 - **Update**: download the new version into the existing install directory, preserving your custom scripts
 
+### Quick install — system-wide (all users)
+
+To install for all users, pass `--system`. This requires running as root and writes
+`/etc/profile.d/nixlper.sh` and `/etc/nixlper/nixlper.conf` instead of touching `~/.bashrc`.
+
+```bash
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/master/install.sh)" -- --system
+```
+
+Or download and run manually:
+
+```bash
+curl -fsSL -o install.sh https://raw.githubusercontent.com/Minhounet/nixlper/master/install.sh
+chmod +x install.sh
+sudo ./install.sh --system
+```
+
 ### Manual install
+
+This method also activates nixlper **for the current user only** by adding a block to `~/.bashrc`.
 
 Perform the commands below for the first install:
 - Put the archive on any server in the folder you want to install it (for instance **/opt/nixlper**)
@@ -81,12 +106,78 @@ Your .bashrc file will be updated and nixlper will be ready to be used for next 
 For an update just follow the same steps except for last command which will be:
 `./nixlper.sh update`
 
-### Uninstall
+### Manual uninstall
 
-This is pretty simple, just perform the command below from the install path:
-`./nixlper uninstall`
+Run the command below from the install directory:
 
-"Sorry that you uninstall it! :("
+```bash
+cd /opt/nixlper
+./nixlper.sh uninstall
+```
+
+For a system-wide install:
+
+```bash
+sudo /opt/nixlper/nixlper.sh uninstall-system
+```
+
+### RPM install (RHEL / Fedora / Rocky Linux)
+
+Download the latest `.rpm` from the [GitHub Releases](https://github.com/Minhounet/nixlper/releases) page, then install it:
+
+```bash
+# With dnf (recommended — handles dependencies)
+sudo dnf install nixlper-*.rpm
+
+# Or with rpm directly
+sudo rpm -ivh nixlper-*.rpm
+```
+
+To upgrade an existing installation:
+
+```bash
+sudo dnf upgrade nixlper-*.rpm
+# or
+sudo rpm -Uvh nixlper-*.rpm
+```
+
+After installation, nixlper is automatically activated for all users via `/etc/profile.d/nixlper.sh` at next login.
+System-wide defaults live in `/etc/nixlper/nixlper.conf` (preserved on upgrade).
+Per-user overrides go in `~/.config/nixlper/nixlper.conf`.
+
+To remove:
+
+```bash
+sudo dnf remove nixlper
+# or
+sudo rpm -e nixlper
+```
+
+### DEB install (Debian / Ubuntu)
+
+Download the latest `.deb` from the [GitHub Releases](https://github.com/Minhounet/nixlper/releases) page, then install it:
+
+```bash
+# With apt (recommended — handles dependencies)
+sudo apt install ./nixlper_*_all.deb
+
+# Or with dpkg directly
+sudo dpkg -i nixlper_*_all.deb
+```
+
+To upgrade, simply re-run the install command with the new `.deb` file.
+
+After installation, nixlper is automatically activated for all users via `/etc/profile.d/nixlper.sh` at next login.
+System-wide defaults live in `/etc/nixlper/nixlper.conf` (preserved on upgrade).
+Per-user overrides go in `~/.config/nixlper/nixlper.conf`.
+
+To remove:
+
+```bash
+sudo apt remove nixlper
+# or
+sudo dpkg -r nixlper
+```
 
 ## Features
 

@@ -87,8 +87,13 @@ _is_nixlper_installed() {
     return 0
   fi
 
-  # Check 2: .bashrc contains the nixlper block
+  # Check 2: .bashrc contains the nixlper block (per-user install)
   if grep -q "nixlper start" ~/.bashrc 2>/dev/null; then
+    return 0
+  fi
+
+  # Check 3: system-wide install markers
+  if [[ -f /etc/profile.d/nixlper.sh ]] || [[ -f /etc/nixlper/nixlper.conf ]]; then
     return 0
   fi
 
@@ -102,7 +107,7 @@ _get_current_install_dir() {
     return
   fi
 
-  # Fall back to parsing .bashrc
+  # Fall back to parsing .bashrc (per-user install)
   local dir
   dir=$(grep 'export NIXLPER_INSTALL_DIR=' ~/.bashrc 2>/dev/null \
         | tail -1 \
@@ -111,6 +116,15 @@ _get_current_install_dir() {
   if [[ -n "${dir}" ]] && [[ -d "${dir}" ]]; then
     echo "${dir}"
     return
+  fi
+
+  # Fall back to system conf
+  if [[ -f /etc/nixlper/nixlper.conf ]]; then
+    dir=$(bash -c 'source /etc/nixlper/nixlper.conf 2>/dev/null && echo "${NIXLPER_INSTALL_DIR:-}"')
+    if [[ -n "${dir}" ]] && [[ -d "${dir}" ]]; then
+      echo "${dir}"
+      return
+    fi
   fi
 
   echo ""
@@ -122,8 +136,13 @@ _get_current_install_dir() {
 _first_install() {
   local -r install_dir="$1"
   local -r archive_path="$2"
+  local -r system_mode="${3:-false}"
 
-  _log_info "Performing first install into ${install_dir}"
+  if [[ "${system_mode}" == "true" ]]; then
+    _log_info "Performing system-wide install into ${install_dir}"
+  else
+    _log_info "Performing first install into ${install_dir}"
+  fi
 
   mkdir -p "${install_dir}"
   tar -xf "${archive_path}" -C "${install_dir}"
@@ -132,18 +151,27 @@ _first_install() {
   chmod +x "${install_dir}/nixlper.sh"
 
   cd "${install_dir}"
-  ./nixlper.sh install
+  if [[ "${system_mode}" == "true" ]]; then
+    ./nixlper.sh install-system
+  else
+    ./nixlper.sh install
+  fi
 
   _log_ok "Nixlper installed successfully in ${install_dir}"
   echo ""
-  _log_info "Please run one of the following to activate nixlper:"
-  echo "    source ~/.bashrc"
-  echo "    (or log out and log back in)"
+  if [[ "${system_mode}" == "true" ]]; then
+    _log_info "Nixlper will be activated for all users at next login."
+  else
+    _log_info "Please run one of the following to activate nixlper:"
+    echo "    source ~/.bashrc"
+    echo "    (or log out and log back in)"
+  fi
 }
 
 _update_install() {
   local -r install_dir="$1"
   local -r archive_path="$2"
+  local -r system_mode="${3:-false}"
 
   _log_info "Updating existing installation in ${install_dir}"
 
@@ -167,23 +195,45 @@ _update_install() {
   chmod +x "${install_dir}/nixlper.sh"
 
   cd "${install_dir}"
-  ./nixlper.sh update
+  if [[ "${system_mode}" == "true" ]]; then
+    ./nixlper.sh update-system
+  else
+    ./nixlper.sh update
+  fi
 
   _log_ok "Nixlper updated successfully"
   echo ""
-  _log_info "Please run one of the following to activate the new version:"
-  echo "    source ~/.bashrc"
-  echo "    (or log out and log back in)"
+  if [[ "${system_mode}" == "true" ]]; then
+    _log_info "All users will get the new version at next login."
+  else
+    _log_info "Please run one of the following to activate the new version:"
+    echo "    source ~/.bashrc"
+    echo "    (or log out and log back in)"
+  fi
 }
 
 #***********************************************************************************************************************
 # Main
 #***********************************************************************************************************************
 main() {
+  local system_mode=false
+  if [[ "${1:-}" == "--system" ]]; then
+    system_mode=true
+  fi
+
   _log_separator
-  echo "  Nixlper Installer"
+  if [[ "${system_mode}" == "true" ]]; then
+    echo "  Nixlper Installer (system-wide)"
+  else
+    echo "  Nixlper Installer"
+  fi
   _log_separator
   echo ""
+
+  if [[ "${system_mode}" == "true" ]] && [[ ${EUID} -ne 0 ]]; then
+    _log_error "System-wide install requires root. Run: sudo $0 --system"
+    exit 1
+  fi
 
   _check_prerequisites
 
@@ -210,7 +260,7 @@ main() {
     if [[ "${answer}" =~ ^[Yy]$ ]]; then
       local archive_path
       archive_path=$(_download_release "${tag}" "${install_dir}")
-      _update_install "${install_dir}" "${archive_path}"
+      _update_install "${install_dir}" "${archive_path}" "${system_mode}"
     else
       _log_info "Update cancelled"
     fi
@@ -229,7 +279,7 @@ main() {
     if [[ "${answer}" =~ ^[Yy]$ ]]; then
       local archive_path
       archive_path=$(_download_release "${tag}" "/tmp")
-      _first_install "${install_dir}" "/tmp/$(basename "${archive_path}")"
+      _first_install "${install_dir}" "/tmp/$(basename "${archive_path}")" "${system_mode}"
     else
       _log_info "Installation cancelled"
     fi
