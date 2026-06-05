@@ -181,58 +181,98 @@ sudo dpkg -r nixlper
 
 ## Features
 
+> Throughout this section, `$NIXLPER_EDITOR` refers to the editor used to open files
+> (defaults to `vim`, configurable via the `NIXLPER_EDITOR` environment variable).
+
+### Command Palette (Find Action)
+
+The fastest way to discover and run any Nixlper command. It opens an `fzf`-powered,
+searchable popup of every available command (with its description, category, keybinding,
+and alias) so you can fuzzy-search and execute without remembering exact names.
+
+- `CTRL + X then A` (or `fa`): open the command palette and search commands by name, description, or category
+
+> Requires [`fzf`](https://github.com/junegunn/fzf#installation).
+
 ### Bookmarks
 
 - `CTRL + X then D`: display existing bookmarks
-- `CTRL + X then B`: add or remote existing bookmark for **current** folder
+- `CTRL + X then B`: add or remove existing bookmark for the **current** folder
 
 ### Files and folders
 
-- `cdf FILEPATH`: Go the folder of the file
+- `cdf FILEPATH`: go to the folder containing the file
 
 
-- `c`: mark current folder, use `gc` to go this folder from any place
-- `cf FILEPATH` : mark file as current, use `gcf` to open it in vim from any place
+- `c`: mark current folder, use `gc` to return to this folder from any place
+- `cf FILEPATH`: mark file as current, use `gcf` to open it in `$NIXLPER_EDITOR` from any place
 
 
 - `cpcb [FILEPATH]`: copy full path of file to clipboard (defaults to current directory if no argument)
-- `cpdcb FILEPATH`: copy full path of directory containing the file to clipboard
+- `cpdcb FILEPATH`: copy full path of the directory containing the file to clipboard
+
+  (Clipboard support requires `xclip`, `xsel`, or `pbcopy`.)
 
 
-- `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete current folder and to avoid `rm -rf *` in your bash history
-- `CTRL + X then R`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete current folder contents and to avoid `rm -rf *` in your bash history
+- `sn FILEPATH`: snapshot a file into the snapshots area so you can restore it later
+- `re [FILEPATH]`: restore a previously snapshotted file. Without an argument, an interactive list of restorable files is shown
+- `olf`: open the most recently modified file in the current directory tree with `$NIXLPER_EDITOR`
+- `rn FILENAME PATTERN [REPLACEMENT]`: rename a file by removing or replacing a pattern
+  (e.g. `rn file_peppa.txt _peppa` → `file.txt`, `rn test-old.txt -old -new` → `test-new.txt`)
+
+
+- `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete the current folder and to avoid `rm -rf *` in your bash history
+- `CTRL + X then R`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete the current folder contents and to avoid `rm -rf *` in your bash history
 
 ### Processes
 
-- `ik`: call interactive kill to kill by pattern or by port
+- `ik`: call interactive kill to kill by pattern or by port (port mode requires `netstat`)
 
 ### Users
 
-- `sucd USER`: perform a su - USER and stay in current folder
+- `sucd USER`: perform a `su - USER` and stay in the current folder
 
 ### Navigation
 
 - `CTRL + X THEN U`: perform a "cd .."
 - `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste
-  (Navigation can use tree or flat mode. "tree" is the default value)
+  (Navigation can use tree or flat mode. "tree" is the default value and requires `tree`)
 
 See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
 
 
 - `toggle_navigation_mode`: 
-  - toggle items sizes display during navigate action (very useful when your hard drive is full!)
-  - Also display permissions for files when option is on
+  - toggle items sizes display during the navigate action (very useful when your hard drive is full!)
+  - also display permissions for files when the option is on
 
-- `fan PATTERN`: execute "find . -iname "*PATTERN*"" then display results like `CTRL + X THEN N` command
+- `fan PATTERN`: execute `find . -iname "*PATTERN*"` then display the results like the `CTRL + X THEN N` command.
+  Each match offers shortcuts to open the file (`vN`), cd into its folder and navigate (`cdfN`), or delete it (`dN`)
+- `fag PATTERN`: execute `grep -rn PATTERN .` then display each match with a shortcut (`vN`) to open the file directly at the matching line
 
 ### Macros
-- `CTRL + P`: start recording
-- `CTRL + P, CTRL + P`: stop recording
-- `CTRL + X, CTRL + X`: play recorded commands
+
+Record a sequence of commands once and replay it with a single shortcut.
+
+- `CTRL + P` (or `sr`): start recording
+- `CTRL + P, CTRL + P` (or `fr`): stop recording (binds the recorded commands to `CTRL + X, CTRL + X`)
+- `CTRL + X, CTRL + X`: play the recorded commands
+- `CTRL + P, CTRL + L`: re-bind and replay the last recorded macro (persisted across sessions)
+
+### Utilities
+
+- `CTRL + X then O`: open `nixlper.sh` in `$NIXLPER_EDITOR` for quick edits
+- `rf`: refresh the current directory (clears the screen and lists its contents; falls back to home if the directory was deleted)
+- `ap`: prepend the current path to the `PATH` variable in `~/.bashrc` (if not already present)
+
+### Custom scripts
+
+Any script placed in the custom directory (default `${NIXLPER_INSTALL_DIR}/custom`, configurable via
+`NIXLPER_CUSTOM_DIR`) is automatically sourced at login, so you can extend Nixlper with your own
+aliases and functions.
 
 ### Display help
 
-- `CTRL + X then H`: give the ability to search help per topic
+- `CTRL + X then H`: give the ability to search help per topic (uses `fzf` and `less`)
 
 ### Version and Logo
 
