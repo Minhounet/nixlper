@@ -80,10 +80,15 @@ function _merge_sh_sources() {
   cp src/main/bash/nixlper.sh "${WORK_DIRECTORY}/nixlper.tmp"
   cat src/main/bash/function* >> "${WORK_DIRECTORY}/functions.tmp"
 
-  # Remove comments but preserve @cmd-palette annotations
-  # Keep lines with: @cmd-palette, @description, @category, @keybind, @alias, @template, @args, @interactive
-  sed -i '/^#[[:space:]]*@\(cmd-palette\|description\|category\|keybind\|alias\|template\|args\|interactive\)/!{/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
-  sed -i '/^#[[:space:]]*@\(cmd-palette\|description\|category\|keybind\|alias\|template\|args\|interactive\)/!{/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
+  # Remove comment lines, but preserve ALL annotation lines (any "# @..." comment).
+  # This is deliberately generic: the command-palette parser reads @cmd-palette, @description,
+  # @category, @keybind, @alias, @template, @args, @interactive — and any annotation added in
+  # future. Keeping every "# @..." line means a new annotation never has to be whitelisted here,
+  # which previously caused annotations to be silently stripped from built/installed packages.
+  # Code lines (which may contain '@' in regexes) start with whitespace, not '#', so the
+  # '/^#.*/d' deletion never touches them.
+  sed -i '/^#[[:space:]]*@/!{/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
+  sed -i '/^#[[:space:]]*@/!{/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
 
   echo "#!/usr/bin/env bash" > "${WORK_DIRECTORY}/nixlper.sh"
   echo "###############################################################################################################" >> "${WORK_DIRECTORY}/nixlper.sh"
