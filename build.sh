@@ -81,9 +81,9 @@ function _merge_sh_sources() {
   cat src/main/bash/function* >> "${WORK_DIRECTORY}/functions.tmp"
 
   # Remove comments but preserve @cmd-palette annotations
-  # Keep lines with: @cmd-palette, @description, @category, @keybind, @alias, @template
-  sed -i '/^#[[:space:]]*@\(cmd-palette\|description\|category\|keybind\|alias\|template\)/!{/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
-  sed -i '/^#[[:space:]]*@\(cmd-palette\|description\|category\|keybind\|alias\|template\)/!{/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
+  # Keep lines with: @cmd-palette, @description, @category, @keybind, @alias, @template, @args, @interactive
+  sed -i '/^#[[:space:]]*@\(cmd-palette\|description\|category\|keybind\|alias\|template\|args\|interactive\)/!{/^#.*/d}' "${WORK_DIRECTORY}/functions.tmp"
+  sed -i '/^#[[:space:]]*@\(cmd-palette\|description\|category\|keybind\|alias\|template\|args\|interactive\)/!{/^#.*/d}' "${WORK_DIRECTORY}/nixlper.tmp"
 
   echo "#!/usr/bin/env bash" > "${WORK_DIRECTORY}/nixlper.sh"
   echo "###############################################################################################################" >> "${WORK_DIRECTORY}/nixlper.sh"
