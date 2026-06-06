@@ -57,6 +57,7 @@ function _display_existing_bookmarks() {
 # @description: Add or remove bookmark for current folder
 # @category: Bookmarks
 # @keybind: CTRL+X+B
+# @interactive
 #-----------------------------------------------------------------------------------------------------------------------
 function _add_or_remove_bookmark() {
   _display_existing_bookmarks "HIDE"

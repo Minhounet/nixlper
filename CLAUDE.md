@@ -79,15 +79,27 @@ Mark user-facing commands with:
 # @keybind: CTRL+X+D (optional)
 # @alias: shortcut (optional)
 # @args: FILENAME PATTERN [REPLACEMENT] (optional)
+# @interactive (optional)
 function command_name() { ... }
 ```
 
-`@args` lists the command's parameters for commands that require input. When a command carries
-`@args`, the command palette (CTRL+X+A) prompts the user to type the arguments after selection
-(TAB gives filename completion), then runs the command with them — otherwise the palette would
-invoke argument-taking commands with no arguments and they would fail. Tokens wrapped in
-`[brackets]` are optional; if every token is optional, leaving the prompt empty runs the command
-with its defaults, otherwise an empty prompt cancels.
+**Why `@args` / `@interactive` matter — the bind -x constraint.** The palette (CTRL+X+A) is
+bound via `bind -x find_action`. Inside a `bind -x` command the terminal is in readline's raw
+mode, so the bash `read` builtin **cannot receive keystrokes** — any command that prompts for
+input (or needs arguments typed) cannot be *executed* directly from the palette. The palette
+therefore runs commands in a **hybrid** way (see `_execute_command`):
+
+- **Plain commands** (no `@args`, no `@interactive`) are executed immediately on selection.
+- **`@args` commands** and **`@interactive` commands** are *not* executed; instead the command
+  is placed on the user's command line (`READLINE_LINE`), so they press Enter to run it in the
+  normal shell where `read` works.
+
+`@args` lists a command's parameters (for commands that need typed arguments); the palette
+pre-fills the command name plus a trailing space so the user can type the arguments (with native
+TAB completion) and press Enter. Tokens in `[brackets]` are optional. `@interactive` marks a
+command that prompts internally with `read` (e.g. bookmark add/remove, `ik`, `re`); it is placed
+on the command line as-is for the user to press Enter. Both still work normally via their own
+keybindings/aliases — these annotations only affect how the *palette* hands them off.
 
 ### Safety Patterns
 - Always use `-i` flag for rm commands

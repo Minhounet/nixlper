@@ -10,6 +10,7 @@
 # @description: Interactive help search
 # @category: Help
 # @keybind: CTRL+X+H
+# @interactive
 #-----------------------------------------------------------------------------------------------------------------------
 function _help() {
   echo "Nixlper Help: existing topics are:"

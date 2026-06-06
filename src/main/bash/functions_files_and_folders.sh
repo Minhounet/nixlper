@@ -77,6 +77,7 @@ function _snapshot_file() {
 # @description: Restore file from snapshots
 # @category: Files & Folders
 # @alias: re
+# @interactive
 #-----------------------------------------------------------------------------------------------------------------------
 function _restore_file() {
   if [[ $# -eq 0 ]]; then

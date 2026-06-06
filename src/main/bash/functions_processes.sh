@@ -7,6 +7,7 @@
 # @description: Interactive kill by pattern or port
 # @category: Processes
 # @alias: ik
+# @interactive
 function _interactive_kill() {
   local param_killmode=""
   local value=""
