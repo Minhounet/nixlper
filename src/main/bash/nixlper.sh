@@ -323,7 +323,13 @@ function _refresh_current_directory() {
 #***********************************************************************************************************************
 # ALIASES
 #***********************************************************************************************************************
-[[ "${NIXLPER_LOADED:-false}" == "true" ]] && return 0
+# Double-load guard: only skip when the script is being *sourced* (interactive shell loading
+# nixlper) and it is already loaded. When the script is *executed* (e.g. `./nixlper.sh update`
+# from build.sh) BASH_SOURCE[0] equals $0, so we never `return` at top level — that would both
+# raise "return: can only return from a function or sourced script" and skip `main`.
+if [[ "${BASH_SOURCE[0]}" != "${0}" && "${NIXLPER_LOADED:-false}" == "true" ]]; then
+  return 0
+fi
 export NIXLPER_LOADED=true
 alias c=_mark_folder_as_current
 alias cdf=_change_directory_from_filepath
