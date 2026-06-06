@@ -362,12 +362,6 @@ function find_action() {
     return 1
   fi
 
-  # Build and format the command registry
-  local commands_list=""
-  while read -r line; do
-    _format_command_for_display "$line"
-  done < <(_build_command_registry)
-
   # Display the command palette with fzf
   local selected
   selected=$(while read -r line; do _format_command_for_display "$line"; done < <(_build_command_registry) | \
@@ -376,7 +370,7 @@ function find_action() {
       --header="╔═══════════════════════════════════════════════════════════════════════════╗
 ║                    NIXLPER COMMAND PALETTE (Find Action)                  ║
 ║  Type to search commands by name, description, or category                ║
-║  ESC: Cancel  |  ENTER: Execute selected command                         ║
+║  ESC: Cancel  |  ENTER: Execute selected command                          ║
 ╚═══════════════════════════════════════════════════════════════════════════╝" \
       --header-lines=0 \
       --prompt="Search commands > " \
