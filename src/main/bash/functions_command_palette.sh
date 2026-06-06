@@ -250,8 +250,10 @@ function _execute_command() {
   # Format is: [KEYBIND]  COMMAND_NAME  DESCRIPTION {CATEGORY}
   # or:                    COMMAND_NAME  DESCRIPTION {CATEGORY} (no keybind)
 
-  # Remove keybinding part if present and extract command name
-  local cmd_name=$(echo "$selected" | sed 's/^\[.*\][[:space:]]*//' | awk '{print $1}')
+  # Remove keybinding part if present and extract command name.
+  # Use [^]]* (not .*) so the strip stops at the first ']': a greedy .* would
+  # also consume the "[alias]" tag inside the description, leaving the wrong word.
+  local cmd_name=$(echo "$selected" | sed 's/^\[[^]]*\][[:space:]]*//' | awk '{print $1}')
 
   if [[ -z "$cmd_name" ]]; then
     _i_log_as_error "Could not extract command name from selection"
