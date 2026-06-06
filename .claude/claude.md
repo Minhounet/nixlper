@@ -116,6 +116,18 @@ function command_name() { ... }
    - Add @cmd-palette annotations for user-facing commands
    - Build will automatically include it
 
+### Dual-location documentation rule
+Feature documentation lives in **two places** that must always stay in sync:
+
+| Location | Role |
+|---|---|
+| `README.md` → `## Features` → `### <Category>` | Public-facing reference |
+| `src/main/help/help_<category>` | In-shell help (CTRL+X+H) |
+
+**When adding or modifying a feature, update both locations in the same commit.**
+
+To check for drift between the two at any time, compare each `### <Category>` block in `README.md` with the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in the other. Flag any discrepancy to the user before closing a session that touched features.
+
 ### New Keyboard Shortcut
 ```bash
 # In _i_load_bindings() function in nixlper.sh
@@ -229,3 +241,4 @@ Native DEB is planned (next session). Key difference from alien-converted DEB:
 - [ ] Run shellcheck if safe
 - [ ] Test build and installation (`bash build.sh && tar -xf ... && ./nixlper.sh install`)
 - [ ] RPM: `bash build-rpm.sh` on a RHEL/Fedora/Rocky system, then `dnf install`
+- [ ] **Doc sync check**: verify every command in `README.md → ## Features` matches its `src/main/help/help_*` counterpart, and vice versa (see "Dual-location documentation rule" above)
