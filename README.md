@@ -1,12 +1,29 @@
 # NIXLPER
 
-This is my personnal helper in Unix environment. I took the philosophy from [Total commander](https://www.ghisler.com/accueil.htm) and tried to apply it in Unix.
+> **Current version: v2.0.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+
+This is my personal helper in Unix environment. I took the philosophy from [Total Commander](https://www.ghisler.com/accueil.htm) and tried to apply it in Unix.
+
+## v2.0.0 — A New Chapter
+
+Version 2.0.0 marks a turning point for the project. What started as a personal collection of bash shortcuts has grown into a structured, properly packaged tool with a real distribution story.
+
+The headline addition is the **command palette** (`CTRL+X+A`): a fuzzy-searchable popup of every available command, with its description, category, keybinding, and alias. You no longer need to remember anything — just open the palette and type. This single feature changes the way the tool is used and discovered, and it is the main reason this release earns a major version bump.
+
+Beyond that, v2.0.0 ships:
+- **RPM and DEB packages** — install via your system package manager, no manual steps needed
+- **`install.sh`** — a one-liner curl install and self-updating script
+- **`fag`** — grep across files and jump straight to the matching line in your editor
+- **`fan` shortcuts** — delete or `cd` into any search result directly
+- **Rename-by-pattern** (`rn`) and a **refresh** command (`rf`)
+- A **tips system** that surfaces a new tip at every shell start
+- Missing-tool detection at startup so you know exactly what to install
 
 ## Description
 
-The goal of the bash project is to provide useful Unix commands for various purpose. It takes the philosophy from [Total commander](https://www.ghisler.com/accueil.htm) 
-and this is why it contains a lots of key shortcuts.
-Now, you can decide to build it by yourself following [next chapter](#prerequisites-for-sh-build) or you can simply download the lastest release from Github.
+The goal of the bash project is to provide useful Unix commands for various purposes. It takes the philosophy from [Total Commander](https://www.ghisler.com/accueil.htm)
+and this is why it contains a lot of key shortcuts.
+You can build it yourself following [next chapter](#prerequisites-for-sh-build) or simply download the latest release from GitHub.
 
 ## Architecture
 
