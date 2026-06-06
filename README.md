@@ -1,6 +1,6 @@
 # NIXLPER
 
-> 🚀 **Current version: v2.0.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Current version: v2.0.1** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
 > Nixlper evolves constantly. Tagged releases are stable snapshots, but the `master` branch always contains the latest improvements. The `install.sh` script installs from the latest release — to get the absolute latest, build from source with `./build.sh`.
 
