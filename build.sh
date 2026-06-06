@@ -19,15 +19,6 @@ readonly PROJECT_NAME="nixlper"
 
 readonly BUILD_DIRECTORY=${CURRENT_FOLDER}/build/distributions
 
-#***********************************************************************************************************************
-# Load optional local build configuration (not tracked by git)
-#***********************************************************************************************************************
-readonly BUILD_PROPERTIES_FILE="${CURRENT_FOLDER}/build.properties"
-if [[ -f "${BUILD_PROPERTIES_FILE}" ]]; then
-  # shellcheck source=/dev/null
-  source "${BUILD_PROPERTIES_FILE}"
-fi
-
 readonly WORK_DIRECTORY=${CURRENT_FOLDER}/build/work
 readonly WORK_HELP_DIRECTORY=${WORK_DIRECTORY}/help
 readonly SHA_VERSION_FILE=${WORK_DIRECTORY}/version
@@ -83,34 +74,6 @@ function _make_tar_archive() {
   local -r archive_path=$(_get_archive_path)
   cd "${CURRENT_FOLDER}"/build/work
   tar -cf "${archive_path}" -- *
-}
-
-function _local_install() {
-  local -r install_folder="${LOCAL_INSTALL_FOLDER:-}"
-  local -r mode="${LOCAL_INSTALL_MODE:-update}"
-
-  if [[ -z "${install_folder}" ]]; then
-    _log_error "LOCAL_INSTALL_FOLDER is not set in build.properties"
-    return 1
-  fi
-
-  if [[ "${mode}" != "install" && "${mode}" != "update" ]]; then
-    _log_error "LOCAL_INSTALL_MODE must be 'install' or 'update', got '${mode}'"
-    return 1
-  fi
-
-  local -r archive=$(_get_archive_path)
-  if [[ ! -f "${archive}" ]]; then
-    _log_error "Archive not found: ${archive}"
-    return 1
-  fi
-
-  _log_info "Local ${mode} into ${install_folder}"
-  mkdir -p "${install_folder}"
-  tar -xf "${archive}" -C "${install_folder}"
-  chmod +x "${install_folder}/nixlper.sh"
-  (cd "${install_folder}" && ./nixlper.sh "${mode}")
-  _log_ok
 }
 
 function _merge_sh_sources() {
@@ -179,10 +142,6 @@ function main() {
   _log_info "Create tar archive"
   _make_tar_archive
   _log_ok
-  if [[ "${ENABLE_LOCAL_INSTALL:-false}" == "true" ]]; then
-    _log_info "Local install (mode: ${LOCAL_INSTALL_MODE:-update})"
-    _local_install
-  fi
   _log_info "Clean working dir"
   _clean_work_dir
   _log_ok
