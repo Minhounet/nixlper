@@ -1,5 +1,8 @@
-HOOK: Jump to any bookmark instantly
-HOW: gb <name>  |  CTRL+X+D to list
+HOOK: Jump to a bookmark instantly — just type its name
+HOW: <bookmark_name>  |  CTRL+X+D to list all bookmarks
+
+HOOK: Add or remove a bookmark for the current folder
+HOW: CTRL+X+B
 
 HOOK: Open any command without remembering its name
 HOW: fa  |  CTRL+X+A — fuzzy search everything
@@ -22,28 +25,34 @@ HOW: ik
 HOOK: Mark a folder, come back to it from anywhere
 HOW: c  to mark  |  gc  to jump back
 
-HOOK: Mark a file, open it from anywhere
-HOW: cf FILEPATH  |  gcf  to open in editor
+HOOK: Mark a file, open it from anywhere in the editor
+HOW: cf FILEPATH  to mark  |  gcf  to open
 
-HOOK: Copy the full path of any file to the clipboard
+HOOK: Copy the full path of a file to the clipboard
 HOW: cpcb [FILEPATH]
+
+HOOK: Copy the directory path of a file to the clipboard
+HOW: cpdcb FILEPATH
 
 HOOK: Rename a file by pattern — no mv gymnastics
 HOW: rn FILENAME PATTERN [REPLACEMENT]
 
-HOOK: Open the most recently modified file in the tree
+HOOK: Open the most recently modified file in the current tree
 HOW: olf
 
 HOOK: Record a command sequence and replay it with one shortcut
-HOW: sr  to start  |  fr  to stop  |  CTRL+X+X  to replay
+HOW: sr  |  CTRL+P  to start  |  fr  |  CTRL+P+CTRL+P  to stop  |  CTRL+X+X  to replay
+
+HOOK: Re-bind and replay the last recorded macro across sessions
+HOW: CTRL+P+CTRL+L
 
 HOOK: Search files by name, get navigate-style shortcuts
 HOW: fan PATTERN
 
-HOOK: Search file contents, jump straight to the matching line
+HOOK: Search file contents and jump straight to the matching line
 HOW: fag PATTERN
 
-HOOK: Add current directory to PATH permanently
+HOOK: Add the current directory to PATH permanently
 HOW: ap
 
 HOOK: Refresh the current directory listing
@@ -57,3 +66,12 @@ HOW: CTRL+X+H — fuzzy search across all help topics
 
 HOOK: Open nixlper.sh for a quick tweak
 HOW: CTRL+X+O
+
+HOOK: Delete the current folder safely — no bare rm -rf in history
+HOW: CTRL+X+E
+
+HOOK: Delete the current folder contents safely
+HOW: CTRL+X+R
+
+HOOK: Toggle size and permission display during navigation
+HOW: toggle_navigation_mode
