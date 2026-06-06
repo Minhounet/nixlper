@@ -251,6 +251,56 @@ Feature documentation lives in **two places** that must always stay in sync:
 
 To check for drift between the two at any time, compare each `### <Category>` block in `README.md` with the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in the other. Flag any discrepancy to the user before closing a session that touched features.
 
+### Release process — CHANGELOG.md and README.md
+
+Every release requires updating **two files** in the same commit, plus creating a git tag.
+
+#### CHANGELOG.md
+`CHANGELOG.md` is the authoritative history of all changes. It follows
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+
+```markdown
+## [X.Y.Z] - YYYY-MM-DD
+
+### Added
+- ...
+
+### Fixed
+- ...
+
+### Removed
+- ...
+```
+
+**How to populate a new entry:** read the commits since the previous tag with
+`git log --pretty=format:"%ad %s" --date=short vPREV..vNEW` and group them into
+`Added`, `Fixed`, `Changed`, or `Removed` sections. Filter out pure doc/CI/build
+commits unless they affect users. Write entries in plain English, not as raw commit
+messages.
+
+**PATCH** (`X.Y.Z+1`) — bug fixes only, no new features.  
+**MINOR** (`X.Y+1.0`) — new features, backward-compatible.  
+**MAJOR** (`X+1.0.0`) — breaking changes or a significant paradigm shift.
+
+#### README.md
+The very first line of `README.md` contains the current version badge:
+
+```markdown
+> 🚀 **Current version: vX.Y.Z** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+```
+
+Update this line to the new version number when cutting a release.
+
+#### Tagging
+After committing the updated `CHANGELOG.md` and `README.md`:
+
+```bash
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+The build picks up the tag automatically via `git describe --tags --exact-match HEAD`.
+
 ### New Keyboard Shortcut
 ```bash
 # In _i_load_bindings() function in nixlper.sh
