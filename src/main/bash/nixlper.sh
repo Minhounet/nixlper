@@ -337,6 +337,7 @@ alias re=_restore_file
 alias fan=_find_and_navigate
 alias fag=_grep_and_navigate
 alias olf=_open_latest_file
+alias rn=_rename_file_pattern
 alias rf=_refresh_current_directory
 # Prepend current path in PATH variable updating the .bashrc if not already done
 # @cmd-palette

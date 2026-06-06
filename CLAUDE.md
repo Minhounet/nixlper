@@ -7,6 +7,12 @@ new files or directories, architectural decisions, new env variables, build step
 discovered during implementation. The goal is that any new session can start from this file
 without re-discovering context.
 
+## Known Issues
+
+Confirmed-but-unfixed defects are tracked in [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md). Consult it
+before working on navigation/file commands, and keep it in sync: remove an entry in the same
+commit that fixes the underlying bug.
+
 ---
 
 ## Project Overview
@@ -72,8 +78,16 @@ Mark user-facing commands with:
 # @category: Category name
 # @keybind: CTRL+X+D (optional)
 # @alias: shortcut (optional)
+# @args: FILENAME PATTERN [REPLACEMENT] (optional)
 function command_name() { ... }
 ```
+
+`@args` lists the command's parameters for commands that require input. When a command carries
+`@args`, the command palette (CTRL+X+A) prompts the user to type the arguments after selection
+(TAB gives filename completion), then runs the command with them — otherwise the palette would
+invoke argument-taking commands with no arguments and they would fail. Tokens wrapped in
+`[brackets]` are optional; if every token is optional, leaving the prompt empty runs the command
+with its defaults, otherwise an empty prompt cancels.
 
 ### Safety Patterns
 - Always use `-i` flag for rm commands

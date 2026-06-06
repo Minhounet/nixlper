@@ -10,6 +10,7 @@
 # @description: Switch user and maintain current directory
 # @category: Users
 # @alias: sucd
+# @args: USERNAME
 #-----------------------------------------------------------------------------------------------------------------------
 function _su_to_current_directory() {
   local -r su_user=$1

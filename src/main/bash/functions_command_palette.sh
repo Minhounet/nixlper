@@ -37,6 +37,7 @@ function _parse_cmd_palette_annotations() {
   local alias_name=""
   local cmd_name=""
   local is_template=0
+  local args=""
 
   while IFS= read -r line; do
     # Check if we're starting a new annotation block
@@ -48,6 +49,7 @@ function _parse_cmd_palette_annotations() {
       alias_name=""
       cmd_name=""
       is_template=0
+      args=""
       continue
     fi
 
@@ -63,6 +65,8 @@ function _parse_cmd_palette_annotations() {
         alias_name="${BASH_REMATCH[1]}"
       elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@template ]]; then
         is_template=1
+      elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@args:[[:space:]]*(.*) ]]; then
+        args="${BASH_REMATCH[1]}"
       elif [[ "$line" =~ ^[[:space:]]*function[[:space:]]+([a-zA-Z0-9_]+) ]] || [[ "$line" =~ ^[[:space:]]*alias[[:space:]]+([a-zA-Z0-9_]+)= ]]; then
         # Found the function or alias definition - extract command name
         cmd_name="${BASH_REMATCH[1]}"
@@ -73,8 +77,9 @@ function _parse_cmd_palette_annotations() {
         fi
 
         # Output the parsed command
+        # Trailing field (f7) carries the @args usage string for commands that need arguments.
         if [[ -n "$cmd_name" && -n "$description" ]]; then
-          echo "${cmd_name}|${description}|${category}|${keybind}|${alias_name}|${is_template}"
+          echo "${cmd_name}|${description}|${category}|${keybind}|${alias_name}|${is_template}|${args}"
         fi
 
         # Reset for next annotation
@@ -301,14 +306,45 @@ function _execute_command() {
     return $?
   fi
 
-  echo "Executing: $cmd_name"
+  # Function/alias path. The 7th field carries the @args usage string (empty when the
+  # command takes no arguments). When present, the palette cannot guess the arguments, so we
+  # prompt the user for them before executing.
+  local cmd_args_usage=$(echo "$registry_line" | cut -d'|' -f7)
+  local user_args=""
+
+  if [[ -n "$cmd_args_usage" ]]; then
+    # A required argument is any token NOT wrapped in [optional] brackets. If removing every
+    # [...] group leaves a non-empty token, at least one argument is mandatory.
+    local required_part="${cmd_args_usage//\[*\]/}"
+    local has_required=0
+    [[ "$required_part" =~ [^[:space:]] ]] && has_required=1
+
+    echo "Command '$cmd_name' takes arguments: $cmd_args_usage"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    if [[ $has_required -eq 1 ]]; then
+      echo "(filename completion with TAB; leave empty to cancel)"
+    else
+      echo "(filename completion with TAB; leave empty to use defaults)"
+    fi
+    # -e enables readline (TAB completion); prompt shown to the user.
+    read -rep "Arguments for ${cmd_name} > " user_args
+    if [[ -z "$user_args" && $has_required -eq 1 ]]; then
+      echo ""
+      _i_log_action_cancelled
+      return 0
+    fi
+    echo ""
+    echo "Executing: $cmd_name $user_args"
+  else
+    echo "Executing: $cmd_name"
+  fi
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""
 
   # Check if the command exists as a function or alias
   if type -t "$cmd_name" &>/dev/null; then
-    # Execute the command
-    eval "$cmd_name"
+    # Execute the command (with collected arguments, if any)
+    eval "$cmd_name $user_args"
   else
     _i_log_as_error "Command '${cmd_name}' is not available (not a function, alias, or executable)"
     return 1
