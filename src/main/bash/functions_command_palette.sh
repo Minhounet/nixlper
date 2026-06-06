@@ -37,6 +37,8 @@ function _parse_cmd_palette_annotations() {
   local alias_name=""
   local cmd_name=""
   local is_template=0
+  local args=""
+  local interactive=0
 
   while IFS= read -r line; do
     # Check if we're starting a new annotation block
@@ -48,6 +50,8 @@ function _parse_cmd_palette_annotations() {
       alias_name=""
       cmd_name=""
       is_template=0
+      args=""
+      interactive=0
       continue
     fi
 
@@ -63,6 +67,10 @@ function _parse_cmd_palette_annotations() {
         alias_name="${BASH_REMATCH[1]}"
       elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@template ]]; then
         is_template=1
+      elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@args:[[:space:]]*(.*) ]]; then
+        args="${BASH_REMATCH[1]}"
+      elif [[ "$line" =~ ^[[:space:]]*#[[:space:]]*@interactive ]]; then
+        interactive=1
       elif [[ "$line" =~ ^[[:space:]]*function[[:space:]]+([a-zA-Z0-9_]+) ]] || [[ "$line" =~ ^[[:space:]]*alias[[:space:]]+([a-zA-Z0-9_]+)= ]]; then
         # Found the function or alias definition - extract command name
         cmd_name="${BASH_REMATCH[1]}"
@@ -73,8 +81,11 @@ function _parse_cmd_palette_annotations() {
         fi
 
         # Output the parsed command
+        # f7 = @args usage string (commands needing arguments); f8 = @interactive flag
+        # (commands that prompt with `read`). Both must be handed to the user's command line
+        # instead of executed under bind -x, where `read` cannot receive input.
         if [[ -n "$cmd_name" && -n "$description" ]]; then
-          echo "${cmd_name}|${description}|${category}|${keybind}|${alias_name}|${is_template}"
+          echo "${cmd_name}|${description}|${category}|${keybind}|${alias_name}|${is_template}|${args}|${interactive}"
         fi
 
         # Reset for next annotation
@@ -259,6 +270,24 @@ function _execute_command() {
   local cmd_type=$(echo "$registry_line" | cut -d'|' -f5)
   local bind_command=$(echo "$registry_line" | cut -d'|' -f6)
   local is_template=$(echo "$registry_line" | cut -d'|' -f7)
+  # For function/alias entries f7 holds the @args usage and f8 the @interactive flag.
+  local cmd_args_usage=$(echo "$registry_line" | cut -d'|' -f7)
+  local cmd_interactive=$(echo "$registry_line" | cut -d'|' -f8)
+
+  # Commands that need user input cannot run under bind -x: the palette is invoked via
+  # `bind -x find_action`, where the terminal is in readline's raw mode and `read` never
+  # receives keystrokes. Instead of executing such a command here, place it on the user's
+  # command line (READLINE_LINE) so they complete it and press Enter — it then runs in the
+  # normal shell where `read` works. Applies to @args commands (f7) and @interactive
+  # commands (f8); both are always function/alias entries, never bind/template ones.
+  if [[ "$cmd_type" != "bind" ]] && { [[ -n "$cmd_args_usage" ]] || [[ "$cmd_interactive" == "1" ]]; }; then
+    local line_to_run="$cmd_name"
+    # @args commands get a trailing space so the cursor is ready for arguments.
+    [[ -n "$cmd_args_usage" ]] && line_to_run="$cmd_name "
+    READLINE_LINE="$line_to_run"
+    READLINE_POINT=${#line_to_run}
+    return 0
+  fi
 
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -301,13 +330,13 @@ function _execute_command() {
     return $?
   fi
 
+  # Non-interactive, no-argument function/alias: safe to run directly under bind -x.
   echo "Executing: $cmd_name"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""
 
   # Check if the command exists as a function or alias
   if type -t "$cmd_name" &>/dev/null; then
-    # Execute the command
     eval "$cmd_name"
   else
     _i_log_as_error "Command '${cmd_name}' is not available (not a function, alias, or executable)"

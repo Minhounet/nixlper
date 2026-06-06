@@ -35,6 +35,7 @@ function _i_get_clipboard_tool() {
 # @description: Copy full file path to clipboard
 # @category: Files & Folders
 # @alias: cpcb
+# @args: [FILENAME]
 ########################################################################################################################
 function _copy_fullpath_to_clipboard() {
   local target="${1:-.}"
@@ -86,6 +87,7 @@ function _copy_fullpath_to_clipboard() {
 # @description: Copy directory path to clipboard
 # @category: Files & Folders
 # @alias: cpdcb
+# @args: FILENAME
 ########################################################################################################################
 function _copy_directory_to_clipboard() {
   local target="$1"

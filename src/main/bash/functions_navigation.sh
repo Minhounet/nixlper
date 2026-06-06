@@ -167,6 +167,7 @@ function _i_navigate_flat() {
 # @description: Find and navigate using pattern matching
 # @category: Navigation
 # @alias: fan
+# @args: PATTERN
 #-----------------------------------------------------------------------------------------------------------------------
 function _find_and_navigate() {
   if [[ $# -eq 0 ]]; then
@@ -216,6 +217,7 @@ function _find_and_navigate() {
 # @description: Grep files for pattern and open file at matching line
 # @category: Navigation
 # @alias: fag
+# @args: PATTERN
 #-----------------------------------------------------------------------------------------------------------------------
 function _grep_and_navigate() {
   if [[ $# -eq 0 ]]; then

@@ -23,6 +23,7 @@ function _mark_folder_as_current() {
 # @description: Mark file as current (use 'gcf' to open)
 # @category: Files & Folders
 # @alias: cf
+# @args: FILENAME
 #-----------------------------------------------------------------------------------------------------------------------
 function _mark_file_as_current() {
   if [[ $# -eq 0 ]]; then
@@ -45,6 +46,7 @@ function _mark_file_as_current() {
 # @description: Snapshot file to snapshots area
 # @category: Files & Folders
 # @alias: sn
+# @args: FILENAME
 #-----------------------------------------------------------------------------------------------------------------------
 function _snapshot_file() {
   if [[ $# -eq 0 ]]; then
@@ -75,6 +77,7 @@ function _snapshot_file() {
 # @description: Restore file from snapshots
 # @category: Files & Folders
 # @alias: re
+# @interactive
 #-----------------------------------------------------------------------------------------------------------------------
 function _restore_file() {
   if [[ $# -eq 0 ]]; then
@@ -144,6 +147,7 @@ function _i_restore_file_interactive() {
 # @description: Change to the folder containing a file
 # @category: Files & Folders
 # @alias: cdf
+# @args: FILEPATH
 #-----------------------------------------------------------------------------------------------------------------------
 function _change_directory_from_filepath() {
     [[ "$1" == "--help" ]] && echo "$FUNCNAME go to the folder containing the provided path
@@ -188,6 +192,7 @@ function _open_latest_file() {
 # @description: Rename file by removing or replacing a pattern
 # @category: Files & Folders
 # @alias: rn
+# @args: FILENAME PATTERN [REPLACEMENT]
 #-----------------------------------------------------------------------------------------------------------------------
 function _rename_file_pattern() {
     [[ "$1" == "--help" ]] && echo "$FUNCNAME: Rename file by removing or replacing a pattern

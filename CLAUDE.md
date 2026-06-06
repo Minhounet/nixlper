@@ -7,6 +7,12 @@ new files or directories, architectural decisions, new env variables, build step
 discovered during implementation. The goal is that any new session can start from this file
 without re-discovering context.
 
+## Known Issues
+
+Confirmed-but-unfixed defects are tracked in [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md). Consult it
+before working on navigation/file commands, and keep it in sync: remove an entry in the same
+commit that fixes the underlying bug.
+
 ---
 
 ## Project Overview
@@ -72,8 +78,32 @@ Mark user-facing commands with:
 # @category: Category name
 # @keybind: CTRL+X+D (optional)
 # @alias: shortcut (optional)
+# @args: FILENAME PATTERN [REPLACEMENT] (optional)
+# @interactive (optional)
 function command_name() { ... }
 ```
+
+**Why `@args` / `@interactive` matter — the bind -x constraint.** The palette (CTRL+X+A) is
+bound via `bind -x find_action`. Inside a `bind -x` command the terminal is in readline's raw
+mode, so the bash `read` builtin **cannot receive keystrokes** — any command that prompts for
+input (or needs arguments typed) cannot be *executed* directly from the palette. The palette
+therefore runs commands in a **hybrid** way (see `_execute_command`):
+
+- **Plain commands** (no `@args`, no `@interactive`) are executed immediately on selection.
+- **`@args` commands** and **`@interactive` commands** are *not* executed; instead the command
+  is placed on the user's command line (`READLINE_LINE`), so they press Enter to run it in the
+  normal shell where `read` works.
+
+`@args` lists a command's parameters (for commands that need typed arguments); the palette
+pre-fills the command name plus a trailing space so the user can type the arguments (with native
+TAB completion) and press Enter. Tokens in `[brackets]` are optional. `@interactive` marks a
+command that prompts internally with `read` (e.g. bookmark add/remove, `ik`, `re`); it is placed
+on the command line as-is for the user to press Enter. Both still work normally via their own
+keybindings/aliases — these annotations only affect how the *palette* hands them off.
+
+All annotation lines must survive packaging: `build.sh` preserves every `# @...` comment
+generically, so new annotations need no build change (see "Annotation preservation" under
+Build & Installation).
 
 ### Safety Patterns
 - Always use `-i` flag for rm commands
@@ -233,8 +263,16 @@ bind -x '"\C-x\C-y": your_function_name'  # CTRL+X then Y
 
 ### Build tar (all platforms)
 `build.sh` concatenates all `src/main/bash/function*.sh` files, merges with `nixlper.sh`,
-strips comments (preserving `@cmd-palette` annotations), and creates `nixlper-VERSION.tar`
-in `build/distributions/`. Requires `dos2unix`.
+strips comments, and creates `nixlper-VERSION.tar` in `build/distributions/`. Requires `dos2unix`.
+
+**Annotation preservation (important).** The strip step keeps **every `# @...` comment line**
+generically (`sed '/^#[[:space:]]*@/!{/^#.*/d}'`), so all command-palette annotations
+(`@cmd-palette`, `@description`, `@category`, `@keybind`, `@alias`, `@template`, `@args`,
+`@interactive`, and any added later) survive into the built/installed `nixlper.sh`. Do **not**
+reintroduce a hand-maintained whitelist here: an annotation missing from the build is invisible
+to the runtime parser, which silently breaks palette behavior in packaged installs (RPM/DEB/tar)
+while still working in the dev source tree — a confusing class of "works in dev, broken when
+built" bug. When adding a new annotation, no change to `build.sh` is needed.
 
 ### Manual install (tar-based, any Unix)
 ```bash
