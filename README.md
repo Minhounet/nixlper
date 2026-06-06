@@ -4,6 +4,8 @@
 >
 > Nixlper evolves constantly. Tagged releases are stable snapshots, but the `master` branch always contains the latest improvements. The `install.sh` script installs from the latest release — to get the absolute latest, build from source with `./build.sh`.
 
+> 🇫🇷 [Version française](README.fr.md)
+
 This is my personal helper in Unix environment. I took the philosophy from [Total Commander](https://www.ghisler.com/accueil.htm) and tried to apply it in Unix.
 
 ## 🎉 v2.0.0 — A New Chapter
