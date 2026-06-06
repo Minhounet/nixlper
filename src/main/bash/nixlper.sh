@@ -19,6 +19,7 @@ function _i_init() {
   _i_load_bookmarks
   _i_load_bindings
   _i_load_custom_libraries
+  _i_load_tips
 }
 
 function _i_test_prerequisites() {
@@ -287,6 +288,9 @@ function _i_load_bindings() {
     bind -x  '"\C-p\C-p": finalize_recording'
     bind -x  '"\C-p\C-l": bind_last_macro'
 
+    # tips - annotation already in functions_tips.sh
+    bind -x '"\C-x\C-t": show_random_tip'
+
     # command palette - annotation already in functions_command_palette.sh
     bind -x '"\C-x\C-a": find_action'
   fi
@@ -354,6 +358,7 @@ alias ap='DIR=$(pwd); if ! grep -q "$DIR" ~/.bashrc; then echo "export PATH=$DIR
 alias sr=start_recording
 alias fr=finalize_recording
 alias fa=find_action
+alias tip=show_random_tip
 
 #***********************************************************************************************************************
 ########################################################################################################################
