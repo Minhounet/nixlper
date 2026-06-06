@@ -6,6 +6,14 @@ and verified. These are intended to be addressed in dedicated follow-up sessions
 > Referenced from `CLAUDE.md`. When an issue here is fixed, remove it from this file in the
 > same commit and (if user-facing) update `README.md` / `src/main/help/*` per the dual-location rule.
 
+### Impact legend
+
+| Level | Meaning |
+|---|---|
+| 🔴 **Blocking** | Command/feature is unusable, or causes data loss with no warning. Fix first. |
+| 🟠 **Important** | Works in the common case but silently produces wrong results or misleads the user in real scenarios. |
+| 🟡 **Minor** | Cosmetic, noisy, or doc-only. No functional impact on results. |
+
 ---
 
 ## Direct-usage bugs (independent of the command palette)
@@ -15,6 +23,8 @@ documented arguments — they are not related to the `find_action` (CTRL+X+A) pa
 
 ### ISSUE-1 — `fan` / `fag` silently miss paths containing spaces
 
+- **Impact:** 🟠 Important — the command appears to work (exit 0) but silently omits matches,
+  so the user can wrongly conclude "no such file". Only triggers when a path contains a space.
 - **Commands:** `fan` (`_find_and_navigate`), `fag` (`_grep_and_navigate`)
 - **Files:** `src/main/bash/functions_navigation.sh:185` (`for i in ${find_results}`)
   and `src/main/bash/functions_navigation.sh:237` (`for i in ${grep_results}`)
@@ -35,6 +45,10 @@ documented arguments — they are not related to the `find_action` (CTRL+X+A) pa
 
 ### ISSUE-2 — `sn` reports false success on an absolute path
 
+- **Impact:** 🟠 Important (severe when triggered) — prints "has been saved" and returns 0 while
+  nothing was copied. A user who trusts that message and later edits/deletes the original can
+  lose data with no real warning. Only triggers when `sn` is given an absolute path; relative
+  filenames work correctly.
 - **Command:** `sn` (`_snapshot_file`)
 - **File:** `src/main/bash/functions_files_and_folders.sh:54`
   (`local -r absolute_filepath=$(pwd)/$1`) and the missing `cp` exit-code check at lines 61/68.
@@ -59,6 +73,8 @@ documented arguments — they are not related to the `find_action` (CTRL+X+A) pa
 
 ### ISSUE-3 — `return` at top level errors during `./nixlper.sh install|update`
 
+- **Impact:** 🟡 Minor — cosmetic. Prints an error line but install/update completes normally.
+  Looks alarming to users, so worth fixing, but nothing breaks.
 - **File:** `src/main/bash/nixlper.sh:326`
   (`[[ "${NIXLPER_LOADED:-false}" == "true" ]] && return 0`)
 - **Symptom:** Running `./nixlper.sh update` (or `install`) prints:
@@ -89,6 +105,8 @@ the matching `src/main/help/help_<category>` file, and vice versa.
 
 ### ISSUE-4 — `olf` missing from in-shell help
 
+- **Impact:** 🟡 Minor — documentation only. Feature works; it is just undiscoverable via
+  CTRL+X+H help.
 - **Files:** documented in `README.md` (Files & Folders) but absent from
   `src/main/help/help_files_folders`.
 - **Symptom:** `olf` (open latest modified file) shows in the README but not in CTRL+X+H help.
