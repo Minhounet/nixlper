@@ -18,10 +18,11 @@ _log_error() { echo "❌ $1" >&2; }
 #-----------------------------------------------------------------------------------------------------------------------
 # Version — strip leading 'v' from git tag so RPM Version: is plain numeric (e.g. 1.2.3 not v1.2.3)
 #-----------------------------------------------------------------------------------------------------------------------
-# Returns the raw tag (strip leading v only) — used to locate the tar produced by build.sh.
+# Returns the exact git tag (no transformation) — used to locate the tar produced by build.sh,
+# which names the archive with the unmodified tag (e.g. nixlper-v1.0.0.tar).
 _get_raw_version() {
   local tag
-  tag=$(git describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
+  tag=$(git describe --tags --exact-match HEAD 2>/dev/null || true)
   if [[ -n "${tag}" ]]; then
     echo "${tag}"
   else
@@ -29,9 +30,10 @@ _get_raw_version() {
   fi
 }
 
-# Returns an RPM-safe version: hyphens replaced with underscores (RPM forbids '-' in Version).
+# Returns an RPM-safe version: leading 'v' stripped, hyphens replaced with underscores
+# (RPM forbids '-' in Version).
 _get_version() {
-  _get_raw_version | sed 's/-/_/g'
+  _get_raw_version | sed 's/^v//' | sed 's/-/_/g'
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
