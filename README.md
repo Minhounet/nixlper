@@ -278,6 +278,14 @@ aliases and functions.
 
 - `CTRL + X then V`: display the Nixlper logo with version information and git SHA
 
+### Tips
+
+A tip is shown automatically at each shell start (cycling through all tips in order).
+
+- `CTRL + X then T` (or `tip`): show a random tip on demand at any time
+
+Set `NIXLPER_DISABLE_TIPS=true` in your config to suppress the startup tip (the `tip` command still works).
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

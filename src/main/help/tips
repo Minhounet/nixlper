@@ -1,0 +1,59 @@
+HOOK: Jump to any bookmark instantly
+HOW: gb <name>  |  CTRL+X+D to list
+
+HOOK: Open any command without remembering its name
+HOW: fa  |  CTRL+X+A — fuzzy search everything
+
+HOOK: Go up one directory without typing cd ..
+HOW: CTRL+X+U
+
+HOOK: Navigate subfolders interactively — no typing needed
+HOW: CTRL+X+N
+
+HOOK: Snapshot a file before risky changes
+HOW: sn FILEPATH
+
+HOOK: Restore a snapshotted file at any time
+HOW: re [FILEPATH]  — no argument shows an interactive list
+
+HOOK: Kill a process by name or port, interactively
+HOW: ik
+
+HOOK: Mark a folder, come back to it from anywhere
+HOW: c  to mark  |  gc  to jump back
+
+HOOK: Mark a file, open it from anywhere
+HOW: cf FILEPATH  |  gcf  to open in editor
+
+HOOK: Copy the full path of any file to the clipboard
+HOW: cpcb [FILEPATH]
+
+HOOK: Rename a file by pattern — no mv gymnastics
+HOW: rn FILENAME PATTERN [REPLACEMENT]
+
+HOOK: Open the most recently modified file in the tree
+HOW: olf
+
+HOOK: Record a command sequence and replay it with one shortcut
+HOW: sr  to start  |  fr  to stop  |  CTRL+X+X  to replay
+
+HOOK: Search files by name, get navigate-style shortcuts
+HOW: fan PATTERN
+
+HOOK: Search file contents, jump straight to the matching line
+HOW: fag PATTERN
+
+HOOK: Add current directory to PATH permanently
+HOW: ap
+
+HOOK: Refresh the current directory listing
+HOW: rf
+
+HOOK: Stay in your folder when switching users
+HOW: sucd USER
+
+HOOK: Get help on any topic without leaving the shell
+HOW: CTRL+X+H — fuzzy search across all help topics
+
+HOOK: Open nixlper.sh for a quick tweak
+HOW: CTRL+X+O

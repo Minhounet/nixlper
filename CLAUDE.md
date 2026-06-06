@@ -314,6 +314,7 @@ All variables follow a precedence chain — later sources override earlier ones:
 | `NIXLPER_NAVIGATE_MODE` | `tree` | `tree` |
 | `NIXLPER_EDITOR` | `vim` | `vim` |
 | `NIXLPER_DISABLE_WELCOME_MESSAGE` | `false` | `false` |
+| `NIXLPER_DISABLE_TIPS` | `false` | `false` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.
