@@ -55,6 +55,48 @@ documented arguments — they are not related to the `find_action` (CTRL+X+A) pa
 
 ---
 
+## Install / runtime bugs
+
+### ISSUE-3 — `return` at top level errors during `./nixlper.sh install|update`
+
+- **File:** `src/main/bash/nixlper.sh:326`
+  (`[[ "${NIXLPER_LOADED:-false}" == "true" ]] && return 0`)
+- **Symptom:** Running `./nixlper.sh update` (or `install`) prints:
+  `./nixlper.sh: line <N>: return: can only 'return' from a function or sourced script`.
+  The install/update still completes (the error does not abort execution), so it is noise
+  rather than a hard failure.
+- **Root cause:** The double-load guard uses a top-level `return`, which is only valid when the
+  file is *sourced* (interactive shell loading nixlper). But the same file is also *executed*
+  (`./nixlper.sh update`). When the parent interactive shell has already exported
+  `NIXLPER_LOADED=true`, the executed child process inherits it, reaches the top-level `return`,
+  and bash rejects it. The guard is reached during execution because `main "$@"` runs at the
+  bottom of the same file.
+- **Reproduction:**
+  ```bash
+  export NIXLPER_LOADED=true
+  ./nixlper.sh update     # -> return: can only `return' from a function or sourced script
+  ```
+- **Suggested fix:** Only apply the source-time guard when the script is actually being sourced,
+  e.g. guard with `if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then ... return 0; fi`, or move the
+  `NIXLPER_LOADED` guard so it never runs on the execution path that ends in `main "$@"`.
+
+---
+
+## Documentation drift (dual-location rule)
+
+Per CLAUDE.md, every command in `README.md → ## Features → ### <Category>` must also appear in
+the matching `src/main/help/help_<category>` file, and vice versa.
+
+### ISSUE-4 — `olf` missing from in-shell help
+
+- **Files:** documented in `README.md` (Files & Folders) but absent from
+  `src/main/help/help_files_folders`.
+- **Symptom:** `olf` (open latest modified file) shows in the README but not in CTRL+X+H help.
+- **Suggested fix:** Add an `olf` line to `help_files_folders` (e.g. under a new "Open" section):
+  `olf : open the most recently modified file in the current repository`.
+
+---
+
 ## Notes
 
 - The command palette's inability to pass arguments to argument-taking commands is **not** a bug
