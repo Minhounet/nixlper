@@ -2,6 +2,8 @@
 
 > 🚀 **Current version: v2.0.1** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
+> **What's new in v2.0.1:** Fixed command palette double-print after command execution and header border misalignment.
+>
 > Nixlper evolves constantly. Tagged releases are stable snapshots, but the `master` branch always contains the latest improvements. The `install.sh` script installs from the latest release — to get the absolute latest, build from source with `./build.sh`.
 
 > 🇫🇷 [Version française](README.fr.md)
