@@ -283,13 +283,19 @@ messages.
 **MAJOR** (`X+1.0.0`) — breaking changes or a significant paradigm shift.
 
 #### README.md
-The very first line of `README.md` contains the current version badge:
+The opening badge block of `README.md` contains the current version and a one-line "What's new" summary:
 
 ```markdown
 > 🚀 **Current version: vX.Y.Z** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+>
+> **What's new in vX.Y.Z:** One-sentence summary of the key changes (distilled from the CHANGELOG.md entry).
+>
+> Nixlper evolves constantly...
 ```
 
-Update this line to the new version number when cutting a release.
+When cutting a release, update both:
+1. The version number on the badge line.
+2. The **"What's new"** line — write a concise one-sentence summary of the main additions, fixes, or changes from the `CHANGELOG.md` entry for the new version.
 
 #### Tagging
 After committing the updated `CHANGELOG.md` and `README.md`:
