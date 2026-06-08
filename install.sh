@@ -300,7 +300,7 @@ main() {
     if [[ "${answer}" =~ ^[Yy]$ ]]; then
       local archive_path
       archive_path=$(_download_release "${tag}" "${install_dir}")
-      _update_install "${install_dir}" "${archive_path}" "${system_mode}"
+      NIXLPER_INSTALL_CHANNEL="${channel}" _update_install "${install_dir}" "${archive_path}" "${system_mode}"
     else
       _log_info "Update cancelled"
     fi
@@ -324,7 +324,7 @@ main() {
     if [[ "${answer}" =~ ^[Yy]$ ]]; then
       local archive_path
       archive_path=$(_download_release "${tag}" "/tmp")
-      _first_install "${install_dir}" "/tmp/$(basename "${archive_path}")" "${system_mode}"
+      NIXLPER_INSTALL_CHANNEL="${channel}" _first_install "${install_dir}" "/tmp/$(basename "${archive_path}")" "${system_mode}"
     else
       _log_info "Installation cancelled"
     fi

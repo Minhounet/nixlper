@@ -111,6 +111,13 @@ function _i_check_stable() {
     return 0
   fi
 
+  # Guard: if the installed value doesn't look like a semver tag (e.g. it's "edge"),
+  # the stable check is meaningless — skip silently to avoid a false positive.
+  if [[ ! "${installed}" =~ ^v?[0-9]+\.[0-9]+ ]]; then
+    [[ "${force}" == "true" ]] && echo "ℹ️  Installed build ('${installed}') is not a stable release — skipping stable channel check."
+    return 0
+  fi
+
   if _i_version_gt "${latest}" "${installed}"; then
     echo "🔔 Nixlper ${latest} is available (you have ${installed})."
     echo "   Update: curl -fsSL https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh | bash"

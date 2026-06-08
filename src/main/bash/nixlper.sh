@@ -163,7 +163,7 @@ export NIXLPER_INSTALL_DIR="\${NIXLPER_INSTALL_DIR:-${install_dir}}"
 export NIXLPER_NAVIGATE_MODE="\${NIXLPER_NAVIGATE_MODE:-tree}"
 export NIXLPER_EDITOR="\${NIXLPER_EDITOR:-vim}"
 export NIXLPER_DISABLE_WELCOME_MESSAGE="\${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}"
-export NIXLPER_UPDATE_CHANNEL="\${NIXLPER_UPDATE_CHANNEL:-stable}"
+export NIXLPER_UPDATE_CHANNEL="\${NIXLPER_UPDATE_CHANNEL:-${NIXLPER_INSTALL_CHANNEL:-stable}}"
 export NIXLPER_UPDATE_CHECK="\${NIXLPER_UPDATE_CHECK:-true}"
 export NIXLPER_UPDATE_AUTO="\${NIXLPER_UPDATE_AUTO:-false}"
 export NIXLPER_UPDATE_CHECK_INTERVAL="\${NIXLPER_UPDATE_CHECK_INTERVAL:-86400}"
@@ -232,7 +232,7 @@ function _i_set_bashrc_config() {
   echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
   echo "export NIXLPER_EDITOR=vim" >> ~/.bashrc
   echo "export NIXLPER_DISABLE_WELCOME_MESSAGE=false" >> ~/.bashrc
-  echo "export NIXLPER_UPDATE_CHANNEL=stable" >> ~/.bashrc
+  echo "export NIXLPER_UPDATE_CHANNEL=${NIXLPER_INSTALL_CHANNEL:-stable}" >> ~/.bashrc
   echo "export NIXLPER_UPDATE_CHECK=true" >> ~/.bashrc
   echo "export NIXLPER_UPDATE_AUTO=false" >> ~/.bashrc
   echo "export NIXLPER_UPDATE_CHECK_INTERVAL=86400" >> ~/.bashrc
