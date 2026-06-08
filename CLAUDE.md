@@ -228,6 +228,15 @@ After implementing a bug fix or a new feature, **always test it** before committ
 - Cover at minimum: the fixed/new case, a regression case (existing behaviour unchanged), and an error/edge case.
 - If testing is genuinely impossible in the current environment (missing runtime dependency, interactive terminal required, etc.), **explicitly warn the user** before committing — never silently skip testing.
 
+### Unit test files (new features)
+Every new feature module should be accompanied by a unit test file:
+- Location: `src/test/bash/test_functions_<module>.sh`
+- Pattern: pure bash, no external framework, network helpers mocked — follow the existing example in `src/test/bash/test_functions_update.sh`.
+- The test file must be runnable standalone: `bash src/test/bash/test_functions_<module>.sh`
+- Add a named step in `.github/workflows/tests.yml` to run it: `bash src/test/bash/test_functions_<module>.sh` (CI does not auto-discover test files — each must be added explicitly).
+
+Existing feature modules do **not** have unit test files yet — this is tracked as a debt item in `KNOWN_ISSUES.md`. Do not add tests for existing modules unless explicitly asked.
+
 ---
 
 ## Adding New Features
