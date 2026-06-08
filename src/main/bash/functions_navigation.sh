@@ -183,6 +183,7 @@ function _find_and_navigate() {
       local path_depth
       local tree_chars
       echo ".."
+      IFS=$'\n'
       for i in ${find_results}; do
         tree_chars="├──"
         path_depth=$(echo "$i" | grep -o "/" | wc -l)
@@ -204,6 +205,7 @@ function _find_and_navigate() {
         fi
         ((item_increment++))
       done
+      unset IFS
       echo ".."
     else
       echo "No match"
