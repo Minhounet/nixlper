@@ -3,4 +3,5 @@
 ########################################################################################################################
 - `CTRL + P`: start recording
 - `CTRL + P, CTRL + P`: stop recording
+- `CTRL + P, CTRL + L`: restore last macro binding (new shell session) — then press CTRL+X+CTRL+X to play
 - `CTRL + X, CTRL + X`: play recorded commands

@@ -85,7 +85,7 @@ function _prepare_binding() {
 }
 
 # @cmd-palette
-# @description: Replay last recorded macro
+# @description: Restore last macro binding — then press CTRL+X+CTRL+X to play
 # @category: Macros
 # @keybind: CTRL+P+CTRL+L
 function bind_last_macro() {
