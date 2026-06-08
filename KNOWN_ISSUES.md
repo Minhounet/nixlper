@@ -74,18 +74,6 @@ documented arguments — they are not related to the `find_action` (CTRL+X+A) pa
 Per CLAUDE.md, every command in `README.md → ## Features → ### <Category>` must also appear in
 the matching `src/main/help/help_<category>` file, and vice versa.
 
-### ISSUE-4 — `olf` missing from in-shell help
-
-- **Impact:** 🟡 Minor — documentation only. Feature works; it is just undiscoverable via
-  CTRL+X+H help.
-- **Files:** documented in `README.md` (Files & Folders) but absent from
-  `src/main/help/help_files_folders`.
-- **Symptom:** `olf` (open latest modified file) shows in the README but not in CTRL+X+H help.
-- **Suggested fix:** Add an `olf` line to `help_files_folders` (e.g. under a new "Open" section):
-  `olf : open the most recently modified file in the current repository`.
-
----
-
 ## Notes
 
 - The command palette's inability to pass arguments to argument-taking commands is **not** a bug
