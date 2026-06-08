@@ -26,6 +26,21 @@ documented arguments — they are not related to the `find_action` (CTRL+X+A) pa
 Per CLAUDE.md, every command in `README.md → ## Features → ### <Category>` must also appear in
 the matching `src/main/help/help_<category>` file, and vice versa.
 
+## Technical debt
+
+### 🟡 No unit tests for existing feature modules
+
+Only `functions_update.sh` has a unit test file (`src/test/bash/test_functions_update.sh`).
+All other modules (`functions_clipboard.sh`, `functions_navigation.sh`, `functions_files.sh`,
+`functions_bookmarks.sh`, `functions_macros.sh`, `functions_processes.sh`,
+`functions_command_palette.sh`, etc.) have no automated tests.
+
+New feature modules must include a test file (see CLAUDE.md → "Unit test files"). Retrofitting
+tests for existing modules is welcome but not required — tackle one module at a time when
+touching that module for another reason.
+
+---
+
 ## Notes
 
 - The command palette's inability to pass arguments to argument-taking commands is **not** a bug

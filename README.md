@@ -4,7 +4,7 @@
 >
 > **What's new in v2.0.1:** Fixed command palette double-print after command execution and header border misalignment.
 >
-> Nixlper evolves constantly. Tagged releases are stable snapshots, but the `master` branch always contains the latest improvements. The `install.sh` script installs from the latest release — to get the absolute latest, build from source with `./build.sh`.
+> Nixlper evolves constantly. Tagged releases are stable snapshots. Two channels are available: **stable** (default, tagged releases) and **edge** (rolling build of every commit on `main`, not an official release). See [Updates](#updates) for installation commands.
 
 > 🇫🇷 [Version française](README.fr.md)
 
@@ -306,23 +306,26 @@ aliases and functions.
 Nixlper can detect when a newer version is available and suggest updating. A check runs automatically at shell start (throttled) and on demand.
 
 - `CTRL + X then W` (or `nu`): check for a newer version on the active update channel
+- `CTRL + X then G` (or `nw`): show ongoing work planned for the next release
 
 Two channels are available via `NIXLPER_UPDATE_CHANNEL`:
 
 | Channel | Behavior |
 |---|---|
 | `stable` (default) | Tracks tagged releases — notifies when a newer tag exists. |
-| `edge` | Tracks the latest commit — notifies when a new commit was pushed (CI keeps a rolling `edge` pre-release updated on every push). |
+| `edge` | Tracks the latest commit on `main` — not an officially published release, rebuilt by CI on every push. Gives early access to fixes and features before they are tagged. |
 | `off` | Disables all checks and network access. |
 
-Updating when notified:
+Installing or switching channels:
 
 ```bash
-# stable channel
+# stable channel (default)
 curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash
-# edge channel (latest commit)
+# edge channel (latest commit, unofficial)
 curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash -s -- --channel edge
 ```
+
+**Showing ongoing work (`nw` / `CTRL+X+G`):** fetches the edge pre-release notes from GitHub and prints the list of commits since the last stable tag. Useful to see what is being worked on before the next release.
 
 **Internet is required.** When offline, the automatic check is skipped silently and never hangs (the probe is capped by `NIXLPER_UPDATE_TIMEOUT`, default 2s). Set `NIXLPER_UPDATE_CHANNEL=off` to disable checks entirely.
 

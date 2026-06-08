@@ -3,6 +3,7 @@
 ########################################################################################################################
 ------------------------------------------------------------------------------------------------------------------------
 [CTRL + X THEN W] or  nu : check for a newer Nixlper version on the active update channel
+[CTRL + X THEN G] or  nw : show ongoing work planned for the next release
 ------------------------------------------------------------------------------------------------------------------------
 Nixlper can detect when a newer version is available and suggest updating. A check runs
 automatically at shell start (throttled), and  nu  / CTRL+X+W triggers one on demand.
@@ -11,6 +12,13 @@ Channels (NIXLPER_UPDATE_CHANNEL):
   stable  (default) : track tagged releases; notify when a newer tag exists.
   edge              : track the latest commit; notify when a new commit was pushed.
   off               : disable all checks and network access.
+
+The  edge  channel is not an officially published release — it is a rolling pre-release rebuilt
+on every push to main. It gives access to the very latest fixes and features before they are
+tagged as a stable release.
+
+Installing / switching to the edge channel:
+  curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash -s -- --channel edge
 
 Internet must be reachable. When offline, the automatic check is skipped silently and never
 hangs (probe capped by NIXLPER_UPDATE_TIMEOUT seconds). Set NIXLPER_UPDATE_CHANNEL=off to
@@ -22,6 +30,10 @@ Updating when notified:
 
 Opt-in automatic update: set  export NIXLPER_UPDATE_AUTO=true  to install the new build
 immediately when one is detected (default is notify-only).
+
+Showing ongoing work ( nw / CTRL+X+G ):
+  Fetches the edge pre-release notes from GitHub and prints the list of commits since the last
+  stable tag. Useful to see what is being worked on before the next release. Requires internet.
 
 Relevant config variables:
   NIXLPER_UPDATE_CHANNEL        stable | edge | off       (default stable)

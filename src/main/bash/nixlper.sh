@@ -268,6 +268,7 @@ function _i_load_bindings() {
 
     # update check - annotation already in functions_update.sh
     bind -x '"\C-x\C-w": _check_update'
+    bind -x '"\C-x\C-g": show_ongoing_work'
 
     # files
     # @cmd-palette
