@@ -20,6 +20,7 @@ function _i_init() {
   _i_load_bindings
   _i_load_custom_libraries
   _i_load_tips
+  _i_check_for_updates
 }
 
 function _i_test_prerequisites() {
@@ -162,12 +163,18 @@ export NIXLPER_INSTALL_DIR="\${NIXLPER_INSTALL_DIR:-${install_dir}}"
 export NIXLPER_NAVIGATE_MODE="\${NIXLPER_NAVIGATE_MODE:-tree}"
 export NIXLPER_EDITOR="\${NIXLPER_EDITOR:-vim}"
 export NIXLPER_DISABLE_WELCOME_MESSAGE="\${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}"
+export NIXLPER_UPDATE_CHANNEL="\${NIXLPER_UPDATE_CHANNEL:-stable}"
+export NIXLPER_UPDATE_CHECK="\${NIXLPER_UPDATE_CHECK:-true}"
+export NIXLPER_UPDATE_AUTO="\${NIXLPER_UPDATE_AUTO:-false}"
+export NIXLPER_UPDATE_CHECK_INTERVAL="\${NIXLPER_UPDATE_CHECK_INTERVAL:-86400}"
+export NIXLPER_UPDATE_TIMEOUT="\${NIXLPER_UPDATE_TIMEOUT:-2}"
 
 # Per-user paths — \$HOME expands at login time for each user.
 export NIXLPER_BOOKMARKS_FILE="\${NIXLPER_BOOKMARKS_FILE:-\${HOME}/.local/share/nixlper/bookmarks}"
 export NIXLPER_LAST_MACRO_BINDING_FILE="\${NIXLPER_LAST_MACRO_BINDING_FILE:-\${HOME}/.local/share/nixlper/last_macro_binding}"
 export NIXLPER_SNAPSHOT_DIR="\${NIXLPER_SNAPSHOT_DIR:-\${HOME}/.local/share/nixlper/snapshots}"
 export NIXLPER_CUSTOM_DIR="\${NIXLPER_CUSTOM_DIR:-\${HOME}/.config/nixlper/custom}"
+export NIXLPER_UPDATE_CACHE_FILE="\${NIXLPER_UPDATE_CACHE_FILE:-\${HOME}/.local/share/nixlper/update_check}"
 EOF
   chmod 644 /etc/nixlper/nixlper.conf
 
@@ -225,6 +232,12 @@ function _i_set_bashrc_config() {
   echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
   echo "export NIXLPER_EDITOR=vim" >> ~/.bashrc
   echo "export NIXLPER_DISABLE_WELCOME_MESSAGE=false" >> ~/.bashrc
+  echo "export NIXLPER_UPDATE_CHANNEL=stable" >> ~/.bashrc
+  echo "export NIXLPER_UPDATE_CHECK=true" >> ~/.bashrc
+  echo "export NIXLPER_UPDATE_AUTO=false" >> ~/.bashrc
+  echo "export NIXLPER_UPDATE_CHECK_INTERVAL=86400" >> ~/.bashrc
+  echo "export NIXLPER_UPDATE_TIMEOUT=2" >> ~/.bashrc
+  echo "export NIXLPER_UPDATE_CACHE_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_update_check" >> ~/.bashrc
   echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
   echo "################################ nixlper stop ##################################################" >> ~/.bashrc
   source ~/.bashrc
@@ -252,6 +265,9 @@ function _i_load_bindings() {
 
     # version and logo - annotation already in functions_version.sh
     bind -x '"\C-x\C-v": _display_logo_and_version'
+
+    # update check - annotation already in functions_update.sh
+    bind -x '"\C-x\C-w": _check_update'
 
     # files
     # @cmd-palette
@@ -359,6 +375,7 @@ alias sr=start_recording
 alias fr=finalize_recording
 alias fa=find_action
 alias tip=show_random_tip
+alias nu=_check_update
 
 #***********************************************************************************************************************
 ########################################################################################################################

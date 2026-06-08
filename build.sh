@@ -40,6 +40,7 @@ function _create_sha_version_file() {
   local -r git_tag=$(git describe --tags --exact-match HEAD 2>&1)
   local -r git_time=$(git log -n 1 --pretty=format:%ad --date=format:'%Y-%m-%d')
   local -r git_short_sha=$(git log -n 1 --pretty=format:%h)
+  local -r git_sha=$(git log -n 1 --pretty=format:%H)
   echo "👉 Create version file (git sha)"
   {
     echo "PROJECT: ${PROJECT_NAME}"
@@ -47,6 +48,8 @@ function _create_sha_version_file() {
       echo "VERSION: ${git_tag}"
     fi
     echo "TECHNICAL VERSION: ${git_short_sha} (${git_time})"
+    # Full SHA — consumed by the edge update channel to detect a newer commit.
+    echo "COMMIT: ${git_sha}"
   } >> "${SHA_VERSION_FILE}"
   _log_ok
 }

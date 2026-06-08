@@ -48,6 +48,17 @@ _check_prerequisites() {
 }
 
 #***********************************************************************************************************************
+# Internet reachability — install/update is impossible (and must be disabled) when offline.
+#***********************************************************************************************************************
+_check_internet() {
+  if ! curl -fsS --max-time 5 -o /dev/null "https://api.github.com" 2>/dev/null; then
+    _log_error "Internet is not reachable — cannot fetch Nixlper. Install/update disabled."
+    _log_info "Reconnect and try again, or set NIXLPER_UPDATE_CHANNEL=off to silence update checks."
+    exit 1
+  fi
+}
+
+#***********************************************************************************************************************
 # GitHub release helpers
 #***********************************************************************************************************************
 _get_latest_release_tag() {
@@ -217,15 +228,33 @@ _update_install() {
 #***********************************************************************************************************************
 main() {
   local system_mode=false
-  if [[ "${1:-}" == "--system" ]]; then
-    system_mode=true
+  local assume_yes=false
+  local channel="stable"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --system) system_mode=true ;;
+      --yes|-y) assume_yes=true ;;
+      --channel)
+        shift
+        channel="${1:-stable}"
+        ;;
+      --channel=*) channel="${1#--channel=}" ;;
+      *) _log_error "Unknown option: $1"; exit 1 ;;
+    esac
+    shift
+  done
+
+  if [[ "${channel}" != "stable" && "${channel}" != "edge" ]]; then
+    _log_error "Invalid --channel '${channel}' (use stable or edge)"
+    exit 1
   fi
 
   _log_separator
   if [[ "${system_mode}" == "true" ]]; then
-    echo "  Nixlper Installer (system-wide)"
+    echo "  Nixlper Installer (system-wide, ${channel} channel)"
   else
-    echo "  Nixlper Installer"
+    echo "  Nixlper Installer (${channel} channel)"
   fi
   _log_separator
   echo ""
@@ -236,11 +265,19 @@ main() {
   fi
 
   _check_prerequisites
+  _check_internet
 
-  # Determine the latest release
-  _log_info "Fetching latest release information from GitHub ..."
-  local -r tag=$(_get_latest_release_tag)
-  _log_ok "Latest release: ${tag}"
+  # Determine what to install for the selected channel.
+  local tag
+  if [[ "${channel}" == "edge" ]]; then
+    # The edge channel tracks a single rolling pre-release, overwritten by CI on every push.
+    tag="edge"
+    _log_info "Edge channel — installing the latest commit build (${tag})"
+  else
+    _log_info "Fetching latest release information from GitHub ..."
+    tag=$(_get_latest_release_tag)
+    _log_ok "Latest release: ${tag}"
+  fi
   echo ""
 
   if _is_nixlper_installed; then
@@ -255,8 +292,11 @@ main() {
 
     _log_info "Nixlper is already installed in ${install_dir}"
     echo ""
-    read -r -p "Do you want to update to version ${tag}? [Y/n] " answer
-    answer=${answer:-Y}
+    local answer="Y"
+    if [[ "${assume_yes}" != "true" ]]; then
+      read -r -p "Do you want to update to ${tag}? [Y/n] " answer
+      answer=${answer:-Y}
+    fi
     if [[ "${answer}" =~ ^[Yy]$ ]]; then
       local archive_path
       archive_path=$(_download_release "${tag}" "${install_dir}")
@@ -268,14 +308,19 @@ main() {
     # ----- FIRST INSTALL PATH -----
     local install_dir="${DEFAULT_INSTALL_DIR}"
 
-    echo "Nixlper is not installed on this system."
-    read -r -p "Install directory [${DEFAULT_INSTALL_DIR}]: " custom_dir
-    if [[ -n "${custom_dir}" ]]; then
-      install_dir="${custom_dir}"
+    if [[ "${assume_yes}" != "true" ]]; then
+      echo "Nixlper is not installed on this system."
+      read -r -p "Install directory [${DEFAULT_INSTALL_DIR}]: " custom_dir
+      if [[ -n "${custom_dir}" ]]; then
+        install_dir="${custom_dir}"
+      fi
     fi
 
-    read -r -p "Install Nixlper ${tag} into ${install_dir}? [Y/n] " answer
-    answer=${answer:-Y}
+    local answer="Y"
+    if [[ "${assume_yes}" != "true" ]]; then
+      read -r -p "Install Nixlper ${tag} into ${install_dir}? [Y/n] " answer
+      answer=${answer:-Y}
+    fi
     if [[ "${answer}" =~ ^[Yy]$ ]]; then
       local archive_path
       archive_path=$(_download_release "${tag}" "/tmp")
