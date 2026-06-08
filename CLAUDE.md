@@ -400,6 +400,11 @@ pre-release (`.github/workflows/publish_edge_on_push.yml`), which is excluded fr
 `create_release_on_tag.yml` via a `!edge` tag filter. `install.sh` accepts `--channel
 stable|edge` and `--yes`, and aborts cleanly when the internet is unreachable.
 
+Automated tests live in `src/test/bash/test_functions_update.sh` (pure bash, no framework,
+fully offline — network helpers are mocked). They run in CI via `.github/workflows/tests.yml`
+on every push and PR, alongside a `bash -n` syntax check of all bash sources. Run locally with
+`bash src/test/bash/test_functions_update.sh`.
+
 ---
 
 ## RPM Packaging
