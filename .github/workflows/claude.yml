@@ -21,6 +21,7 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  id-token: write   # required: the action mints its GitHub token via OIDC
 
 jobs:
   # Automatic review on every (non-fork) PR open/update.
