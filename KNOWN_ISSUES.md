@@ -43,30 +43,6 @@ documented arguments — they are not related to the `find_action` (CTRL+X+A) pa
   Note `fag` already sets `IFS=$'\n'` for its loop but `fan` does not; align both and make them
   space-safe.
 
-### ISSUE-2 — `sn` reports false success on an absolute path
-
-- **Impact:** 🟠 Important (severe when triggered) — prints "has been saved" and returns 0 while
-  nothing was copied. A user who trusts that message and later edits/deletes the original can
-  lose data with no real warning. Only triggers when `sn` is given an absolute path; relative
-  filenames work correctly.
-- **Command:** `sn` (`_snapshot_file`)
-- **File:** `src/main/bash/functions_files_and_folders.sh:54`
-  (`local -r absolute_filepath=$(pwd)/$1`) and the missing `cp` exit-code check at lines 61/68.
-- **Symptom:** `sn /abs/path/file` blindly prepends `$(pwd)/`, producing a bogus path like
-  `/cwd//abs/path/file`. The underlying `cp` fails (`cannot stat …`) but the function still
-  prints `-> File … has been saved` and returns exit 0 — a false success.
-- **Reproduction:**
-  ```bash
-  echo y > /tmp/abs_sample.txt
-  sn /tmp/abs_sample.txt
-  # -> cp: cannot stat '/cwd//tmp/abs_sample.txt'
-  # -> INFO  -> File ... has been saved   (WRONG: nothing was saved, exit 0)
-  ```
-- **Root cause:** (a) Absolute paths are not detected before prepending `$(pwd)/`;
-  (b) the `cp` result is never checked before logging success.
-- **Suggested fix:** Detect `"$1" == /*` and use it as-is (mirror the pattern already used in
-  `_mark_file_as_current`); check `cp`'s exit status before logging "has been saved".
-
 ---
 
 ## Documentation drift (dual-location rule)
