@@ -1,0 +1,32 @@
+########################################################################################################################
+# Help for updates
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+[CTRL + X THEN W] or  nu : check for a newer Nixlper version on the active update channel
+------------------------------------------------------------------------------------------------------------------------
+Nixlper can detect when a newer version is available and suggest updating. A check runs
+automatically at shell start (throttled), and  nu  / CTRL+X+W triggers one on demand.
+
+Channels (NIXLPER_UPDATE_CHANNEL):
+  stable  (default) : track tagged releases; notify when a newer tag exists.
+  edge              : track the latest commit; notify when a new commit was pushed.
+  off               : disable all checks and network access.
+
+Internet must be reachable. When offline, the automatic check is skipped silently and never
+hangs (probe capped by NIXLPER_UPDATE_TIMEOUT seconds). Set NIXLPER_UPDATE_CHANNEL=off to
+disable checks entirely.
+
+Updating when notified:
+  stable : curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash
+  edge   : curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash -s -- --channel edge
+
+Opt-in automatic update: set  export NIXLPER_UPDATE_AUTO=true  to install the new build
+immediately when one is detected (default is notify-only).
+
+Relevant config variables:
+  NIXLPER_UPDATE_CHANNEL        stable | edge | off       (default stable)
+  NIXLPER_UPDATE_CHECK          true | false              (default true)
+  NIXLPER_UPDATE_AUTO           true | false              (default false)
+  NIXLPER_UPDATE_CHECK_INTERVAL seconds between checks     (default 86400)
+  NIXLPER_UPDATE_TIMEOUT        reachability timeout (s)   (default 2)
+------------------------------------------------------------------------------------------------------------------------

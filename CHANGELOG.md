@@ -6,6 +6,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- **Update detection with channels** (`NIXLPER_UPDATE_CHANNEL`): `stable` tracks tagged
+  releases and suggests an update when a newer tag exists; `edge` tracks the latest commit
+  via a rolling pre-release; `off` disables checks entirely.
+- On-demand update check: `nu` / `CTRL+X+W`. An automatic, throttled check also runs at shell
+  start (`NIXLPER_UPDATE_CHECK_INTERVAL`, default 24h).
+- Offline-safe: a fast reachability probe (`NIXLPER_UPDATE_TIMEOUT`) gates all network access,
+  so checks are skipped silently when the internet is unreachable.
+- Opt-in auto-update (`NIXLPER_UPDATE_AUTO`, default off).
+- `install.sh` gains `--channel stable|edge` and `--yes` (non-interactive), plus an internet
+  reachability check that aborts cleanly when offline.
+- CI publishes a rolling `edge` pre-release (`nixlper-edge.tar`) on every push to `main`.
+
+### Changed
+- The build now records the full commit SHA (`COMMIT:`) in the version file for edge comparison.
+
+---
+
 ## [2.0.1] - 2026-06-07
 
 ### Fixed

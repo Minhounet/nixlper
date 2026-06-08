@@ -301,6 +301,33 @@ aliases and functions.
 
 - `CTRL + X then V`: display the Nixlper logo with version information and git SHA
 
+### Updates
+
+Nixlper can detect when a newer version is available and suggest updating. A check runs automatically at shell start (throttled) and on demand.
+
+- `CTRL + X then W` (or `nu`): check for a newer version on the active update channel
+
+Two channels are available via `NIXLPER_UPDATE_CHANNEL`:
+
+| Channel | Behavior |
+|---|---|
+| `stable` (default) | Tracks tagged releases — notifies when a newer tag exists. |
+| `edge` | Tracks the latest commit — notifies when a new commit was pushed (CI keeps a rolling `edge` pre-release updated on every push). |
+| `off` | Disables all checks and network access. |
+
+Updating when notified:
+
+```bash
+# stable channel
+curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash
+# edge channel (latest commit)
+curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash -s -- --channel edge
+```
+
+**Internet is required.** When offline, the automatic check is skipped silently and never hangs (the probe is capped by `NIXLPER_UPDATE_TIMEOUT`, default 2s). Set `NIXLPER_UPDATE_CHANNEL=off` to disable checks entirely.
+
+Set `NIXLPER_UPDATE_AUTO=true` to install a detected update automatically (default is notify-only). Other tunables: `NIXLPER_UPDATE_CHECK` (true/false) and `NIXLPER_UPDATE_CHECK_INTERVAL` (seconds between automatic checks, default `86400`).
+
 ### Tips
 
 A tip is shown automatically at each shell start (cycling through all tips in order).

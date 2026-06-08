@@ -1,0 +1,51 @@
+name: Publish edge build on push
+
+# Rolling "edge" channel: every push to main rebuilds the tar and overwrites a single
+# pre-release tagged `edge`, so edge-channel users always pull the latest commit from a
+# stable URL (releases/download/edge/nixlper-edge.tar). Marked prerelease so it never
+# appears as the stable "latest" release.
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: edge-release
+  cancel-in-progress: true
+
+jobs:
+  publish-edge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y dos2unix
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build tar archive
+        run: |
+          chmod +x ./build.sh
+          ./build.sh
+
+      - name: Stage edge artifact
+        run: |
+          mkdir -p edge-dist
+          cp build/distributions/nixlper.tar edge-dist/nixlper-edge.tar
+
+      - name: Refresh edge pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Drop the previous edge release and its tag so we can re-point it at the new commit.
+          gh release delete edge --yes --cleanup-tag || true
+          gh release create edge edge-dist/nixlper-edge.tar \
+            --title "Edge (latest commit)" \
+            --notes "Rolling build of the latest commit on main (${{ github.sha }}). Auto-generated and overwritten on every push." \
+            --prerelease \
+            --target "${{ github.sha }}"

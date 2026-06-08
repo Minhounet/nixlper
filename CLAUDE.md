@@ -377,9 +377,33 @@ All variables follow a precedence chain — later sources override earlier ones:
 | `NIXLPER_EDITOR` | `vim` | `vim` |
 | `NIXLPER_DISABLE_WELCOME_MESSAGE` | `false` | `false` |
 | `NIXLPER_DISABLE_TIPS` | `false` | `false` |
+| `NIXLPER_UPDATE_CHANNEL` | `stable` | `stable` |
+| `NIXLPER_UPDATE_CHECK` | `true` | `true` |
+| `NIXLPER_UPDATE_AUTO` | `false` | `false` |
+| `NIXLPER_UPDATE_CHECK_INTERVAL` | `86400` | `86400` |
+| `NIXLPER_UPDATE_TIMEOUT` | `2` | `2` |
+| `NIXLPER_UPDATE_CACHE_FILE` | `$NIXLPER_INSTALL_DIR/.nixlper_update_check` | `~/.local/share/nixlper/update_check` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.
+
+### Update detection (`functions_update.sh`)
+
+Two channels selected via `NIXLPER_UPDATE_CHANNEL`: `stable` (compares installed `VERSION:`
+against GitHub `releases/latest`), `edge` (compares installed full `COMMIT:` SHA against the
+latest commit on `main`), and `off`. All network access is gated by `_i_is_online` — a
+time-boxed `curl` reachability probe — so an offline machine never hangs or errors at login.
+Automatic startup checks are throttled via `NIXLPER_UPDATE_CACHE_FILE`; the `nu` / `CTRL+X+W`
+command bypasses the throttle and always reports. The `edge` channel relies on `build.sh`
+writing the full SHA (`COMMIT:`) into the `version` file, and on CI's rolling `edge`
+pre-release (`.github/workflows/publish_edge_on_push.yml`), which is excluded from
+`create_release_on_tag.yml` via a `!edge` tag filter. `install.sh` accepts `--channel
+stable|edge` and `--yes`, and aborts cleanly when the internet is unreachable.
+
+Automated tests live in `src/test/bash/test_functions_update.sh` (pure bash, no framework,
+fully offline — network helpers are mocked). They run in CI via `.github/workflows/tests.yml`
+on every push and PR, alongside a `bash -n` syntax check of all bash sources. Run locally with
+`bash src/test/bash/test_functions_update.sh`.
 
 ---
 

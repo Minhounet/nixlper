@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "*"
+      # The rolling "edge" tag is managed by publish_edge_on_push.yml — never treat it as a release.
+      - "!edge"
 
 jobs:
   create-release:

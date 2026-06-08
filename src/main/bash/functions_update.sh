@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+########################################################################################################################
+# FILE: functions_update.sh
+# DESCRIPTION: update detection across release channels (stable / edge) with an offline guard.
+#
+# Channels are selected with NIXLPER_UPDATE_CHANNEL:
+#   stable (default) — track tagged GitHub releases; suggest an update when a newer tag exists.
+#   edge             — track the latest commit on the default branch (a rolling "edge" pre-release
+#                      is overwritten by CI on every push); suggest an update when HEAD moved.
+#   off              — never touch the network, never check.
+#
+# All network access is gated by _i_is_online (a fast, time-boxed reachability probe), so a
+# disconnected machine never hangs or errors at login. Automatic startup checks are throttled
+# to NIXLPER_UPDATE_CHECK_INTERVAL seconds via a per-user cache file; the on-demand command
+# (_check_update / alias nu / CTRL+X+W) bypasses the throttle and always reports a result.
+########################################################################################################################
+
+readonly NIXLPER_GITHUB_REPO="Minhounet/nixlper"
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Internal helpers
+#-----------------------------------------------------------------------------------------------------------------------
+# Per-user, always-writable cache file holding the epoch of the last successful check.
+function _i_update_cache_file() {
+  echo "${NIXLPER_UPDATE_CACHE_FILE:-${NIXLPER_INSTALL_DIR}/.nixlper_update_check}"
+}
+
+# Return 0 if GitHub is reachable within NIXLPER_UPDATE_TIMEOUT seconds, 1 otherwise.
+function _i_is_online() {
+  command -v curl >/dev/null 2>&1 || return 1
+  curl -fsS --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" -o /dev/null "https://api.github.com" 2>/dev/null
+}
+
+# Echo a field from the installed version file (e.g. "VERSION:" or "COMMIT:"), empty if absent.
+function _i_installed_version_field() {
+  local -r field="$1"
+  local -r version_file="${NIXLPER_INSTALL_DIR}/version"
+  [[ -f "${version_file}" ]] || return 0
+  grep -m1 "^${field}" "${version_file}" 2>/dev/null | sed "s/^${field}[[:space:]]*//"
+}
+
+# Latest published (non-prerelease) release tag, empty on failure.
+function _i_remote_latest_tag() {
+  curl -fsSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
+    "https://api.github.com/repos/${NIXLPER_GITHUB_REPO}/releases/latest" 2>/dev/null \
+    | grep '"tag_name"' \
+    | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/'
+}
+
+# Latest commit SHA on the default branch, empty on failure.
+function _i_remote_latest_commit() {
+  curl -fsSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
+    "https://api.github.com/repos/${NIXLPER_GITHUB_REPO}/commits/main" 2>/dev/null \
+    | grep -m1 '"sha"' \
+    | sed -E 's/.*"sha":[[:space:]]*"([^"]+)".*/\1/'
+}
+
+# Return 0 if $1 is a strictly greater version than $2 (version sort), avoiding false
+# "downgrade" suggestions when a dev/edge build runs on the stable channel.
+function _i_version_gt() {
+  [[ "$1" != "$2" ]] && [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -1)" == "$1" ]]
+}
+
+# Return 0 if an automatic check is due (throttle elapsed or no prior check).
+function _i_update_check_due() {
+  local -r cache_file="$(_i_update_cache_file)"
+  local -r interval="${NIXLPER_UPDATE_CHECK_INTERVAL:-86400}"
+  [[ -f "${cache_file}" ]] || return 0
+  local last
+  last=$(cat "${cache_file}" 2>/dev/null)
+  [[ "${last}" =~ ^[0-9]+$ ]] || return 0
+  (( $(date +%s) - last >= interval ))
+}
+
+# Stamp the cache file with the current time so we don't re-check until the interval elapses.
+function _i_update_touch_cache() {
+  local -r cache_file="$(_i_update_cache_file)"
+  mkdir -p "$(dirname "${cache_file}")" 2>/dev/null
+  date +%s > "${cache_file}" 2>/dev/null || true
+}
+
+# Optional opt-in auto-update (NIXLPER_UPDATE_AUTO=true). $1 = channel flag for install.sh.
+function _i_maybe_auto_update() {
+  local -r channel="${1:-stable}"
+  [[ "${NIXLPER_UPDATE_AUTO:-false}" == "true" ]] || return 0
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "⚠️  NIXLPER_UPDATE_AUTO is on but curl is missing — skipping auto-update."
+    return 0
+  fi
+  echo "⬆️  NIXLPER_UPDATE_AUTO is on — updating to the latest ${channel} build..."
+  curl -fsSL "https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh" \
+    | bash -s -- --yes --channel "${channel}"
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Channel checks
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_check_stable() {
+  local -r force="${1:-false}"
+  local installed latest
+  installed=$(_i_installed_version_field "VERSION:")
+  latest=$(_i_remote_latest_tag)
+
+  if [[ -z "${latest}" ]]; then
+    [[ "${force}" == "true" ]] && echo "⚠️  Could not determine the latest release."
+    return 0
+  fi
+
+  if [[ -z "${installed}" ]]; then
+    [[ "${force}" == "true" ]] && echo "🔔 Latest release is ${latest} (installed version unknown)."
+    return 0
+  fi
+
+  if _i_version_gt "${latest}" "${installed}"; then
+    echo "🔔 Nixlper ${latest} is available (you have ${installed})."
+    echo "   Update: curl -fsSL https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh | bash"
+    _i_maybe_auto_update stable
+  else
+    [[ "${force}" == "true" ]] && echo "✅ Nixlper is up to date (${installed})."
+  fi
+}
+
+function _i_check_edge() {
+  local -r force="${1:-false}"
+  local installed latest
+  installed=$(_i_installed_version_field "COMMIT:")
+  latest=$(_i_remote_latest_commit)
+
+  if [[ -z "${latest}" ]]; then
+    [[ "${force}" == "true" ]] && echo "⚠️  Could not determine the latest commit."
+    return 0
+  fi
+
+  if [[ -z "${installed}" ]]; then
+    [[ "${force}" == "true" ]] && echo "🔔 Latest commit is ${latest:0:7} (installed commit unknown)."
+    return 0
+  fi
+
+  if [[ "${installed}" == "${latest}" ]]; then
+    [[ "${force}" == "true" ]] && echo "✅ Nixlper is at the latest commit (${latest:0:7})."
+  else
+    echo "🔔 A newer Nixlper commit is available (${latest:0:7}, you have ${installed:0:7})."
+    echo "   Update: curl -fsSL https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh | bash -s -- --channel edge"
+    _i_maybe_auto_update edge
+  fi
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Public entry points
+#-----------------------------------------------------------------------------------------------------------------------
+# Core checker. $1 = "true" to force (bypass throttle and speak even when up to date).
+function _i_check_for_updates() {
+  local -r force="${1:-false}"
+  local -r channel="${NIXLPER_UPDATE_CHANNEL:-stable}"
+
+  if [[ "${channel}" == "off" || "${NIXLPER_UPDATE_CHECK:-true}" == "false" ]]; then
+    [[ "${force}" == "true" ]] && echo "ℹ️  Update checks are disabled (channel=off or NIXLPER_UPDATE_CHECK=false)."
+    return 0
+  fi
+
+  if [[ "${force}" != "true" ]] && ! _i_update_check_due; then
+    return 0
+  fi
+
+  if ! _i_is_online; then
+    [[ "${force}" == "true" ]] && echo "📡 Internet not reachable — update check skipped."
+    return 0
+  fi
+
+  # Stamp now so a failed lookup still respects the throttle and we don't hammer GitHub.
+  _i_update_touch_cache
+
+  case "${channel}" in
+    stable) _i_check_stable "${force}" ;;
+    edge)   _i_check_edge "${force}" ;;
+    *)      [[ "${force}" == "true" ]] && echo "⚠️  Unknown NIXLPER_UPDATE_CHANNEL='${channel}' (use stable|edge|off)." ;;
+  esac
+}
+
+# @cmd-palette
+# @description: Check for a newer Nixlper version on the active update channel
+# @category: Updates
+# @keybind: CTRL+X+W
+# @alias: nu
+function _check_update() {
+  _i_check_for_updates true
+}
