@@ -79,17 +79,80 @@ function _i_update_touch_cache() {
   date +%s > "${cache_file}" 2>/dev/null || true
 }
 
+# Detect how nixlper was installed: "rpm", "deb", or "manual".
+function _i_detect_install_method() {
+  if rpm -q nixlper &>/dev/null 2>&1; then
+    echo "rpm"
+  elif dpkg -l nixlper &>/dev/null 2>&1; then
+    echo "deb"
+  else
+    echo "manual"
+  fi
+}
+
+# Echo the update command appropriate for the given channel and install method.
+# $1 = channel (stable|edge), $2 = install method (rpm|deb|manual), $3 = tag (stable only)
+function _i_update_command() {
+  local -r channel="${1:-stable}"
+  local -r method="${2:-manual}"
+  local -r tag="${3:-}"
+  local -r base="https://github.com/${NIXLPER_GITHUB_REPO}/releases/download"
+  case "${method}" in
+    rpm)
+      if [[ "${channel}" == "edge" ]]; then
+        echo "sudo dnf upgrade -y ${base}/edge/nixlper-edge.rpm"
+      else
+        local rpm_ver="${tag#v}"
+        rpm_ver="${rpm_ver//-/_}"
+        echo "sudo dnf upgrade -y ${base}/${tag}/nixlper-${rpm_ver}-1.noarch.rpm"
+      fi
+      ;;
+    deb)
+      if [[ "${channel}" == "edge" ]]; then
+        echo "curl -fsSL -o /tmp/nixlper-edge.deb ${base}/edge/nixlper-edge.deb && sudo dpkg -i /tmp/nixlper-edge.deb"
+      else
+        echo "curl -fsSL -o /tmp/nixlper-${tag}_all.deb ${base}/${tag}/nixlper-${tag}_all.deb && sudo dpkg -i /tmp/nixlper-${tag}_all.deb"
+      fi
+      ;;
+    *)
+      if [[ "${channel}" == "edge" ]]; then
+        echo "curl -fsSL https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh | bash -s -- --channel edge"
+      else
+        echo "curl -fsSL https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh | bash"
+      fi
+      ;;
+  esac
+}
+
 # Optional opt-in auto-update (NIXLPER_UPDATE_AUTO=true). $1 = channel flag for install.sh.
 function _i_maybe_auto_update() {
   local -r channel="${1:-stable}"
   [[ "${NIXLPER_UPDATE_AUTO:-false}" == "true" ]] || return 0
-  if ! command -v curl >/dev/null 2>&1; then
-    echo "⚠️  NIXLPER_UPDATE_AUTO is on but curl is missing — skipping auto-update."
-    return 0
-  fi
+  local -r method=$(_i_detect_install_method)
   echo "⬆️  NIXLPER_UPDATE_AUTO is on — updating to the latest ${channel} build..."
-  curl -fsSL "https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh" \
-    | bash -s -- --yes --channel "${channel}"
+  case "${method}" in
+    rpm)
+      local -r base="https://github.com/${NIXLPER_GITHUB_REPO}/releases/download"
+      if [[ "${channel}" == "edge" ]]; then
+        sudo dnf upgrade -y "${base}/edge/nixlper-edge.rpm"
+      fi
+      ;;
+    deb)
+      local -r base="https://github.com/${NIXLPER_GITHUB_REPO}/releases/download"
+      if [[ "${channel}" == "edge" ]]; then
+        curl -fsSL -o /tmp/nixlper-edge.deb "${base}/edge/nixlper-edge.deb" \
+          && sudo dpkg -i /tmp/nixlper-edge.deb
+      fi
+      ;;
+    *)
+      if ! command -v curl >/dev/null 2>&1; then
+        echo "⚠️  NIXLPER_UPDATE_AUTO is on but curl is missing — skipping auto-update."
+        return 0
+      fi
+      curl -fsSL "https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh" \
+        | bash -s -- --yes --channel "${channel}"
+      ;;
+  esac
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -119,8 +182,12 @@ function _i_check_stable() {
   fi
 
   if _i_version_gt "${latest}" "${installed}"; then
+    local method
+    method=$(_i_detect_install_method)
+    local cmd
+    cmd=$(_i_update_command stable "${method}" "${latest}")
     echo "🔔 Nixlper ${latest} is available (you have ${installed})."
-    echo "   Update: curl -fsSL https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh | bash"
+    echo "   Update: ${cmd}"
     _i_maybe_auto_update stable
   else
     [[ "${force}" == "true" ]] && echo "✅ Nixlper is up to date (${installed})."
@@ -146,8 +213,12 @@ function _i_check_edge() {
   if [[ "${installed}" == "${latest}" ]]; then
     [[ "${force}" == "true" ]] && echo "✅ Nixlper is at the latest commit (${latest:0:7})."
   else
+    local method
+    method=$(_i_detect_install_method)
+    local cmd
+    cmd=$(_i_update_command edge "${method}")
     echo "🔔 A newer Nixlper commit is available (${latest:0:7}, you have ${installed:0:7})."
-    echo "   Update: curl -fsSL https://raw.githubusercontent.com/${NIXLPER_GITHUB_REPO}/main/install.sh | bash -s -- --channel edge"
+    echo "   Update: ${cmd}"
     _i_maybe_auto_update edge
   fi
 }
