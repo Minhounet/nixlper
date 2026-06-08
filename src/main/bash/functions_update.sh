@@ -185,3 +185,31 @@ function _i_check_for_updates() {
 function _check_update() {
   _i_check_for_updates true
 }
+
+# Fetch the body text of the edge pre-release from GitHub API, empty on failure.
+function _i_fetch_edge_release_body() {
+  curl -fsSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
+    "https://api.github.com/repos/${NIXLPER_GITHUB_REPO}/releases/tags/edge" 2>/dev/null \
+    | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('body',''))" 2>/dev/null
+}
+
+# @cmd-palette
+# @description: Show ongoing work planned for the next release (fetched from edge build notes)
+# @category: Updates
+# @keybind: CTRL+X+G
+# @alias: nw
+function show_ongoing_work() {
+  if ! _i_is_online; then
+    echo "📡 Internet not reachable — cannot fetch ongoing work."
+    return 1
+  fi
+  echo "🚧 Fetching ongoing work from edge release..."
+  local body
+  body=$(_i_fetch_edge_release_body)
+  if [[ -z "${body}" ]]; then
+    echo "⚠️  Could not fetch edge release notes."
+    return 1
+  fi
+  echo ""
+  echo "${body}"
+}

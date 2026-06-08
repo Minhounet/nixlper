@@ -38,6 +38,27 @@ jobs:
           mkdir -p edge-dist
           cp build/distributions/nixlper.tar edge-dist/nixlper-edge.tar
 
+      - name: Generate release notes
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          SHA="${{ github.sha }}"
+          if [[ -n "$LAST_TAG" ]]; then
+            COUNT=$(git rev-list "${LAST_TAG}..HEAD" --count --no-merges)
+            {
+              echo "Rolling build of the latest commit on \`main\` (\`${SHA:0:7}\`)."
+              echo ""
+              echo "## 🚧 Ongoing work since ${LAST_TAG} (${COUNT} commits)"
+              echo ""
+              git log "${LAST_TAG}..HEAD" --pretty=format:"- %s (\`%h\`)" --no-merges
+              echo ""
+              echo ""
+              echo "---"
+              echo "*Auto-generated on every push to \`main\`.*"
+            } > edge-release-notes.md
+          else
+            echo "Rolling build of the latest commit on \`main\` (\`${SHA:0:7}\`). Auto-generated and overwritten on every push." > edge-release-notes.md
+          fi
+
       - name: Refresh edge pre-release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,6 +67,6 @@ jobs:
           gh release delete edge --yes --cleanup-tag || true
           gh release create edge edge-dist/nixlper-edge.tar \
             --title "Edge (latest commit)" \
-            --notes "Rolling build of the latest commit on main (${{ github.sha }}). Auto-generated and overwritten on every push." \
+            --notes-file edge-release-notes.md \
             --prerelease \
             --target "${{ github.sha }}"
