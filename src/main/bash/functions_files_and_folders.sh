@@ -53,22 +53,35 @@ function _snapshot_file() {
     echo "ERROR: missing filename"
     return 1
   fi
-  local -r absolute_filepath=$(pwd)/$1
+  local absolute_filepath
+  if [[ "$1" == /* ]]; then
+    absolute_filepath=$1
+  else
+    absolute_filepath=$(pwd)/$1
+  fi
   local -r snapshot_dir="${NIXLPER_SNAPSHOT_DIR:-${NIXLPER_INSTALL_DIR}/snapshots}"
   if [[ -f ${snapshot_dir}${absolute_filepath} ]]; then
     read -rp "File ${absolute_filepath} has already been saved, overwrite files? (default is y)" overwrite_file_answer
     overwrite_file_answer=${overwrite_file_answer:-y}
     if [[ ${overwrite_file_answer} == "y" ]]; then
       rm -rf "${snapshot_dir}${absolute_filepath}"
-      cp "${absolute_filepath}" "${snapshot_dir}${absolute_filepath}"
-      _i_log_as_info "-> File ${absolute_filepath} has been saved"
+      if cp "${absolute_filepath}" "${snapshot_dir}${absolute_filepath}"; then
+        _i_log_as_info "-> File ${absolute_filepath} has been saved"
+      else
+        _i_log_as_error "-> File ${absolute_filepath} could not be saved"
+        return 1
+      fi
     else
       _i_log_as_info "-> Action is aborted"
     fi
   else
     mkdir -p "$(dirname "${snapshot_dir}${absolute_filepath}")"
-    cp "${absolute_filepath}" "${snapshot_dir}${absolute_filepath}"
-    _i_log_as_info "-> File ${absolute_filepath} has been saved"
+    if cp "${absolute_filepath}" "${snapshot_dir}${absolute_filepath}"; then
+      _i_log_as_info "-> File ${absolute_filepath} has been saved"
+    else
+      _i_log_as_error "-> File ${absolute_filepath} could not be saved"
+      return 1
+    fi
   fi
 }
 #-----------------------------------------------------------------------------------------------------------------------

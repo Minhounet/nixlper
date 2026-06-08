@@ -222,6 +222,12 @@ Source: `https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/
 2. Test installation
 3. Verify keyboard bindings work
 
+### Testing requirement (bugs and features)
+After implementing a bug fix or a new feature, **always test it** before committing:
+- Source the affected module(s) in a subshell and exercise the changed function directly.
+- Cover at minimum: the fixed/new case, a regression case (existing behaviour unchanged), and an error/edge case.
+- If testing is genuinely impossible in the current environment (missing runtime dependency, interactive terminal required, etc.), **explicitly warn the user** before committing — never silently skip testing.
+
 ---
 
 ## Adding New Features
