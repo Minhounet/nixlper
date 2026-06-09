@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y dos2unix
+        run: sudo apt-get update && sudo apt-get install -y dos2unix rpm
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,10 +33,24 @@ jobs:
           chmod +x ./build.sh
           ./build.sh
 
-      - name: Stage edge artifact
+      - name: Build RPM package
+        run: |
+          chmod +x ./build-rpm.sh
+          ./build-rpm.sh
+
+      - name: Build DEB package
+        run: |
+          chmod +x ./build-deb.sh
+          ./build-deb.sh
+
+      - name: Stage edge artifacts
         run: |
           mkdir -p edge-dist
           cp build/distributions/nixlper.tar edge-dist/nixlper-edge.tar
+          RPM_PATH=$(find "${HOME}/rpmbuild/RPMS" -name "nixlper-*.rpm" | head -1)
+          cp "${RPM_PATH}" edge-dist/nixlper-edge.rpm
+          DEB_PATH=$(find build/distributions -name "nixlper_*_all.deb" | head -1)
+          cp "${DEB_PATH}" edge-dist/nixlper-edge.deb
 
       - name: Generate release notes
         run: |
@@ -65,7 +79,10 @@ jobs:
         run: |
           # Drop the previous edge release and its tag so we can re-point it at the new commit.
           gh release delete edge --yes --cleanup-tag || true
-          gh release create edge edge-dist/nixlper-edge.tar \
+          gh release create edge \
+            edge-dist/nixlper-edge.tar \
+            edge-dist/nixlper-edge.rpm \
+            edge-dist/nixlper-edge.deb \
             --title "Edge (latest commit)" \
             --notes-file edge-release-notes.md \
             --prerelease \
