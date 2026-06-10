@@ -15,6 +15,26 @@ commit that fixes the underlying bug.
 
 ---
 
+## ⚠️ MANDATORY: Documentation Completeness — NEVER SKIP
+
+**After every code change, you MUST update ALL of the following that are affected. This is not optional and must never be skipped, even for "small" changes.**
+
+### Checklist — run through this after every task
+
+1. **`src/main/help/help_<category>`** — in-shell help (CTRL+X+H). Update if any command behaviour, alias, keybinding, or output format changed.
+2. **`README.md` → `## Features`** — public reference. Must stay in sync with the help files (see "Dual-location documentation rule"). Update in the same commit as the code.
+3. **`CLAUDE.md`** — update if the session introduces new files, directories, env variables, architectural decisions, or constraints.
+4. **`KNOWN_ISSUES.md`** — remove an entry in the same commit that fixes the underlying bug. Add an entry for newly discovered confirmed-but-unfixed defects.
+5. **`CHANGELOG.md`** — when cutting a release, populate from `git log` since the last tag (see "Release process").
+
+### Dual-location documentation rule (enforced)
+
+Every command, alias, and keybinding mentioned in `README.md → ## Features` **must** appear in the corresponding `src/main/help/help_<category>` file, and vice versa. After any feature work, compare both locations and flag any discrepancy — do not close the task until they are in sync.
+
+> **Root cause of doc drift:** code is changed but only one location (or neither) is updated. The checklist above exists to prevent this. If you find yourself thinking "I'll update the docs later" — stop and update them now, in the same commit.
+
+---
+
 ## Project Overview
 Nixlper is a bash helper inspired by Total Commander for Unix/Linux environments. Provides keyboard-driven file navigation, bookmarks, macros, and process management.
 

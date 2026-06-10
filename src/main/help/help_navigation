@@ -9,6 +9,7 @@ cdf FILEPATH : will go to the folder of the file
 [CTRL + X THEN N] display an interactive way to navigate to subfolders and to open files with alias/copy-paste using
 tree mode or flat mode.
 See NIXLPER_NAVIGATE_MODE in ~/.bashrc and use "flat" or "tree" value.
+For each file, shortcuts to open (vN), go to its folder (cdfN), or delete it (dN) are available.
 
 Tree mode
     ------------------------------------------------------------------------------------------------------------------------
@@ -18,7 +19,7 @@ Tree mode
     ├── item N (→ or ↓) SHORTCUT_COMMAND
     ├── ..
     └── last item (→ or ↓) SHORTCUT_COMMAND
-    HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)
+    HINT 1: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete
     HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
     -> Currently in /appli/install
     ------------------------------------------------------------------------------------------------------------------------
@@ -26,10 +27,10 @@ Tree mode
 Flat mode
     ------------------------------------------------------------------------------------------------------------------------
     Open..
-    vim file1 # (v1)
-    vim file2 # (v2)
+    vim file1 # (v1 | cdf1 | d1)
+    vim file2 # (v2 | cdf2 | d2)
     ..
-    vim fileN # (vN)
+    vim fileN # (vN | cdfN | dN)
     ----
     Go to subfolder
     navigate absolute_path_1 # (n1 / CTRL + X, 1)
@@ -41,7 +42,7 @@ Flat mode
     cd parent_folder # CTRL + X THEN U
     ------------------------------------------------------------------------------------------------------------------------
     HINT 1: double click then right click for copy/paste (FILES AND FOLDERS/MOUSE MODE)
-    HINT 2: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)
+    HINT 2: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete
     HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
     -> Currently in current_folder"
     ------------------------------------------------------------------------------------------------------------------------

@@ -258,7 +258,8 @@ and alias) so you can fuzzy-search and execute without remembering exact names.
 ### Navigation
 
 - `CTRL + X THEN U`: perform a "cd .."
-- `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste
+- `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste.
+  For each file, shortcuts to open (`vN`), cd into its folder and navigate (`cdfN`), or delete it (`dN`) are available.
   (Navigation can use tree or flat mode. "tree" is the default value and requires `tree`)
 
 See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
