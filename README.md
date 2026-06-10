@@ -259,7 +259,7 @@ and alias) so you can fuzzy-search and execute without remembering exact names.
 
 - `CTRL + X THEN U`: perform a "cd .."
 - `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste.
-  For each file, shortcuts to open (`vN`), cd into its folder and navigate (`cdfN`), or delete it (`dN`) are available.
+  For each file, shortcuts to open (`vN`), cd and navigate (`cdfN`), delete (`dN`), copy to target staging (`tcN`), or mark for pack (`tmN`) are available.
   (Navigation can use tree or flat mode. "tree" is the default value and requires `tree`)
 
 See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
@@ -270,8 +270,24 @@ See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
   - also display permissions for files when the option is on
 
 - `fan PATTERN`: execute `find . -iname "*PATTERN*"` then display the results like the `CTRL + X THEN N` command.
-  Each match offers shortcuts to open the file (`vN`), cd into its folder and navigate (`cdfN`), or delete it (`dN`)
+  Each match offers shortcuts to open (`vN`), cd and navigate (`cdfN`), delete (`dN`), copy to target (`tcN`), or mark for pack (`tmN`).
 - `fag PATTERN`: execute `grep -rn PATTERN .` then display each match with a shortcut (`vN`) to open the file directly at the matching line
+
+### Target staging
+
+Copy or accumulate files into a shared, world-readable staging folder (default `/tmp/nixlper_target`).
+Useful for shuttling files to a server via `/tmp`, or collecting scattered files before transferring them.
+
+- `tc FILEPATH` (or `tcN` from navigate/fan): copy a file directly to the target folder (`chmod 644`)
+- `tm FILEPATH` (or `tmN` from navigate/fan): mark a file for later batch pack (no-op if already marked)
+- `tml`: list currently marked files
+- `tum`: numbered menu — pick a file to remove from the mark list
+- `tcm`: clear all marks without copying anything
+- `tp` / `CTRL+X+Y`: pack all marked files into a timestamped `.tgz` in the target folder (`chmod 644`), then clear marks
+- `tsd [DIRPATH]`: show or change the target folder for this session
+- `tclean`: delete all files in the target folder (confirmation required)
+
+Configure the default folder via `NIXLPER_TARGET_DIR` in `~/.bashrc` or `nixlper.conf`.
 
 ### Macros
 
