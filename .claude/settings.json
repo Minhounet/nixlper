@@ -3,5 +3,18 @@
     "allow": [
       "Bash(git push origin refs/tags/*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cmd=$(jq -r \".tool_input.command\"); [[ \"$cmd\" =~ git[[:space:]]+commit ]] && echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PreToolUse\\\",\\\"additionalContext\\\":\\\"MANDATORY CHECKLIST (CLAUDE.md) before committing: 1) Tests written and passing for any new/changed module? 2) src/main/help/help_* updated? 3) README.md Features section updated? 4) KNOWN_ISSUES.md in sync? Do NOT proceed with the commit until all applicable items are confirmed.\\\"}}\" || true'"
+          }
+        ]
+      }
+    ]
   }
 }
