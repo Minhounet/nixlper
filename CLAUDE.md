@@ -59,7 +59,10 @@ src/main/bash/*.sh → build.sh → build/distributions/nixlper-*.tar
 nixlper/
 ├── src/main/bash/          # Individual bash modules
 │   ├── nixlper.sh          # Main entry point
+│   ├── functions_config.sh # Interactive config editor (nconf, migration)
 │   └── functions_*.sh      # Feature modules
+├── src/main/help/
+│   └── help_config         # In-shell help for nconf (CTRL+X+H)
 ├── build.sh                # Build script (concatenation + tar packaging)
 ├── build-rpm.sh            # RPM build script (calls build.sh, then rpmbuild)
 ├── install.sh              # Manual tar-based installer (downloads from GitHub releases)
@@ -410,9 +413,19 @@ bash build-rpm.sh
 
 All variables follow a precedence chain — later sources override earlier ones:
 
-1. `/etc/nixlper/nixlper.conf` — system defaults (RPM/DEB managed, uses `:-` so it never overrides vars already set by `~/.bashrc`)
-2. `~/.config/nixlper/nixlper.conf` — per-user overrides
-3. `~/.bashrc` — manual install sets vars here before sourcing nixlper.sh
+1. `/etc/nixlper/nixlper.conf` — system defaults (RPM/DEB managed, uses `:-` so it never overrides already-set vars)
+2. `~/.config/nixlper/nixlper.conf` — per-user overrides (highest precedence; managed by `nconf`)
+3. `~/.bashrc` — legacy manual install only; **deprecated** for storing settings (see migration below)
+
+**Manual install — new behaviour (post-migration):** `~/.bashrc` contains only `source /opt/nixlper/nixlper.sh`.
+All settings live in `~/.config/nixlper/nixlper.conf`, created at install time with `NIXLPER_INSTALL_DIR` set
+and all other vars commented out as documentation. `nconf` (CTRL+X+C) prompts for migration on first run
+when old-style `export NIXLPER_*` lines are detected in `~/.bashrc`.
+
+Actual precedence (lowest → highest):
+```
+/etc/nixlper/nixlper.conf  <  ~/.bashrc exports  <  ~/.config/nixlper/nixlper.conf
+```
 
 | Variable | Manual install default | RPM/DEB default |
 |---|---|---|

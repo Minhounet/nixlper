@@ -207,6 +207,18 @@ sudo dpkg -r nixlper
 > Throughout this section, `$NIXLPER_EDITOR` refers to the editor used to open files
 > (defaults to `vim`, configurable via the `NIXLPER_EDITOR` environment variable).
 
+### Configuration
+
+- `CTRL + X then C` (or `nconf`): open the interactive configuration editor
+
+`nconf` opens an `fzf`-powered list of all configurable settings. Select an entry and press Enter to edit it.
+Boolean and enum settings use a selection list; text and integer settings use a pre-filled prompt.
+Only values that differ from the default are written to `~/.config/nixlper/nixlper.conf`.
+
+**First-run migration:** if your nixlper variables are still in `~/.bashrc` (manual install), `nconf` will offer a one-time migration that moves them to `~/.config/nixlper/nixlper.conf` and leaves `~/.bashrc` with only the source line. A backup is made before any change; recovery instructions are printed if anything goes wrong.
+
+> Requires [`fzf`](https://github.com/junegunn/fzf#installation).
+
 ### Command Palette (Find Action)
 
 The fastest way to discover and run any Nixlper command. It opens an `fzf`-powered,
@@ -262,7 +274,7 @@ and alias) so you can fuzzy-search and execute without remembering exact names.
   For each file, shortcuts to open (`vN`), cd and navigate (`cdfN`), delete (`dN`), copy to target staging (`tcN`), or mark for pack (`tmN`) are available.
   (Navigation can use tree or flat mode. "tree" is the default value and requires `tree`)
 
-See ```export NIXLPER_NAVIGATE_MODE=tree``` in ~/.bashrc.
+Configure `NIXLPER_NAVIGATE_MODE` via `nconf` (or edit `~/.config/nixlper/nixlper.conf` directly).
 
 
 - `toggle_navigation_mode`: 
@@ -287,7 +299,7 @@ Useful for shuttling files to a server via `/tmp`, or collecting scattered files
 - `tsd [DIRPATH]`: show or change the target folder for this session
 - `tclean`: delete all files in the target folder (confirmation required)
 
-Configure the default folder via `NIXLPER_TARGET_DIR` in `~/.bashrc` or `nixlper.conf`.
+Configure the default folder via `nconf` or `NIXLPER_TARGET_DIR` in `~/.config/nixlper/nixlper.conf`.
 
 ### Macros
 
@@ -346,7 +358,7 @@ curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh |
 
 **Internet is required.** When offline, the automatic check is skipped silently and never hangs (the probe is capped by `NIXLPER_UPDATE_TIMEOUT`, default 2s). Set `NIXLPER_UPDATE_CHANNEL=off` to disable checks entirely.
 
-Set `NIXLPER_UPDATE_AUTO=true` to install a detected update automatically (default is notify-only). Other tunables: `NIXLPER_UPDATE_CHECK` (true/false) and `NIXLPER_UPDATE_CHECK_INTERVAL` (seconds between automatic checks, default `86400`).
+Use `nconf` to interactively change update settings. Or set directly in `~/.config/nixlper/nixlper.conf`: `NIXLPER_UPDATE_AUTO=true` to auto-install updates (default is notify-only), `NIXLPER_UPDATE_CHECK=false` to disable, and `NIXLPER_UPDATE_CHECK_INTERVAL` (seconds between checks, default `86400`).
 
 ### Tips
 
