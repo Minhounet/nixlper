@@ -29,3 +29,6 @@ jobs:
 
       - name: Run update-detection unit tests
         run: bash src/test/bash/test_functions_update.sh
+
+      - name: Run target-staging unit tests
+        run: bash src/test/bash/test_functions_target.sh
