@@ -26,6 +26,7 @@ commit that fixes the underlying bug.
 3. **`CLAUDE.md`** — update if the session introduces new files, directories, env variables, architectural decisions, or constraints.
 4. **`KNOWN_ISSUES.md`** — remove an entry in the same commit that fixes the underlying bug. Add an entry for newly discovered confirmed-but-unfixed defects.
 5. **`CHANGELOG.md`** — when cutting a release, populate from `git log` since the last tag (see "Release process").
+6. **Palette rendering** — if any `@cmd-palette` command was added or modified, verify it renders correctly (see "Command palette rendering check" under Testing requirement). The keybind column must never be blank.
 
 ### Dual-location documentation rule (enforced)
 
