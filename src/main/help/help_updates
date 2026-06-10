@@ -28,8 +28,9 @@ Updating when notified:
   stable : curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash
   edge   : curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash -s -- --channel edge
 
-Opt-in automatic update: set  export NIXLPER_UPDATE_AUTO=true  to install the new build
-immediately when one is detected (default is notify-only).
+Opt-in automatic update: set NIXLPER_UPDATE_AUTO=true to install a detected update automatically
+(default is notify-only). Use  nconf  (CTRL+X+C) to change this and other update settings
+interactively, or edit ~/.config/nixlper/nixlper.conf directly.
 
 Showing ongoing work ( nw / CTRL+X+G ):
   Fetches the edge pre-release notes from GitHub and prints the list of commits since the last
