@@ -141,9 +141,11 @@ function _format_command_for_display() {
   local category_part=""
   local type_indicator=""
 
-  # Add keybinding if exists (aligned to 20 chars)
+  # Add keybinding if exists (aligned to 20 chars); for alias-only commands show the alias as shortcut
   if [[ -n "$keybinding" ]]; then
     keybind_part=$(printf "%-20s" "[$keybinding]")
+  elif [[ -n "$cmd_type" && "$cmd_type" == "$cmd_name" && "$cmd_type" != "bind" ]]; then
+    keybind_part=$(printf "%-20s" "[alias: $cmd_name]")
   else
     keybind_part=$(printf "%-20s" "")
   fi

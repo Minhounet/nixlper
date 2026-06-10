@@ -26,6 +26,7 @@ commit that fixes the underlying bug.
 3. **`CLAUDE.md`** — update if the session introduces new files, directories, env variables, architectural decisions, or constraints.
 4. **`KNOWN_ISSUES.md`** — remove an entry in the same commit that fixes the underlying bug. Add an entry for newly discovered confirmed-but-unfixed defects.
 5. **`CHANGELOG.md`** — when cutting a release, populate from `git log` since the last tag (see "Release process").
+6. **Palette rendering** — if any `@cmd-palette` command was added or modified, verify it renders correctly (see "Command palette rendering check" under Testing requirement). The keybind column must never be blank.
 
 ### Dual-location documentation rule (enforced)
 
@@ -247,6 +248,24 @@ After implementing a bug fix or a new feature, **always test it** before committ
 - Source the affected module(s) in a subshell and exercise the changed function directly.
 - Cover at minimum: the fixed/new case, a regression case (existing behaviour unchanged), and an error/edge case.
 - If testing is genuinely impossible in the current environment (missing runtime dependency, interactive terminal required, etc.), **explicitly warn the user** before committing — never silently skip testing.
+
+### Command palette rendering check (MANDATORY for every new command)
+After adding any new command (function + `@cmd-palette` annotation, or alias-based), **verify it renders correctly in the palette** before committing:
+
+```bash
+# Source the module and run the registry builder; grep for your new command
+source src/main/bash/functions_command_palette.sh
+source src/main/bash/<your_module>.sh
+_build_command_registry | grep "^<your_command>|"
+# Then verify the formatted display line looks right
+_build_command_registry | grep "^<your_command>|" | while IFS= read -r line; do _format_command_for_display "$line"; done
+```
+
+Check that:
+- The command name, description, category appear correctly.
+- The keybind column shows `[CTRL+X+?]` for keybind commands, or `[alias: <name>]` for alias-only commands — **never blank**.
+- `[alias]` type indicator is present for alias-based commands.
+- `@args` / `@interactive` commands are placed on the command line (not executed) when selected — verify `_execute_command` receives the right flags.
 
 ### Unit test files (new features)
 Every new feature module should be accompanied by a unit test file:
