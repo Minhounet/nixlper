@@ -13,6 +13,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1.0] - 2026-06-10
 
 ### Added
+- **Target staging** (`functions_target.sh`): accumulate files from anywhere and copy or pack
+  them into a shared, world-readable folder (default `/tmp/nixlper_target`).
+  - `tc FILEPATH` / `tcN` — copy a file to the target folder immediately (`chmod 644`).
+  - `tm FILEPATH` / `tmN` — mark a file for a later batch pack (no-op if already marked).
+  - `tml` — list currently marked files with index numbers.
+  - `tum` — interactively remove a mark by number.
+  - `tcm` — clear all marks without copying anything.
+  - `tp` / `CTRL+X+Y` — pack all marked files into a timestamped `.tgz` in the target folder, then clear marks.
+  - `tsd [DIRPATH]` — show or change the target folder for the current session.
+  - `tclean` — delete all files in the target folder (confirmation required).
+  - `tcN` and `tmN` shortcuts also appear in `CTRL+X+N` navigate and `fan` results.
+- **Navigate/fan per-file shortcuts** (`CTRL+X+N`, `fan`): each listed file now offers
+  `cdfN` (cd to its folder), `dN` (delete it), `tcN` (copy to target), and `tmN` (mark for pack),
+  in addition to the existing `vN` (open) and `nN` (navigate) shortcuts.
+- **RPM and DEB update support**: `nu` detects the install method (tar / RPM / DEB) and runs
+  the appropriate update command (`bash install.sh`, `dnf upgrade`, or `apt install`).
+  Edge channel also publishes `.rpm` and `.deb` artefacts on every push to `main`.
+- **`nw` alias** for `show_ongoing_work` (mirrors the existing `CTRL+X+W` binding).
 - **Update detection with channels** (`NIXLPER_UPDATE_CHANNEL`): `stable` tracks tagged
   releases and suggests an update when a newer tag exists; `edge` tracks the latest commit
   via a rolling pre-release; `off` disables checks entirely.
@@ -24,6 +42,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `install.sh` gains `--channel stable|edge` and `--yes` (non-interactive), plus an internet
   reachability check that aborts cleanly when offline.
 - CI publishes a rolling `edge` pre-release (`nixlper-edge.tar`) on every push to `main`.
+
+### Fixed
+- **`sn` false-success on absolute paths**: absolute paths are now detected before prepending
+  `$(pwd)/`, and copy failures are reported correctly instead of always printing "has been saved".
+- **`fan` silent path-with-spaces bug**: `IFS=$'\n'` is now set before the find-results loop,
+  matching the pattern already used by `fag`, so file paths containing spaces are handled correctly.
+- **False stable-update prompt on edge installs**: the update check now skips the stable prompt
+  when the installed build is from the edge channel.
 
 ### Changed
 - The build now records the full commit SHA (`COMMIT:`) in the version file for edge comparison.
