@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.1.0] - 2026-06-10
+
 ### Added
 - **Update detection with channels** (`NIXLPER_UPDATE_CHANNEL`): `stable` tracks tagged
   releases and suggests an update when a newer tag exists; `edge` tracks the latest commit

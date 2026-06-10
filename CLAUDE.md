@@ -26,7 +26,7 @@ commit that fixes the underlying bug.
 3. **`CLAUDE.md`** — update if the session introduces new files, directories, env variables, architectural decisions, or constraints.
 4. **`KNOWN_ISSUES.md`** — remove an entry in the same commit that fixes the underlying bug. Add an entry for newly discovered confirmed-but-unfixed defects.
 5. **`CHANGELOG.md`** — when cutting a release, populate from `git log` since the last tag (see "Release process").
-6. **Palette rendering** — if any `@cmd-palette` command was added or modified, verify it renders correctly (see "Command palette rendering check" under Testing requirement). The keybind column must never be blank.
+6. **Palette rendering** — if any `@cmd-palette` command was added or modified, verify it renders correctly (see "Command palette rendering check" under Testing requirement). A command with no `@keybind` or `@alias` may have a blank keybind column — that is acceptable. What is **never acceptable** is a command that *has* a keybind or alias defined but it does not appear in the palette column.
 
 ### Dual-location documentation rule (enforced)
 
@@ -263,7 +263,7 @@ _build_command_registry | grep "^<your_command>|" | while IFS= read -r line; do 
 
 Check that:
 - The command name, description, category appear correctly.
-- The keybind column shows `[CTRL+X+?]` for keybind commands, or `[alias: <name>]` for alias-only commands — **never blank**.
+- The keybind column shows `[CTRL+X+?]` for keybind commands, or `[alias: <name>]` for alias-only commands. A blank keybind column is **acceptable** when the command has no `@keybind` or `@alias`. It is **never acceptable** when a keybind or alias is defined but not displayed.
 - `[alias]` type indicator is present for alias-based commands.
 - `@args` / `@interactive` commands are placed on the command line (not executed) when selected — verify `_execute_command` receives the right flags.
 
