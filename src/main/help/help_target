@@ -1,0 +1,34 @@
+########################################################################################################################
+# Help for target staging
+########################################################################################################################
+Target staging lets you accumulate files from anywhere and either copy them directly or pack them
+into a .tgz — all landing in a world-readable folder (default: /tmp/nixlper_target).
+Configure the folder via NIXLPER_TARGET_DIR in ~/.bashrc or nixlper.conf.
+------------------------------------------------------------------------------------------------------------------------
+tc FILEPATH           : copy a single file to the target folder (chmod 644)
+                        also available as tcNUMBER shortcut inside navigate/fan results
+------------------------------------------------------------------------------------------------------------------------
+tm FILEPATH           : mark a file for later batch pack (no-op if already marked)
+                        also available as tmNUMBER shortcut inside navigate/fan results
+------------------------------------------------------------------------------------------------------------------------
+tml                   : list currently marked files with their index numbers
+------------------------------------------------------------------------------------------------------------------------
+tum                   : display marked files by number; type a number to remove one entry
+------------------------------------------------------------------------------------------------------------------------
+tcm                   : clear ALL marks without copying anything
+------------------------------------------------------------------------------------------------------------------------
+tp / [CTRL+X+Y]       : pack all marked files into a timestamped .tgz in the target folder
+                        (e.g. nixlper_pack_20260610_143022.tgz), chmod 644, then clear marks
+------------------------------------------------------------------------------------------------------------------------
+tsd [DIRPATH]         : show current target folder, or change it for this session
+                        (e.g. tsd /home/shared — does not persist across sessions)
+------------------------------------------------------------------------------------------------------------------------
+tclean                : delete all files inside the target folder (confirmation required)
+------------------------------------------------------------------------------------------------------------------------
+Typical workflow:
+  fan report          → results show tc1, tm1, tc2, tm2 … shortcuts
+  tm2                 → mark file 2
+  tm5                 → mark file 5
+  tml                 → review the list
+  tp                  → pack into /tmp/nixlper_target/nixlper_pack_YYYYMMDD_HHMMSS.tgz
+  tclean              → wipe the target folder when done

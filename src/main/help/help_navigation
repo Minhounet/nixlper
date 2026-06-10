@@ -19,7 +19,7 @@ Tree mode
     ├── item N (→ or ↓) SHORTCUT_COMMAND
     ├── ..
     └── last item (→ or ↓) SHORTCUT_COMMAND
-    HINT 1: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete
+    HINT 1: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete, tcNUMBER to copy to target, tmNUMBER to mark for pack
     HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
     -> Currently in /appli/install
     ------------------------------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ Flat mode
     cd parent_folder # CTRL + X THEN U
     ------------------------------------------------------------------------------------------------------------------------
     HINT 1: double click then right click for copy/paste (FILES AND FOLDERS/MOUSE MODE)
-    HINT 2: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete
+    HINT 2: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete, tcNUMBER to copy to target, tmNUMBER to mark for pack
     HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)
     -> Currently in current_folder"
     ------------------------------------------------------------------------------------------------------------------------

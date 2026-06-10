@@ -90,7 +90,11 @@ function _i_navigate_tree() {
       alias cdf${file_increment}="cd $(dirname $current_item) && navigate"
       # shellcheck disable=SC2139
       alias d${file_increment}="rm -i $current_item"
-      echo "$i${current_additional_info} → v${file_increment} | cdf${file_increment} | d${file_increment}"
+      # shellcheck disable=SC2139
+      alias tc${file_increment}="target_copy $current_item"
+      # shellcheck disable=SC2139
+      alias tm${file_increment}="target_mark $current_item"
+      echo "$i${current_additional_info} → v${file_increment} | cdf${file_increment} | d${file_increment} | tc${file_increment} | tm${file_increment}"
       ((file_increment++))
     elif [[ -d "${current_item}" ]]; then
       # shellcheck disable=SC2139
@@ -107,7 +111,7 @@ function _i_navigate_tree() {
     fi
   done
   echo ""
-  echo "HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete"
+  echo "HINT 1: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete, tcNUMBER to copy to target, tmNUMBER to mark"
   echo "HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
   echo "-> Currently in $(pwd)"
   echo "---------------------------------------------------------------------------------------------------------------"
@@ -136,7 +140,11 @@ function _i_navigate_flat() {
     alias cdf${increment}="cd $(dirname $i) && navigate"
     # shellcheck disable=SC2139
     alias d${increment}="rm -i $i"
-    echo "$NIXLPER_EDITOR ${i:2} # (v${increment} | cdf${increment} | d${increment})"
+    # shellcheck disable=SC2139
+    alias tc${increment}="target_copy $i"
+    # shellcheck disable=SC2139
+    alias tm${increment}="target_mark $i"
+    echo "$NIXLPER_EDITOR ${i:2} # (v${increment} | cdf${increment} | d${increment} | tc${increment} | tm${increment})"
     ((increment++))
   done
 
@@ -162,7 +170,7 @@ function _i_navigate_flat() {
 
   echo "---------------------------------------------------------------------------------------------------------------"
   echo "HINT 1: double click then right click for copy/paste (FILES AND FOLDERS/MOUSE MODE)"
-  echo "HINT 2: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete"
+  echo "HINT 2: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete, tcNUMBER to copy to target, tmNUMBER to mark"
   echo "HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
   echo "-> Currently in $(pwd)"
   echo "---------------------------------------------------------------------------------------------------------------"
@@ -205,7 +213,11 @@ function _find_and_navigate() {
           alias cdf${item_increment}="cd $(dirname $i) && navigate"
           # shellcheck disable=SC2139
           alias d${item_increment}="rm -i $i"
-          echo "${tree_chars} ${i:2} → v${item_increment} | cdf${item_increment} | d${item_increment}"
+          # shellcheck disable=SC2139
+          alias tc${item_increment}="target_copy $i"
+          # shellcheck disable=SC2139
+          alias tm${item_increment}="target_mark $i"
+          echo "${tree_chars} ${i:2} → v${item_increment} | cdf${item_increment} | d${item_increment} | tc${item_increment} | tm${item_increment}"
         elif [[ -d $i ]]; then
           # shellcheck disable=SC2139
           alias n${item_increment}="cd ${i} && navigate"

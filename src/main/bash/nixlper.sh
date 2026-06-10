@@ -308,6 +308,9 @@ function _i_load_bindings() {
     # tips - annotation already in functions_tips.sh
     bind -x '"\C-x\C-t": show_random_tip'
 
+    # target - annotations already in functions_target.sh
+    bind -x '"\C-x\C-y": target_pack'
+
     # command palette - annotation already in functions_command_palette.sh
     bind -x '"\C-x\C-a": find_action'
   fi
