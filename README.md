@@ -1,8 +1,8 @@
 # NIXLPER
 
-> 🚀 **Current version: v2.0.1** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Current version: v2.1.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
-> **What's new in v2.0.1:** Fixed command palette double-print after command execution and header border misalignment.
+> **What's new in v2.1.0:** Introduces update channels (stable/edge/off) with on-demand checks (`nu` / `CTRL+X+W`), opt-in auto-update, offline-safe probing, and `install.sh` channel selection.
 >
 > Nixlper evolves constantly. Tagged releases are stable snapshots. Two channels are available: **stable** (default, tagged releases) and **edge** (rolling build of every commit on `main`, not an official release). See [Updates](#updates) for installation commands.
 
