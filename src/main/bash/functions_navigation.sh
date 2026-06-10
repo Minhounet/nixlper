@@ -86,7 +86,11 @@ function _i_navigate_tree() {
     if [[ -f "${current_item}" ]]; then
       # shellcheck disable=SC2139
       alias v${file_increment}="$NIXLPER_EDITOR $current_item"
-      echo "$i${current_additional_info} → v${file_increment}"
+      # shellcheck disable=SC2139
+      alias cdf${file_increment}="cd $(dirname $current_item) && navigate"
+      # shellcheck disable=SC2139
+      alias d${file_increment}="rm -i $current_item"
+      echo "$i${current_additional_info} → v${file_increment} | cdf${file_increment} | d${file_increment}"
       ((file_increment++))
     elif [[ -d "${current_item}" ]]; then
       # shellcheck disable=SC2139
@@ -103,7 +107,7 @@ function _i_navigate_tree() {
     fi
   done
   echo ""
-  echo "HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)"
+  echo "HINT 1: use alias nNUMBER to navigate, alias vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete"
   echo "HINT 2: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
   echo "-> Currently in $(pwd)"
   echo "---------------------------------------------------------------------------------------------------------------"
@@ -128,7 +132,11 @@ function _i_navigate_flat() {
   for i in ${files_output}; do
     # shellcheck disable=SC2139
     alias v${increment}="$NIXLPER_EDITOR $i"
-    echo "$NIXLPER_EDITOR ${i:2} # (v${increment})"
+    # shellcheck disable=SC2139
+    alias cdf${increment}="cd $(dirname $i) && navigate"
+    # shellcheck disable=SC2139
+    alias d${increment}="rm -i $i"
+    echo "$NIXLPER_EDITOR ${i:2} # (v${increment} | cdf${increment} | d${increment})"
     ((increment++))
   done
 
@@ -154,7 +162,7 @@ function _i_navigate_flat() {
 
   echo "---------------------------------------------------------------------------------------------------------------"
   echo "HINT 1: double click then right click for copy/paste (FILES AND FOLDERS/MOUSE MODE)"
-  echo "HINT 2: use alias nNUMBER to navigate, alias vNUMBER to open a file (FILES AND FOLDERS/ALIAS MODE)"
+  echo "HINT 2: use alias nNUMBER to navigate, vNUMBER to open, cdfNUMBER to go to folder, dNUMBER to delete"
   echo "HINT 3: use CTRL + X, NUMBER to navigate (FOLDERS ONLY/BINDING MODE)"
   echo "-> Currently in $(pwd)"
   echo "---------------------------------------------------------------------------------------------------------------"
