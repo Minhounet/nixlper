@@ -217,6 +217,22 @@ _expect_false "bashrc value (nano) does not overwrite conf-file"  \
 _expect_true  "bashrc-only var (CHANNEL) still imported"          \
               _file_contains "${_NIXLPER_USER_CONF}" "export NIXLPER_UPDATE_CHANNEL=edge"
 
+# Bug 4 regression: syntax check must run on tmp file BEFORE mv, so original config is never
+# destroyed on error. Use a var NOT in the config file so the broken .bashrc line reaches bash -n.
+_reset_bashrc
+# NIXLPER_UPDATE_CHANNEL in config (safe), NIXLPER_EDITOR only in .bashrc (broken)
+mkdir -p "${HOME}/.config/nixlper"
+printf "export NIXLPER_UPDATE_CHANNEL=stable\n" > "${_NIXLPER_USER_CONF}"
+printf "export NIXLPER_EDITOR='unclosed_quote\n" >> "${HOME}/.bashrc"
+
+local_backup3="${HOME}/.bashrc.nixlper-backup-test3"
+_nconf_do_migrate "$local_backup3" 2>/dev/null || true  # expected to fail
+
+_expect_true  "original config intact after syntax-error migration" \
+              _file_contains "${_NIXLPER_USER_CONF}" "export NIXLPER_UPDATE_CHANNEL=stable"
+_expect_false "broken value not written to config" \
+              _file_contains "${_NIXLPER_USER_CONF}" "unclosed_quote"
+
 #-----------------------------------------------------------------------------------------------------------------------
 echo ""
 echo "====================================================================================================="

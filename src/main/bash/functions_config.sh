@@ -81,14 +81,14 @@ function _nconf_do_migrate() {
       fi
     done < <(grep "^export NIXLPER_" "${HOME}/.bashrc" 2>/dev/null)
   } > "$tmp_conf"
-  mv "$tmp_conf" "${_NIXLPER_USER_CONF}"
 
-  if ! bash -n "${_NIXLPER_USER_CONF}" 2>/dev/null; then
-    echo "ERROR: Config file has syntax errors. Aborting — ~/.bashrc not modified."
-    rm -f "${_NIXLPER_USER_CONF}"
+  if ! bash -n "$tmp_conf" 2>/dev/null; then
+    echo "ERROR: Config file has syntax errors. Aborting — no files modified."
+    rm -f "$tmp_conf"
     _nconf_show_recovery_help "$backup"
     return 1
   fi
+  mv "$tmp_conf" "${_NIXLPER_USER_CONF}"
 
   echo "Step 3/3: Cleaning ~/.bashrc"
   # Replace ${NIXLPER_INSTALL_DIR}/nixlper.sh source line with the actual path so
