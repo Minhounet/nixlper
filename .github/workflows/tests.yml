@@ -32,3 +32,6 @@ jobs:
 
       - name: Run target-staging unit tests
         run: bash src/test/bash/test_functions_target.sh
+
+      - name: Run config-editor unit tests
+        run: bash src/test/bash/test_functions_config.sh

@@ -116,6 +116,18 @@ function _i_install() {
 function _i_update() {
   echo "---------------------------------------------------------------------------------------------------------------"
   echo "Update Nixlper configuration"
+  # Before wiping the bashrc block, preserve any NIXLPER_ settings that haven't been
+  # migrated to ~/.config/nixlper/nixlper.conf yet.
+  local user_conf="${HOME}/.config/nixlper/nixlper.conf"
+  if grep -q "^export NIXLPER_" "${HOME}/.bashrc" 2>/dev/null && [[ ! -f "$user_conf" ]]; then
+    echo "  Preserving existing nixlper settings to ${user_conf}"
+    mkdir -p "${HOME}/.config/nixlper"
+    {
+      printf "# nixlper user configuration — preserved during update on %s\n" "$(date)"
+      printf "# Edit interactively: nconf\n\n"
+      grep "^export NIXLPER_" "${HOME}/.bashrc"
+    } > "$user_conf"
+  fi
   _i_delete_bashrc_config
   _i_set_bashrc_config
   echo "-> DONE (Update Nixlper configuration)"
@@ -215,31 +227,22 @@ function _i_uninstall_system() {
 
 function _i_set_bashrc_config() {
   echo "  Update .bashrc with nixlper"
+  local install_dir
+  if [[ -z "${NIXLPER_INSTALL_DIR:-}" ]]; then
+    cd "$(dirname "$0")" || return 1
+    install_dir="$(pwd)"
+  else
+    install_dir="${NIXLPER_INSTALL_DIR}"
+  fi
   echo "" >> ~/.bashrc
   echo "################################ nixlper start #################################################" >> ~/.bashrc
   echo "# nixlper installation" >> ~/.bashrc
-  # For install NIXLPER_INSTALL_DIR, is not defined
-  if [[ -z "${NIXLPER_INSTALL_DIR}" ]]; then
-    cd "$(dirname $0)" || return 1
-    sed 's/^/# /g' "$(pwd)"/version | grep -v PROJECT >> ~/.bashrc
-  else
-    sed 's/^/# /g' "${NIXLPER_INSTALL_DIR}"/version | grep -v PROJECT >> ~/.bashrc
-  fi
+  sed 's/^/# /g' "${install_dir}/version" 2>/dev/null | grep -v PROJECT >> ~/.bashrc || true
   echo "################################################################################################" >> ~/.bashrc
-  echo "export NIXLPER_INSTALL_DIR=$(pwd)" >> ~/.bashrc
-  echo "export NIXLPER_BOOKMARKS_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_bookmarks" >> ~/.bashrc
-  echo "export NIXLPER_LAST_MACRO_BINDING_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_last_macro_binding_file" >> ~/.bashrc
-  echo "export NIXLPER_NAVIGATE_MODE=tree" >> ~/.bashrc
-  echo "export NIXLPER_EDITOR=vim" >> ~/.bashrc
-  echo "export NIXLPER_DISABLE_WELCOME_MESSAGE=false" >> ~/.bashrc
-  echo "export NIXLPER_UPDATE_CHANNEL=${NIXLPER_INSTALL_CHANNEL:-stable}" >> ~/.bashrc
-  echo "export NIXLPER_UPDATE_CHECK=true" >> ~/.bashrc
-  echo "export NIXLPER_UPDATE_AUTO=false" >> ~/.bashrc
-  echo "export NIXLPER_UPDATE_CHECK_INTERVAL=86400" >> ~/.bashrc
-  echo "export NIXLPER_UPDATE_TIMEOUT=2" >> ~/.bashrc
-  echo "export NIXLPER_UPDATE_CACHE_FILE=\${NIXLPER_INSTALL_DIR}/.nixlper_update_check" >> ~/.bashrc
-  echo "source \${NIXLPER_INSTALL_DIR}/nixlper.sh" >> ~/.bashrc
+  # Only the source line goes into .bashrc — all settings live in ~/.config/nixlper/nixlper.conf
+  echo "source ${install_dir}/nixlper.sh" >> ~/.bashrc
   echo "################################ nixlper stop ##################################################" >> ~/.bashrc
+  _nconf_create_user_conf "${install_dir}"
   source ~/.bashrc
   echo "  -> DONE (Update .bashrc with nixlper)"
 }
@@ -313,6 +316,9 @@ function _i_load_bindings() {
 
     # command palette - annotation already in functions_command_palette.sh
     bind -x '"\C-x\C-a": find_action'
+
+    # config editor - annotation already in functions_config.sh
+    bind '"\C-x\C-c": "nconf\15"'
   fi
 }
 

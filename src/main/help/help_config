@@ -1,0 +1,51 @@
+########################################################################################################################
+# Help for configuration
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+[CTRL + X THEN C] or  nconf : open the interactive configuration editor
+------------------------------------------------------------------------------------------------------------------------
+nconf opens a searchable, fzf-powered list of all configurable nixlper settings.
+Select any entry and press Enter to edit it. Settings are saved to:
+
+  ~/.config/nixlper/nixlper.conf
+
+Only values that differ from the default are written — the file stays minimal.
+Changes take effect in new shells. To apply immediately: source ~/.bashrc
+
+------------------------------------------------------------------------------------------------------------------------
+Common settings (shown first in nconf):
+
+  NIXLPER_EDITOR                   text     vim        Text editor for file commands
+  NIXLPER_NAVIGATE_MODE            enum     tree       Navigation display mode (tree or flat)
+  NIXLPER_DISABLE_WELCOME_MESSAGE  bool     false      Suppress startup banner at login
+  NIXLPER_DISABLE_TIPS             bool     false      Suppress tips at login
+  NIXLPER_UPDATE_CHECK             bool     true       Auto-check for updates at login
+  NIXLPER_UPDATE_AUTO              bool     false      Auto-install detected updates
+  NIXLPER_UPDATE_CHANNEL           enum     stable     Update channel (stable | edge | off)
+  NIXLPER_TARGET_DIR               path     /tmp/...   Staging folder for copy/mark/pack
+
+Advanced settings (shown below common in nconf):
+
+  NIXLPER_UPDATE_CHECK_INTERVAL    int      86400      Seconds between auto-checks
+  NIXLPER_UPDATE_TIMEOUT           int      2          Network probe timeout (seconds)
+  NIXLPER_BOOKMARKS_FILE           path                Bookmarks file path
+  NIXLPER_SNAPSHOT_DIR             path                Snapshots directory
+  NIXLPER_CUSTOM_DIR               path                Custom scripts directory
+  NIXLPER_LAST_MACRO_BINDING_FILE  path                Last macro binding file
+  NIXLPER_UPDATE_CACHE_FILE        path                Update check cache file
+
+------------------------------------------------------------------------------------------------------------------------
+Indicator column in nconf:
+  [*]  value has been overridden from default in ~/.config/nixlper/nixlper.conf
+  [ ]  value is using the default (or env-derived value)
+
+Resetting a value to its default removes the line from the config file.
+------------------------------------------------------------------------------------------------------------------------
+Migration from ~/.bashrc:
+  If your nixlper variables are still in ~/.bashrc (manual install), nconf will
+  offer a one-time migration that moves them to ~/.config/nixlper/nixlper.conf and
+  leaves ~/.bashrc with only the source line. A backup is made before any change.
+
+  If migration fails, recovery options are printed — including how to restore the
+  backup or reinstall cleanly via RPM or DEB.
+------------------------------------------------------------------------------------------------------------------------
