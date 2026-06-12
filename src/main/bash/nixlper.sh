@@ -116,6 +116,18 @@ function _i_install() {
 function _i_update() {
   echo "---------------------------------------------------------------------------------------------------------------"
   echo "Update Nixlper configuration"
+  # Before wiping the bashrc block, preserve any NIXLPER_ settings that haven't been
+  # migrated to ~/.config/nixlper/nixlper.conf yet.
+  local user_conf="${HOME}/.config/nixlper/nixlper.conf"
+  if grep -q "^export NIXLPER_" "${HOME}/.bashrc" 2>/dev/null && [[ ! -f "$user_conf" ]]; then
+    echo "  Preserving existing nixlper settings to ${user_conf}"
+    mkdir -p "${HOME}/.config/nixlper"
+    {
+      printf "# nixlper user configuration — preserved during update on %s\n" "$(date)"
+      printf "# Edit interactively: nconf\n\n"
+      grep "^export NIXLPER_" "${HOME}/.bashrc"
+    } > "$user_conf"
+  fi
   _i_delete_bashrc_config
   _i_set_bashrc_config
   echo "-> DONE (Update Nixlper configuration)"

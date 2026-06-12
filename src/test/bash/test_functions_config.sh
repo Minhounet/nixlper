@@ -112,6 +112,24 @@ _expect_true  "third var written"                  _file_contains  "${_NIXLPER_U
 _nconf_write_setting "NIXLPER_BOOKMARKS_FILE" "/custom/path" ""
 _expect_true  "empty-default var written"          _file_contains  "${_NIXLPER_USER_CONF}" "export NIXLPER_BOOKMARKS_FILE=/custom/path"
 
+# Bug 1 regression: special characters in value must not corrupt the config file
+_reset_conf
+_nconf_write_setting "NIXLPER_EDITOR" "/usr/bin/vi" "vim"
+_nconf_write_setting "NIXLPER_EDITOR" "/opt/my|editor" "vim"
+_expect_true  "pipe char in value written correctly"   _file_contains "${_NIXLPER_USER_CONF}" "export NIXLPER_EDITOR=/opt/my|editor"
+_expect_eq    "no extra lines after pipe update"       "$(grep -c 'NIXLPER_EDITOR' "${_NIXLPER_USER_CONF}")" "1"
+
+_reset_conf
+_nconf_write_setting "NIXLPER_EDITOR" "/usr/bin/vi" "vim"
+_nconf_write_setting "NIXLPER_EDITOR" "/opt/my&editor" "vim"
+_expect_true  "ampersand in value written correctly"   _file_contains "${_NIXLPER_USER_CONF}" "export NIXLPER_EDITOR=/opt/my&editor"
+_expect_eq    "no extra lines after ampersand update"  "$(grep -c 'NIXLPER_EDITOR' "${_NIXLPER_USER_CONF}")" "1"
+
+_reset_conf
+_nconf_write_setting "NIXLPER_EDITOR" "/usr/bin/vi" "vim"
+_nconf_write_setting "NIXLPER_EDITOR" "/opt/back\\slash" "vim"
+_expect_true  "backslash in value written correctly"   _file_contains "${_NIXLPER_USER_CONF}" 'NIXLPER_EDITOR'
+
 #-----------------------------------------------------------------------------------------------------------------------
 echo "== _nconf_get_meta =="
 _nconf_get_meta "NIXLPER_EDITOR"
@@ -174,6 +192,30 @@ _expect_false "NIXLPER_ vars gone from bashrc"     _file_contains "${HOME}/.bash
 _expect_true  "user content preserved"             _file_contains "${HOME}/.bashrc" "# user content"
 _expect_true  "source line hardened"               _file_contains "${HOME}/.bashrc" "source /opt/nixlper/nixlper.sh"
 _expect_false "variable source line removed"       _file_contains "${HOME}/.bashrc" 'source ${NIXLPER_INSTALL_DIR}'
+
+# Bug 3 regression: second migration must not overwrite nconf-edited values in the config file
+# Simulate: user ran nconf and changed NIXLPER_EDITOR to emacs in the config file,
+# then runs nconf again (which triggers migration again because .bashrc still has NIXLPER_EDITOR=nano).
+# The config file value (emacs) must win over the .bashrc value (nano).
+_reset_bashrc
+cat > "${HOME}/.bashrc" << 'BASHRC'
+export NIXLPER_EDITOR=nano
+export NIXLPER_UPDATE_CHANNEL=edge
+source /opt/nixlper/nixlper.sh
+BASHRC
+# Config file already exists with a user edit
+mkdir -p "${HOME}/.config/nixlper"
+printf "export NIXLPER_EDITOR=emacs\n" > "${_NIXLPER_USER_CONF}"
+
+local_backup2="${HOME}/.bashrc.nixlper-backup-test2"
+_nconf_do_migrate "$local_backup2"
+
+_expect_true  "conf-file value (emacs) survives second migration" \
+              _file_contains "${_NIXLPER_USER_CONF}" "export NIXLPER_EDITOR=emacs"
+_expect_false "bashrc value (nano) does not overwrite conf-file"  \
+              _file_contains "${_NIXLPER_USER_CONF}" "export NIXLPER_EDITOR=nano"
+_expect_true  "bashrc-only var (CHANNEL) still imported"          \
+              _file_contains "${_NIXLPER_USER_CONF}" "export NIXLPER_UPDATE_CHANNEL=edge"
 
 #-----------------------------------------------------------------------------------------------------------------------
 echo ""

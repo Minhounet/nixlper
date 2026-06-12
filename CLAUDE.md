@@ -252,6 +252,13 @@ After implementing a bug fix or a new feature, **always test it** before committ
 - Cover at minimum: the fixed/new case, a regression case (existing behaviour unchanged), and an error/edge case.
 - If testing is genuinely impossible in the current environment (missing runtime dependency, interactive terminal required, etc.), **explicitly warn the user** before committing — never silently skip testing.
 
+### Bug sweep — MANDATORY before every commit
+Before committing any feature or fix, **actively scan the code you wrote or touched for bugs**:
+- Read each new/modified function end-to-end and ask: "What breaks if the input contains special characters? What if the file doesn't exist yet? What if this runs twice?"
+- Check every interaction with pre-existing code: does the new code change assumptions that older functions relied on? (Example: a new config file changes where settings live — does the installer still handle the old location correctly?)
+- If you find a bug, fix it in the same commit. If it is out of scope, add it to `KNOWN_ISSUES.md` before committing.
+- **Never hand work back to the user with known, unaddressed bugs unless they are explicitly deferred and tracked.**
+
 ### Command palette rendering check (MANDATORY for every new command)
 After adding any new command (function + `@cmd-palette` annotation, or alias-based), **verify it renders correctly in the palette** before committing:
 

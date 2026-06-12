@@ -11,7 +11,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'cmd=$(jq -r \".tool_input.command\"); [[ \"$cmd\" =~ git[[:space:]]+commit ]] && echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PreToolUse\\\",\\\"additionalContext\\\":\\\"MANDATORY CHECKLIST (CLAUDE.md) before committing: 1) Tests written and passing for any new/changed module? 2) src/main/help/help_* updated? 3) README.md Features section updated? 4) KNOWN_ISSUES.md in sync? Do NOT proceed with the commit until all applicable items are confirmed.\\\"}}\" || true'"
+            "command": "bash -c 'cmd=$(jq -r \".tool_input.command\"); [[ \"$cmd\" =~ git[[:space:]]+commit ]] && echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PreToolUse\\\",\\\"additionalContext\\\":\\\"MANDATORY CHECKLIST (CLAUDE.md) before committing: 1) BUG SWEEP — did you read every new/modified function for edge cases, special-char handling, missing-file cases, and broken assumptions in pre-existing code? Fix all found bugs now or add them to KNOWN_ISSUES.md. 2) Tests written and passing for any new/changed module? 3) src/main/help/help_* updated? 4) README.md Features section updated? 5) KNOWN_ISSUES.md in sync? Do NOT proceed with the commit until all applicable items are confirmed.\\\"}}\" || true'"
           }
         ]
       }

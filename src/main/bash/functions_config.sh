@@ -58,11 +58,30 @@ function _nconf_do_migrate() {
 
   echo "Step 2/3: Writing ${_NIXLPER_USER_CONF}"
   mkdir -p "${HOME}/.config/nixlper"
+  # Merge: existing config vars take priority; .bashrc vars fill in any that are missing.
+  local -a existing_vars=()
+  if [[ -f "${_NIXLPER_USER_CONF}" ]]; then
+    while IFS= read -r line; do
+      existing_vars+=("$line")
+    done < <(grep "^export NIXLPER_" "${_NIXLPER_USER_CONF}" 2>/dev/null)
+  fi
+  local tmp_conf
+  tmp_conf=$(mktemp)
   {
     printf "# nixlper user configuration — migrated from ~/.bashrc on %s\n" "$(date)"
     printf "# Edit interactively: nconf\n\n"
-    grep "^export NIXLPER_" "${HOME}/.bashrc"
-  } > "${_NIXLPER_USER_CONF}"
+    # Existing config file entries (highest priority)
+    printf '%s\n' "${existing_vars[@]+"${existing_vars[@]}"}"
+    # .bashrc entries not already present in the config file
+    while IFS= read -r line; do
+      local bvar="${line#export }"
+      bvar="${bvar%%=*}"
+      if ! printf '%s\n' "${existing_vars[@]+"${existing_vars[@]}"}" | grep -q "^export ${bvar}="; then
+        printf '%s\n' "$line"
+      fi
+    done < <(grep "^export NIXLPER_" "${HOME}/.bashrc" 2>/dev/null)
+  } > "$tmp_conf"
+  mv "$tmp_conf" "${_NIXLPER_USER_CONF}"
 
   if ! bash -n "${_NIXLPER_USER_CONF}" 2>/dev/null; then
     echo "ERROR: Config file has syntax errors. Aborting — ~/.bashrc not modified."
@@ -182,7 +201,9 @@ function _nconf_write_setting() {
     printf "Reset %s to default (%s).\n" "$varname" "$default"
   else
     if grep -q "^export ${varname}=" "${_NIXLPER_USER_CONF}" 2>/dev/null; then
-      sed -i "s|^export ${varname}=.*|export ${varname}=${new_val}|" "${_NIXLPER_USER_CONF}"
+      local escaped_val
+      escaped_val=$(printf '%s' "$new_val" | sed 's/[\\&|]/\\&/g')
+      sed -i "s|^export ${varname}=.*|export ${varname}=${escaped_val}|" "${_NIXLPER_USER_CONF}"
     else
       printf "export %s=%s\n" "$varname" "$new_val" >> "${_NIXLPER_USER_CONF}"
     fi
