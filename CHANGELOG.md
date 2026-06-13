@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.0] - 2026-06-13
+
+### Added
+- **`nconf` interactive config editor** (`CTRL+X+C`, alias `nconf`): a menu-driven editor for
+  all `NIXLPER_*` settings that reads from and writes to `~/.config/nixlper/nixlper.conf`.
+  Each setting is displayed with its current value and a short description; selecting one
+  prompts for a new value and saves it immediately.
+- **`.bashrc` migration**: on first `nconf` run, any old-style `export NIXLPER_*` lines
+  detected in `~/.bashrc` are offered for migration to `~/.config/nixlper/nixlper.conf`,
+  then stripped from `~/.bashrc` to avoid double-export conflicts.
+
+---
+
 ## [2.1.0] - 2026-06-10
 
 ### Added

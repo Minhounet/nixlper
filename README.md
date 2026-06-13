@@ -1,8 +1,8 @@
 # NIXLPER
 
-> 🚀 **Current version: v2.1.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Current version: v2.2.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
-> **What's new in v2.1.0:** Adds target staging (`tc`/`tm`/`tp`/`CTRL+X+Y`) to accumulate and pack files from anywhere; per-file `cdfN`/`dN`/`tcN`/`tmN` shortcuts in navigate and `fan` results; RPM/DEB-aware `nu` updates; plus update channels (stable/edge/off) with on-demand checks, opt-in auto-update, and offline-safe probing.
+> **What's new in v2.2.0:** Adds `nconf` (`CTRL+X+C`), a menu-driven interactive editor for all `NIXLPER_*` settings with automatic `.bashrc` migration to `~/.config/nixlper/nixlper.conf`.
 >
 > Nixlper evolves constantly. Tagged releases are stable snapshots. Two channels are available: **stable** (default, tagged releases) and **edge** (rolling build of every commit on `main`, not an official release). See [Updates](#updates) for installation commands.
 
