@@ -317,6 +317,13 @@ To check for drift between the two at any time, compare each `### <Category>` bl
 
 ### Release process — CHANGELOG.md and README.md
 
+> **Mobile-friendly release convention:** Release commits go **directly to `main`** — no feature
+> branch, no PR. Claude commits the release changes to `main`, then pushes the tag. The
+> `create_release_on_tag.yml` workflow fires automatically on the tag push and publishes the
+> GitHub release with all artifacts. Nothing to do on mobile.
+>
+> **How to trigger a release:** just say *"make a release vX.Y.Z"*. Claude handles the rest.
+
 Every release requires updating **two files** in the same commit, plus creating a git tag.
 
 #### CHANGELOG.md
@@ -361,13 +368,27 @@ When cutting a release, update both:
 1. The version number on the badge line.
 2. The **"What's new"** line — write a concise one-sentence summary of the main additions, fixes, or changes from the `CHANGELOG.md` entry for the new version.
 
-#### Tagging
-After committing the updated `CHANGELOG.md` and `README.md`:
+#### Tagging — complete release sequence
+
+Releases commit directly to `main` (no PR). The full sequence in one shot:
 
 ```bash
+# 1. Ensure you are on main and up to date
+git checkout main
+git pull origin main
+
+# 2. Commit the release (CHANGELOG + README already updated above)
+git commit -m "🔖release|Release vX.Y.Z."
+
+# 3. Tag the commit and push both in one go
 git tag vX.Y.Z
+git push -u origin main
 git push origin vX.Y.Z
 ```
+
+Pushing the tag triggers `create_release_on_tag.yml`, which builds the tar/RPM/DEB artifacts,
+extracts the CHANGELOG entry, and publishes the GitHub release automatically. No manual steps
+needed on the GitHub UI.
 
 The build picks up the tag automatically via `git describe --tags --exact-match HEAD`.
 
