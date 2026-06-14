@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`.bashrc` migration**: on first `nconf` run, any old-style `export NIXLPER_*` lines
   detected in `~/.bashrc` are offered for migration to `~/.config/nixlper/nixlper.conf`,
   then stripped from `~/.bashrc` to avoid double-export conflicts.
+- **Automated CI release**: pushing a `🔖release|Release v` commit to `main` now automatically
+  creates the git tag and publishes the GitHub release — no manual tag push needed.
 
 ---
 
@@ -174,7 +176,7 @@ properly packaged, discoverable tool.
 ### Added
 - **Tree navigation mode** (`NIXLPER_NAVIGATE_MODE=tree`) alongside the existing
   `ls` mode.
-- Folder navigation shortcuts `1`–`9` bound to the nine most recent directories.
+- Folder navigation shortcuts `1`–9` bound to the nine most recent directories.
 - Custom scripts folder (`NIXLPER_CUSTOM_DIR`) loaded at startup; duplicate aliases
   are rejected.
 - Configuration install refactored for cleaner `.bashrc` integration.
