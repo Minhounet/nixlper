@@ -495,13 +495,15 @@ to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not e
 
 Two channels selected via `NIXLPER_UPDATE_CHANNEL`: `stable` (compares installed `VERSION:`
 against GitHub `releases/latest`), `edge` (compares installed full `COMMIT:` SHA against the
-latest commit on `main`), and `off`. All network access is gated by `_i_is_online` — a
-time-boxed `curl` reachability probe — so an offline machine never hangs or errors at login.
-Automatic startup checks are throttled via `NIXLPER_UPDATE_CACHE_FILE`; the `nu` / `CTRL+X+W`
-command bypasses the throttle and always reports. The `edge` channel relies on `build.sh`
-writing the full SHA (`COMMIT:`) into the `version` file, and on CI's rolling `edge`
-pre-release (`.github/workflows/publish_edge_on_push.yml`), which is excluded from
-`create_release_on_tag.yml` via a `!edge` tag filter. `install.sh` accepts `--channel
+`target_commitish` of the rolling `edge` pre-release — **not** raw `main` HEAD), and `off`.
+All network access is gated by `_i_is_online` — a time-boxed `curl` reachability probe — so
+an offline machine never hangs or errors at login. Automatic startup checks are throttled via
+`NIXLPER_UPDATE_CACHE_FILE`; the `nu` / `CTRL+X+W` command bypasses the throttle and always
+reports. The `edge` channel relies on `build.sh` writing the full SHA (`COMMIT:`) into the
+`version` file, and on CI's rolling `edge` pre-release
+(`.github/workflows/publish_edge_on_push.yml`), which skips release commits (prevents a race
+where `vX.Y.Z` is embedded in the edge artifact and a false-positive update loop) and is
+excluded from `create_release_on_tag.yml` via a `!edge` tag filter. `install.sh` accepts `--channel
 stable|edge` and `--yes`, and aborts cleanly when the internet is unreachable.
 
 Automated tests live in `src/test/bash/test_functions_update.sh` (pure bash, no framework,

@@ -186,7 +186,7 @@ same machine via `/tmp`. `tc` and `tp` both `chmod 644` the files they place the
 | Channel | Compares |
 |---|---|
 | `stable` | Installed `VERSION:` field vs. GitHub `releases/latest` tag |
-| `edge` | Installed `COMMIT:` SHA vs. latest commit SHA on `main` |
+| `edge` | Installed `COMMIT:` SHA vs. `target_commitish` of the `edge` pre-release |
 | `off` | No network check at startup |
 
 `build.sh` writes both fields into the `version` file at build time.
@@ -205,5 +205,23 @@ offline, the check is skipped silently — no error, no hang at login.
 ### Edge pre-release
 
 CI publishes a rolling `edge` pre-release via `.github/workflows/publish_edge_on_push.yml` on
-every push to `main`. The release creation workflow (`create_release_on_tag.yml`) excludes it
-via a `!edge` tag filter so it is never promoted to a stable release.
+every push to `main` **except release commits** (messages starting with `🔖release|` are
+skipped). Skipping release commits prevents two problems: (1) a race where the `vX.Y.Z` tag
+created by `create_release_on_tag.yml` is visible to the edge build's `git describe` call,
+causing the edge artifact to embed `VERSION: vX.Y.Z` and become indistinguishable from the
+stable release; (2) the edge release pointing to the same commit as stable, which makes
+the edge update check loop (see below).
+
+The release creation workflow (`create_release_on_tag.yml`) excludes the `edge` tag via a
+`!edge` tag filter so it is never promoted to a stable release.
+
+### Why the edge update check uses the pre-release SHA, not `main` HEAD
+
+`_i_remote_edge_release_commit` fetches `target_commitish` from the `edge` GitHub pre-release
+(the full SHA passed to `--target` when CI published the build) instead of the raw HEAD of
+`main`. This prevents a false-positive loop: if the edge workflow is skipped on a release
+commit, the latest commit on `main` is the release SHA but the edge pre-release is still at
+the prior commit. Comparing against `main` HEAD would always show "update available" even
+after updating, because the user installs the pre-release SHA (old) which still differs from
+the main HEAD (release). Comparing against the pre-release SHA gives the correct answer:
+"up to date" when the user has what CI actually published.

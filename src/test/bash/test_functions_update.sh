@@ -76,7 +76,7 @@ _reset_throttle() { rm -f "${NIXLPER_UPDATE_CACHE_FILE}"; }
 # Default mocks — individual tests override as needed.
 _i_is_online() { return 0; }
 _i_remote_latest_tag() { echo ""; }
-_i_remote_latest_commit() { echo ""; }
+_i_remote_edge_release_commit() { echo ""; }
 
 #-----------------------------------------------------------------------------------------------------------------------
 echo "== _i_version_gt =="
@@ -145,11 +145,11 @@ _expect_eq "newer-than-remote: no downgrade noise" "${out}" ""
 echo "== edge channel =="
 export NIXLPER_UPDATE_CHANNEL=edge
 _write_version "" "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
-_i_remote_latest_commit() { echo "1111111111111111111111111111111111111111"; }
+_i_remote_edge_release_commit() { echo "1111111111111111111111111111111111111111"; }
 _reset_throttle
 out="$(_i_check_for_updates true 2>&1)"
 _expect_match_count "new commit notifies" "${out}" "newer Nixlper commit" 1
-_i_remote_latest_commit() { echo "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"; }
+_i_remote_edge_release_commit() { echo "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"; }
 _reset_throttle
 out="$(_i_check_for_updates true 2>&1)"
 _expect_match_count "same commit: up to date" "${out}" "latest commit" 1
