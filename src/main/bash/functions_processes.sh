@@ -95,13 +95,28 @@ function _i_kill_by_pattern() {
   _i_kill_by_pattern "${pattern}"
 }
 
+function _i_get_pid_by_port() {
+  local -r port=$1
+  if command -v ss &>/dev/null; then
+    ss -tlnp | grep ":${port}" | sed -n 's/.*pid=\([0-9]*\).*/\1/p' | head -1
+  elif command -v netstat &>/dev/null; then
+    netstat -anp 2>/dev/null | grep -i ":${port} " | awk '{print $7}' | sed 's/[^0-9]*//g' | head -1
+  else
+    return 1
+  fi
+}
+
 function _i_kill_by_port() {
   if [[ $# -eq 0 ]]; then
     _i_log_as_error "$0: Missing port value"
     return 1
   fi
   local -r port=$1
-  local -r process_pid=$(netstat -anp | grep -i ":${port} " | awk '{print $7}' | sed 's/[^0-9]*//g' )
+  local process_pid
+  if ! process_pid=$(_i_get_pid_by_port "${port}"); then
+    _i_log_as_error "No tool available to query ports. Please install ss (iproute2) or netstat (net-tools)."
+    return 1
+  fi
   if [[ -n "${process_pid}" ]]; then
     ps -p "${process_pid}" -f
     local answer_kill_process

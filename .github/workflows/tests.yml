@@ -35,3 +35,6 @@ jobs:
 
       - name: Run config-editor unit tests
         run: bash src/test/bash/test_functions_config.sh
+
+      - name: Run macro-recording unit tests
+        run: bash src/test/bash/test_functions_macros.sh

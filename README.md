@@ -261,7 +261,7 @@ and alias) so you can fuzzy-search and execute without remembering exact names.
 
 ### Processes
 
-- `ik`: call interactive kill to kill by pattern or by port (port mode requires `netstat`)
+- `ik`: call interactive kill to kill by pattern or by port (port mode requires `ss` from iproute2, or `netstat` from net-tools as fallback)
 
 ### Users
 

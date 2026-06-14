@@ -4,12 +4,40 @@
 # DESCRIPTION: functions related to macros
 ########################################################################################################################
 # CONTENT:
-# - vim record like feature, 
-#   Use CTRL + X, CTRL + Q to start recording, CTRL + Q to stop recording
-#   Use CTRL + X, CTRL + X to launch recorded actions
+# - vim record like feature,
+#   Use CTRL + P to start recording, CTRL + P + CTRL + P to stop recording
+#   Use CTRL + X + CTRL + X to launch recorded actions
 ########################################################################################################################
-START_MARKER="###START_RECORD###"
-END_MARKER="###END_RECORD###"
+
+_NIXLPER_RECORDING=false
+_NIXLPER_MACRO_COMMANDS=()
+_NIXLPER_LAST_HIST_NUM=0
+
+# Thin wrappers so tests can mock history lookups without touching the builtin.
+function _i_get_last_cmd() {
+  history 1 | sed 's/^ *[0-9]* *//'
+}
+
+function _i_get_last_hist_num() {
+  history 1 | awk '{print $1}'
+}
+
+# Injected into PROMPT_COMMAND during a recording session; fires after every command.
+# Skips commands excluded from history (HISTCONTROL=ignorespace/ignoredups) by comparing
+# the history entry number — if it didn't change, no new entry was added, so we skip.
+function _i_macro_record_step() {
+  [[ "$_NIXLPER_RECORDING" != true ]] && return
+  local current_hist_num
+  current_hist_num=$(_i_get_last_hist_num)
+  [[ "$current_hist_num" == "$_NIXLPER_LAST_HIST_NUM" ]] && return
+  _NIXLPER_LAST_HIST_NUM=$current_hist_num
+  local last_cmd
+  last_cmd=$(_i_get_last_cmd)
+  case "$last_cmd" in
+    sr|fr|start_recording|finalize_recording) return ;;
+  esac
+  [[ -n "$last_cmd" ]] && _NIXLPER_MACRO_COMMANDS+=("$last_cmd")
+}
 
 # @cmd-palette
 # @description: Start recording bash commands
@@ -17,8 +45,12 @@ END_MARKER="###END_RECORD###"
 # @keybind: CTRL+P
 # @alias: sr
 function start_recording() {
-  history -s "$START_MARKER"
-  history -a
+  _NIXLPER_RECORDING=true
+  _NIXLPER_MACRO_COMMANDS=()
+  _NIXLPER_LAST_HIST_NUM=$(_i_get_last_hist_num)
+  if [[ "$PROMPT_COMMAND" != *"_i_macro_record_step"* ]]; then
+    PROMPT_COMMAND="_i_macro_record_step${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+  fi
   _i_log_as_info "Recording started. Run your commands now."
 }
 
@@ -28,60 +60,36 @@ function start_recording() {
 # @keybind: CTRL+P+CTRL+P
 # @alias: fr
 function finalize_recording() {
-  _stop_record
-  _clean_markers
-}
-
-function _stop_record() {
-  history -s "$END_MARKER"
-  history -a
+  _NIXLPER_RECORDING=false
+  PROMPT_COMMAND="${PROMPT_COMMAND#_i_macro_record_step; }"
+  PROMPT_COMMAND="${PROMPT_COMMAND%_i_macro_record_step}"
   _i_log_as_info "Recording stopped."
   _prepare_binding
 }
 
-function _extract_record() {
-  # Make sure history is saved to file
-  history -a
-
-  sed -n "/$START_MARKER/,/$END_MARKER/p" ~/.bash_history | sed "1d;\$d"
-}
-
-function _clean_markers() {
-  for marker in "$START_MARKER" "$END_MARKER"; do
-    while read -r lineno _; do
-      history -d "$lineno"
-    done < <(history | grep -F "$marker" | awk '{print $1}')
-  done
-  sed -i "/$START_MARKER/d;/$END_MARKER/d" ~/.bash_history
-  history -c
-  history -r
-}
-
 function _prepare_binding() {
-  local commands
-  commands=$(_extract_record)
-
-  if [ -z "$commands" ]; then
-    _i_log_as_info "No commands recorded between markers."
+  if [[ ${#_NIXLPER_MACRO_COMMANDS[@]} -eq 0 ]]; then
+    _i_log_as_info "No commands recorded."
     return 1
   fi
 
-  bind -r "\C-x\C-x" 2>/dev/null
+  # Write the function definition and bind command to the persistence file.
+  # Using printf '%s\n' per command avoids all eval/quoting issues: single
+  # quotes, double quotes, backticks, and redirections are written literally
+  # and interpreted correctly when the file is sourced.
+  {
+    printf '_nixlper_macro_replay() {\n'
+    printf '  %s\n' "${_NIXLPER_MACRO_COMMANDS[@]}"
+    printf '}\n'
+    printf "bind -x '\"\\C-x\\C-x\": _nixlper_macro_replay'\n"
+  } > "$NIXLPER_LAST_MACRO_BINDING_FILE"
 
-  # Join all commands with ';' to avoid new line issues
+  # shellcheck source=/dev/null
+  source "$NIXLPER_LAST_MACRO_BINDING_FILE" 2>/dev/null
+
   local joined
-  joined=$(echo "$commands" | paste -sd ';' -)
-
-  # The bind command string
-  local bind_command="bind -x '\"\\C-x\\C-x\":( $joined )'"
-
-  # Bind it in the current shell
-  eval "$bind_command"
-  
-  # Save it to a file for later replay
-  echo "$bind_command" > "$NIXLPER_LAST_MACRO_BINDING_FILE"
-
-  _i_log_as_info "Ctrl+x Ctrl+x bound to your recorded commands and saved to $NIXLPER_LAST_MACRO_BINDING_FILE"
+  joined=$(printf '%s; ' "${_NIXLPER_MACRO_COMMANDS[@]}")
+  _i_log_as_info "CTRL+X+CTRL+X bound to: ${joined%; }"
 }
 
 # @cmd-palette
@@ -91,9 +99,11 @@ function _prepare_binding() {
 function bind_last_macro() {
   if [[ ! -f "$NIXLPER_LAST_MACRO_BINDING_FILE" ]]; then
     _i_log_as_error "Cannot bind last macro because nothing has been recorded"
+    return 1
   fi
   _i_log_as_info "Launch last macro binding below:"
   cat "$NIXLPER_LAST_MACRO_BINDING_FILE"
-  eval $(cat "$NIXLPER_LAST_MACRO_BINDING_FILE")
+  # shellcheck source=/dev/null
+  source "$NIXLPER_LAST_MACRO_BINDING_FILE" 2>/dev/null
   _i_log_ok
 }

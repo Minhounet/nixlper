@@ -9,7 +9,7 @@ cdf FILEPATH : will go to the folder of the file
 [CTRL + X THEN N] display an interactive way to navigate to subfolders and to open files with alias/copy-paste using
 tree mode or flat mode.
 Configure NIXLPER_NAVIGATE_MODE via nconf (or ~/.config/nixlper/nixlper.conf) using "flat" or "tree" value.
-For each file, shortcuts to open (vN), go to its folder (cdfN), or delete it (dN) are available.
+For each file, shortcuts to open (vN), go to its folder (cdfN), delete (dN), copy to target (tcN), or mark for pack (tmN) are available.
 
 Tree mode
     ------------------------------------------------------------------------------------------------------------------------
@@ -53,4 +53,7 @@ Flat mode
 ------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------
 - fan PATTERN: execute "find . -iname "*PATTERN*"" then display results like navigate function
+  Each match offers shortcuts to open (vN), go to its folder (cdfN), delete (dN), copy to target (tcN), or mark for pack (tmN).
+------------------------------------------------------------------------------------------------------------------------
+- fag PATTERN: execute "grep -rn PATTERN ." then display each match with a shortcut (vN) to open the file at the matching line
 ------------------------------------------------------------------------------------------------------------------------

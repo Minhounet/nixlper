@@ -27,12 +27,26 @@ commit that fixes the underlying bug.
 4. **`KNOWN_ISSUES.md`** — remove an entry in the same commit that fixes the underlying bug. Add an entry for newly discovered confirmed-but-unfixed defects.
 5. **`CHANGELOG.md`** — when cutting a release, populate from `git log` since the last tag (see "Release process").
 6. **Palette rendering** — if any `@cmd-palette` command was added or modified, verify it renders correctly (see "Command palette rendering check" under Testing requirement). A command with no `@keybind` or `@alias` may have a blank keybind column — that is acceptable. What is **never acceptable** is a command that *has* a keybind or alias defined but it does not appear in the palette column.
+7. **`INTERNALS.md`** — update if a feature's mechanism changes in a non-obvious way (see "INTERNALS.md rule" below).
 
 ### Dual-location documentation rule (enforced)
 
 Every command, alias, and keybinding mentioned in `README.md → ## Features` **must** appear in the corresponding `src/main/help/help_<category>` file, and vice versa. After any feature work, compare both locations and flag any discrepancy — do not close the task until they are in sync.
 
 > **Root cause of doc drift:** code is changed but only one location (or neither) is updated. The checklist above exists to prevent this. If you find yourself thinking "I'll update the docs later" — stop and update them now, in the same commit.
+
+### INTERNALS.md rule
+
+[`INTERNALS.md`](INTERNALS.md) explains the **mechanism** behind features that are non-obvious from reading the code. It is aimed at any future developer (human or AI) who asks "how does this actually work?"
+
+**Add or update an `INTERNALS.md` entry when the feature being changed meets at least one of these criteria:**
+
+1. **Non-obvious shell mechanism** — uses `PROMPT_COMMAND`, `bind -x`, history builtins, `trap`, or other bash internals whose behavior is not self-evident.
+2. **Persistent state across calls** — maintains counters, arrays, or file-backed state that affect subsequent invocations (e.g., alias counts for navigation, macro recording flag).
+3. **Silent failure mode** — violating an assumption produces wrong output with no error (e.g., stale aliases when counts aren't tracked, `read` silently failing inside `bind -x`).
+4. **Non-trivial lifecycle** — the feature only makes sense as a sequence of steps (e.g., mark → pack → clear in target staging).
+
+**Do NOT add an entry** for features whose mechanism is obvious from the function names and code (e.g., `_copy_fullpath_to_clipboard` — it resolves a path and pipes to a clipboard tool; nothing hidden there).
 
 ---
 
@@ -72,6 +86,7 @@ nixlper/
 │   │   └── nixlper-profile.d.sh  # profile.d loader deployed to /etc/profile.d/nixlper.sh
 │   └── rpm/
 │       └── nixlper.spec          # RPM spec file
+├── INTERNALS.md            # Mechanism docs for non-obvious features (see "INTERNALS.md rule")
 └── .claude/                # AI context files
 ```
 
