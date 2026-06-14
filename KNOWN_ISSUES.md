@@ -32,8 +32,10 @@ the matching `src/main/help/help_<category>` file, and vice versa.
 
 Only `functions_update.sh` has a unit test file (`src/test/bash/test_functions_update.sh`).
 All other modules (`functions_clipboard.sh`, `functions_navigation.sh`, `functions_files.sh`,
-`functions_bookmarks.sh`, `functions_macros.sh`, `functions_processes.sh`,
+`functions_bookmarks.sh`, `functions_processes.sh`,
 `functions_command_palette.sh`, etc.) have no automated tests.
+`functions_macros.sh` gained tests when its implementation was rewritten
+(`src/test/bash/test_functions_macros.sh`).
 
 New feature modules must include a test file (see CLAUDE.md → "Unit test files"). Retrofitting
 tests for existing modules is welcome but not required — tackle one module at a time when

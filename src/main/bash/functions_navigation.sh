@@ -8,6 +8,26 @@
 #-----------------------------------------------------------------------------------------------------------------------
 export NIXLPER_DISPLAY_LENGTH_IN_NAVIGATE=1
 
+_NIXLPER_LAST_FILE_COUNT=0
+_NIXLPER_LAST_FOLDER_COUNT=0
+
+# Unalias all numbered shortcuts from the previous navigate/fan/fag call so stale
+# aliases from a larger directory don't persist when navigating to a smaller one.
+function _i_cleanup_nav_aliases() {
+  local i
+  for ((i=1; i<=_NIXLPER_LAST_FILE_COUNT; i++)); do
+    unalias "v${i}" "d${i}" "tc${i}" "tm${i}" "cdf${i}" 2>/dev/null
+  done
+  for ((i=1; i<=_NIXLPER_LAST_FOLDER_COUNT; i++)); do
+    unalias "n${i}" 2>/dev/null
+    if ((i < 10)); then
+      bind -r '"\C-x'${i}'"' 2>/dev/null
+    fi
+  done
+  _NIXLPER_LAST_FILE_COUNT=0
+  _NIXLPER_LAST_FOLDER_COUNT=0
+}
+
 #-----------------------------------------------------------------------------------------------------------------------
 # navigate: Make the navigation easier, calling this navigate function display the following output depending on the display mode
 # @cmd-palette
@@ -63,6 +83,7 @@ function navigate() {
 # _i_navigate_tree: tree version of the navigate feature
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_navigate_tree() {
+  _i_cleanup_nav_aliases
   if [[ $# -ne 0 ]]; then
     cd "$1" || return 1
   fi
@@ -116,12 +137,15 @@ function _i_navigate_tree() {
   echo "-> Currently in $(pwd)"
   echo "---------------------------------------------------------------------------------------------------------------"
   echo ""
+  _NIXLPER_LAST_FILE_COUNT=$((file_increment - 1))
+  _NIXLPER_LAST_FOLDER_COUNT=$((folder_increment - 1))
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _i_navigate_flat: flat version of navigate
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_navigate_flat() {
+  _i_cleanup_nav_aliases
   if [[ $# -ne 0 ]]; then
     cd "$1" || return 1
   fi
@@ -148,6 +172,7 @@ function _i_navigate_flat() {
     ((increment++))
   done
 
+  _NIXLPER_LAST_FILE_COUNT=$((increment - 1))
   echo "----"
   echo "Go to subfolder.."
   increment=1
@@ -175,6 +200,7 @@ function _i_navigate_flat() {
   echo "-> Currently in $(pwd)"
   echo "---------------------------------------------------------------------------------------------------------------"
   echo ""
+  _NIXLPER_LAST_FOLDER_COUNT=$((increment - 1))
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -193,6 +219,7 @@ function _find_and_navigate() {
     _i_log_as_error "Pattern cannot be empty for for find_and_navigate"
     return 1
   else
+    _i_cleanup_nav_aliases
     local -r find_results=$(find . -iname "*$**")
     local item_increment=1
     if [[ -n ${find_results} ]]; then
@@ -227,6 +254,8 @@ function _find_and_navigate() {
       done
       unset IFS
       echo ".."
+      _NIXLPER_LAST_FILE_COUNT=$((item_increment - 1))
+      _NIXLPER_LAST_FOLDER_COUNT=$((item_increment - 1))
     else
       echo "No match"
     fi
@@ -249,6 +278,7 @@ function _grep_and_navigate() {
     _i_log_as_error "Pattern cannot be empty for grep_and_navigate"
     return 1
   else
+    _i_cleanup_nav_aliases
     local grep_results
     grep_results=$(grep -rn "$*" . 2>/dev/null)
     local item_increment=1
@@ -269,6 +299,7 @@ function _grep_and_navigate() {
       done
       unset IFS
       echo ".."
+      _NIXLPER_LAST_FILE_COUNT=$((item_increment - 1))
     else
       echo "No match"
     fi
