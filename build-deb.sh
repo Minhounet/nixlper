@@ -16,11 +16,18 @@ _log_ok()    { echo "✅ $1"; }
 _log_error() { echo "❌ $1" >&2; }
 
 #-----------------------------------------------------------------------------------------------------------------------
-# DEB version: always 0~<sha> — starts with a digit (Debian policy) and tracks the exact commit.
+# DEB version: use the git tag on a tagged commit (strip leading 'v'), else fall back to 0~<sha>.
+# Debian policy requires the version to start with a digit — both forms satisfy that.
 #-----------------------------------------------------------------------------------------------------------------------
 _get_version() {
-  # Use 0~<sha> always: starts with a digit (Debian policy) and tracks the exact commit.
-  echo "0~$(git log -n 1 --pretty=format:%h)"
+  local tag
+  tag=$(git describe --tags --exact-match HEAD 2>/dev/null || true)
+  if [[ -n "${tag}" ]]; then
+    # Strip leading 'v' so the DEB version is plain numeric (e.g. 1.2.3 not v1.2.3)
+    echo "${tag#v}"
+  else
+    echo "0~$(git log -n 1 --pretty=format:%h)"
+  fi
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
