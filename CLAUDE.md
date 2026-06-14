@@ -154,7 +154,7 @@ All commits must follow the gitmoji format:
 ```
 ✨feat|Add fuzzy search for command shortcuts.
 🐛fix|Resolve null expansion in nixlper.sh.
-📝docs|Update installation guide in README.
+📟docs|Update installation guide in README.
 ♻️refactor|Extract key-binding logic into module.
 🔧config|Add build.properties defaults.
 ✅test|Add unit tests for alias resolution.
@@ -224,7 +224,7 @@ Source: `https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/
 | 🗑️ | `deprecate` | Deprecate code needing cleanup |
 | 🛂 | `auth` | Work on authorization, roles, permissions |
 | 🧐 | `explore` | Data exploration or inspection |
-| 🦺 | `validate` | Add or update validation code |
+| 🦵 | `validate` | Add or update validation code |
 | 🧵 | `thread` | Add or update multithreading or concurrency code |
 
 ---
@@ -318,13 +318,14 @@ To check for drift between the two at any time, compare each `### <Category>` bl
 ### Release process — CHANGELOG.md and README.md
 
 > **Mobile-friendly release convention:** Release commits go **directly to `main`** — no feature
-> branch, no PR. Claude commits the release changes to `main`, then pushes the tag. The
-> `create_release_on_tag.yml` workflow fires automatically on the tag push and publishes the
-> GitHub release with all artifacts. Nothing to do on mobile.
+> branch, no PR. Pushing a commit whose message starts with `🔖release|Release v` to `main`
+> automatically triggers `create_release_on_tag.yml`, which creates the git tag, builds the
+> tar/RPM/DEB artifacts, extracts the CHANGELOG entry, and publishes the GitHub release.
+> Nothing to do on mobile — no manual tag push, no GitHub UI interaction needed.
 >
 > **How to trigger a release:** just say *"make a release vX.Y.Z"*. Claude handles the rest.
 
-Every release requires updating **two files** in the same commit, plus creating a git tag.
+Every release requires updating **two files** in the same commit (CI creates the git tag automatically).
 
 #### CHANGELOG.md
 `CHANGELOG.md` is the authoritative history of all changes. It follows
@@ -380,15 +381,14 @@ git pull origin main
 # 2. Commit the release (CHANGELOG + README already updated above)
 git commit -m "🔖release|Release vX.Y.Z."
 
-# 3. Tag the commit and push both in one go
-git tag vX.Y.Z
+# 3. Push to main — CI does the rest
 git push -u origin main
-git push origin vX.Y.Z
 ```
 
-Pushing the tag triggers `create_release_on_tag.yml`, which builds the tar/RPM/DEB artifacts,
-extracts the CHANGELOG entry, and publishes the GitHub release automatically. No manual steps
-needed on the GitHub UI.
+Pushing the release commit triggers `create_release_on_tag.yml` (which detects the
+`🔖release|Release v` prefix), creates the git tag, builds the tar/RPM/DEB artifacts,
+extracts the CHANGELOG entry, and publishes the GitHub release automatically. No manual
+tag push or GitHub UI interaction needed.
 
 The build picks up the tag automatically via `git describe --tags --exact-match HEAD`.
 

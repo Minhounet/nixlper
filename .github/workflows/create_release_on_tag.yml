@@ -2,6 +2,8 @@ name: Release version on tag
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "*"
       # The rolling "edge" tag is managed by publish_edge_on_push.yml — never treat it as a release.
@@ -15,6 +17,10 @@ on:
 
 jobs:
   create-release:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.ref, 'refs/tags/') ||
+      (github.event_name == 'push' && startsWith(github.event.head_commit.message, '🔖release|Release v'))
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
@@ -30,12 +36,15 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "name=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "push" ] && echo "${{ github.event.head_commit.message }}" | grep -qE '^🔖release\|Release v'; then
+            TAG=$(echo "${{ github.event.head_commit.message }}" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+            echo "name=$TAG" >> "$GITHUB_OUTPUT"
           else
             echo "name=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create and push tag (dispatch only)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Create and push tag
+        if: "!startsWith(github.ref, 'refs/tags/')"
         run: |
           git config user.email "noreply@github.com"
           git config user.name "GitHub Actions"
