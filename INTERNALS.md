@@ -22,9 +22,14 @@ When `sr` / `start_recording` is called:
 1. `_NIXLPER_RECORDING=true` is set and the command array `_NIXLPER_MACRO_COMMANDS=()` is cleared.
 2. The hook `_i_macro_record_step` is prepended to `PROMPT_COMMAND`.
 
-After every command the user types, bash fires `_i_macro_record_step`. It reads the last history
-entry via `_i_get_last_cmd` (a thin wrapper around `history 1 | sed …`) and appends it to
-`_NIXLPER_MACRO_COMMANDS`, skipping `sr` and `fr` themselves.
+After every command the user types, bash fires `_i_macro_record_step`. It compares the current
+history entry number (via `_i_get_last_hist_num`, a wrapper around `history 1 | awk '{print $1}'`)
+against `_NIXLPER_LAST_HIST_NUM`. If the number didn't change, the command was excluded from
+history by `HISTCONTROL` (e.g., space-prefixed command with `ignorespace`, or a duplicate with
+`ignoredups`) — the step returns without capturing anything. If the number advanced, it reads the
+command text via `_i_get_last_cmd` (`history 1 | sed …`), skips `sr`/`fr`, and appends to
+`_NIXLPER_MACRO_COMMANDS`. `start_recording` initialises `_NIXLPER_LAST_HIST_NUM` to the current
+position so pre-recording history is never captured.
 
 When `fr` / `finalize_recording` is called:
 1. `_NIXLPER_RECORDING=false` is set and the hook is removed from `PROMPT_COMMAND`.

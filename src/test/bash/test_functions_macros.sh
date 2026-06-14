@@ -71,10 +71,13 @@ echo "--- start_recording ---"
 ########################################################################################################################
 
 PROMPT_COMMAND=""
+_i_get_last_hist_num() { echo "5"; }
 start_recording
 _expect_eq "sets _NIXLPER_RECORDING=true" "true" "${_NIXLPER_RECORDING}"
+_expect_eq "initializes _NIXLPER_LAST_HIST_NUM from current history position" "5" "${_NIXLPER_LAST_HIST_NUM}"
 
 PROMPT_COMMAND=""
+_i_get_last_hist_num() { echo "5"; }
 start_recording
 _expect_contains "injects hook into PROMPT_COMMAND" "${PROMPT_COMMAND}" "_i_macro_record_step"
 
@@ -98,12 +101,15 @@ echo "--- _i_macro_record_step ---"
 
 _NIXLPER_RECORDING=false
 _NIXLPER_MACRO_COMMANDS=()
+_i_get_last_hist_num() { echo "1"; }
 _i_get_last_cmd() { echo "ls -la"; }
 _i_macro_record_step
 _expect_eq "does nothing when not recording" "0" "${#_NIXLPER_MACRO_COMMANDS[@]}"
 
 _NIXLPER_RECORDING=true
 _NIXLPER_MACRO_COMMANDS=()
+_NIXLPER_LAST_HIST_NUM=0
+_i_get_last_hist_num() { echo "1"; }
 _i_get_last_cmd() { echo "ls -la"; }
 _i_macro_record_step
 _expect_eq "appends regular command" "1" "${#_NIXLPER_MACRO_COMMANDS[@]}"
@@ -111,6 +117,8 @@ _expect_eq "captures correct command text" "ls -la" "${_NIXLPER_MACRO_COMMANDS[0
 
 _NIXLPER_RECORDING=true
 _NIXLPER_MACRO_COMMANDS=()
+_NIXLPER_LAST_HIST_NUM=0
+_i_get_last_hist_num() { echo "1"; }
 _i_get_last_cmd() { echo ""; }
 _i_macro_record_step
 _expect_eq "ignores empty command" "0" "${#_NIXLPER_MACRO_COMMANDS[@]}"
@@ -118,13 +126,46 @@ _expect_eq "ignores empty command" "0" "${#_NIXLPER_MACRO_COMMANDS[@]}"
 for skip_cmd in sr fr start_recording finalize_recording; do
   _NIXLPER_RECORDING=true
   _NIXLPER_MACRO_COMMANDS=()
+  _NIXLPER_LAST_HIST_NUM=0
+  _i_get_last_hist_num() { echo "1"; }
   _i_get_last_cmd() { echo "${skip_cmd}"; }
   _i_macro_record_step
   _expect_eq "skips '${skip_cmd}'" "0" "${#_NIXLPER_MACRO_COMMANDS[@]}"
 done
 
+# HISTCONTROL: history number unchanged = command excluded from history (ignorespace/ignoredups).
 _NIXLPER_RECORDING=true
 _NIXLPER_MACRO_COMMANDS=()
+_NIXLPER_LAST_HIST_NUM=42
+_i_get_last_hist_num() { echo "42"; }
+_i_get_last_cmd() { echo "ls -la"; }
+_i_macro_record_step
+_expect_eq "skips when history number unchanged (HISTCONTROL)" "0" "${#_NIXLPER_MACRO_COMMANDS[@]}"
+
+# History number changed = new entry added, capture it.
+_NIXLPER_RECORDING=true
+_NIXLPER_MACRO_COMMANDS=()
+_NIXLPER_LAST_HIST_NUM=42
+_i_get_last_hist_num() { echo "43"; }
+_i_get_last_cmd() { echo "ls -la"; }
+_i_macro_record_step
+_expect_eq "captures when history number advances" "1" "${#_NIXLPER_MACRO_COMMANDS[@]}"
+
+# _NIXLPER_LAST_HIST_NUM advances after each captured command.
+_NIXLPER_RECORDING=true
+_NIXLPER_MACRO_COMMANDS=()
+_NIXLPER_LAST_HIST_NUM=42
+_i_get_last_hist_num() { echo "43"; }
+_i_get_last_cmd() { echo "ls -la"; }
+_i_macro_record_step
+_expect_eq "advances _NIXLPER_LAST_HIST_NUM after capture" "43" "${_NIXLPER_LAST_HIST_NUM}"
+
+_NIXLPER_RECORDING=true
+_NIXLPER_MACRO_COMMANDS=()
+_NIXLPER_LAST_HIST_NUM=0
+# Returns LAST_HIST_NUM+1 each call; since the step function updates LAST_HIST_NUM
+# in the parent shell, successive calls produce 1, 2, 3 — simulating three new entries.
+_i_get_last_hist_num() { echo $(( _NIXLPER_LAST_HIST_NUM + 1 )); }
 _i_get_last_cmd() { echo "ls -la"; }
 _i_macro_record_step
 _i_get_last_cmd() { echo "cd /tmp"; }

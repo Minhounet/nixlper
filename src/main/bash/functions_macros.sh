@@ -11,15 +11,26 @@
 
 _NIXLPER_RECORDING=false
 _NIXLPER_MACRO_COMMANDS=()
+_NIXLPER_LAST_HIST_NUM=0
 
-# Thin wrapper so tests can mock the history lookup without touching the builtin.
+# Thin wrappers so tests can mock history lookups without touching the builtin.
 function _i_get_last_cmd() {
   history 1 | sed 's/^ *[0-9]* *//'
 }
 
+function _i_get_last_hist_num() {
+  history 1 | awk '{print $1}'
+}
+
 # Injected into PROMPT_COMMAND during a recording session; fires after every command.
+# Skips commands excluded from history (HISTCONTROL=ignorespace/ignoredups) by comparing
+# the history entry number — if it didn't change, no new entry was added, so we skip.
 function _i_macro_record_step() {
   [[ "$_NIXLPER_RECORDING" != true ]] && return
+  local current_hist_num
+  current_hist_num=$(_i_get_last_hist_num)
+  [[ "$current_hist_num" == "$_NIXLPER_LAST_HIST_NUM" ]] && return
+  _NIXLPER_LAST_HIST_NUM=$current_hist_num
   local last_cmd
   last_cmd=$(_i_get_last_cmd)
   case "$last_cmd" in
@@ -36,6 +47,7 @@ function _i_macro_record_step() {
 function start_recording() {
   _NIXLPER_RECORDING=true
   _NIXLPER_MACRO_COMMANDS=()
+  _NIXLPER_LAST_HIST_NUM=$(_i_get_last_hist_num)
   if [[ "$PROMPT_COMMAND" != *"_i_macro_record_step"* ]]; then
     PROMPT_COMMAND="_i_macro_record_step${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
   fi
