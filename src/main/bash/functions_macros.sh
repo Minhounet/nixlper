@@ -61,15 +61,23 @@ function _prepare_binding() {
     return 1
   fi
 
+  # Write the function definition and bind command to the persistence file.
+  # Using printf '%s\n' per command avoids all eval/quoting issues: single
+  # quotes, double quotes, backticks, and redirections are written literally
+  # and interpreted correctly when the file is sourced.
+  {
+    printf '_nixlper_macro_replay() {\n'
+    printf '  %s\n' "${_NIXLPER_MACRO_COMMANDS[@]}"
+    printf '}\n'
+    printf "bind -x '\"\\C-x\\C-x\": _nixlper_macro_replay'\n"
+  } > "$NIXLPER_LAST_MACRO_BINDING_FILE"
+
+  # shellcheck source=/dev/null
+  source "$NIXLPER_LAST_MACRO_BINDING_FILE" 2>/dev/null
+
   local joined
   joined=$(printf '%s; ' "${_NIXLPER_MACRO_COMMANDS[@]}")
-  joined="${joined%; }"
-
-  bind -r "\C-x\C-x" 2>/dev/null
-  local bind_command="bind -x '\"\\C-x\\C-x\":( $joined )'"
-  eval "$bind_command" 2>/dev/null
-  echo "$bind_command" > "$NIXLPER_LAST_MACRO_BINDING_FILE"
-  _i_log_as_info "CTRL+X+CTRL+X bound to: $joined"
+  _i_log_as_info "CTRL+X+CTRL+X bound to: ${joined%; }"
 }
 
 # @cmd-palette
@@ -83,6 +91,7 @@ function bind_last_macro() {
   fi
   _i_log_as_info "Launch last macro binding below:"
   cat "$NIXLPER_LAST_MACRO_BINDING_FILE"
-  eval "$(cat "$NIXLPER_LAST_MACRO_BINDING_FILE")" 2>/dev/null
+  # shellcheck source=/dev/null
+  source "$NIXLPER_LAST_MACRO_BINDING_FILE" 2>/dev/null
   _i_log_ok
 }

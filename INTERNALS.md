@@ -45,6 +45,32 @@ silently lost.
 It wraps `history 1 | sed …` so unit tests can override it with a mock (`_i_get_last_cmd() { echo "ls -la"; }`) without needing a live interactive session. This is the only part of the
 recording logic that can't run in a non-interactive test subshell.
 
+### Why commands are written to a file, not interpolated into `eval`
+
+`_prepare_binding` writes the recorded commands into a small bash file as a function body,
+then `source`s it:
+
+```bash
+_nixlper_macro_replay() {
+  echo 'hello world'
+  grep 'foo bar' file.txt
+}
+bind -x '"\C-x\C-x": _nixlper_macro_replay'
+```
+
+An earlier approach used `eval "bind -x '...:( $joined )'"`. That breaks on any command containing
+single quotes (e.g. `echo 'hello'`) because the quotes close the outer single-quoted string early.
+It also risks executing backtick expressions during the string expansion rather than at replay
+time. Writing each command as a literal line with `printf '%s\n'` and sourcing the file sidesteps
+all of these quoting hazards.
+
+### Variable expansion: recording time vs. replay time
+
+Commands are captured from history as the user typed them — including unexpanded variables and
+`$()` substitutions. When CTRL+X+CTRL+X fires, `_nixlper_macro_replay` executes, and variables
+expand with their **current** values at replay time. This is generally the desired behavior
+(the macro captures the template, not a snapshot of values at recording time).
+
 ### Constraint: `bind -x` and `read`
 
 The replay binding (`CTRL+X+CTRL+X`) is installed via `bind -x`. Inside any `bind -x` callback,

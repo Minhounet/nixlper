@@ -184,7 +184,20 @@ _expect_eq "returns 0 with commands" "0" "$?"
 _NIXLPER_MACRO_COMMANDS=("ls -la" "cd /tmp")
 _prepare_binding
 file_content=$(cat "${NIXLPER_LAST_MACRO_BINDING_FILE}")
-_expect_contains "writes binding file" "${file_content}" "ls -la; cd /tmp"
+_expect_contains "binding file contains first command" "${file_content}" "ls -la"
+_expect_contains "binding file contains second command" "${file_content}" "cd /tmp"
+_expect_contains "binding file defines replay function" "${file_content}" "_nixlper_macro_replay"
+_expect_contains "binding file contains bind statement" "${file_content}" "bind -x"
+
+# Single quotes must survive into the function body without breaking the file.
+_NIXLPER_MACRO_COMMANDS=("echo 'hello world'" "grep 'foo bar' file.txt")
+_prepare_binding
+file_content=$(cat "${NIXLPER_LAST_MACRO_BINDING_FILE}")
+_expect_contains "single quotes preserved in binding file" "${file_content}" "echo 'hello world'"
+_expect_contains "single quotes in second command preserved" "${file_content}" "grep 'foo bar' file.txt"
+# Verify the file is valid bash syntax (would fail if quoting was broken).
+bash -n "${NIXLPER_LAST_MACRO_BINDING_FILE}"
+_expect_eq "binding file is valid bash syntax with single quotes" "0" "$?"
 
 ########################################################################################################################
 echo "--- bind_last_macro ---"
