@@ -18,6 +18,11 @@ concurrency:
 
 jobs:
   publish-edge:
+    # Skip on release commits — the stable release workflow handles those.
+    # Running on a release commit risks inheriting the vX.Y.Z tag (race with
+    # create_release_on_tag.yml) and would publish an edge build identical to
+    # the stable release, confusing the edge update check.
+    if: "!startsWith(github.event.head_commit.message, '🔖release|')"
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies

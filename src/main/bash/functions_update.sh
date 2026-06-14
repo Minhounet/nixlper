@@ -47,12 +47,14 @@ function _i_remote_latest_tag() {
     | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/'
 }
 
-# Latest commit SHA on the default branch, empty on failure.
-function _i_remote_latest_commit() {
+# Commit SHA that the rolling edge pre-release was built from (its target_commitish),
+# empty on failure. Using the release SHA — not the raw HEAD of main — means
+# "update available" is only shown when a new build is actually downloadable.
+function _i_remote_edge_release_commit() {
   curl -fsSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
-    "https://api.github.com/repos/${NIXLPER_GITHUB_REPO}/commits/main" 2>/dev/null \
-    | grep -m1 '"sha"' \
-    | sed -E 's/.*"sha":[[:space:]]*"([^"]+)".*/\1/'
+    "https://api.github.com/repos/${NIXLPER_GITHUB_REPO}/releases/tags/edge" 2>/dev/null \
+    | grep -m1 '"target_commitish"' \
+    | sed -E 's/.*"target_commitish":[[:space:]]*"([^"]+)".*/\1/'
 }
 
 # Return 0 if $1 is a strictly greater version than $2 (version sort), avoiding false
@@ -198,7 +200,7 @@ function _i_check_edge() {
   local -r force="${1:-false}"
   local installed latest
   installed=$(_i_installed_version_field "COMMIT:")
-  latest=$(_i_remote_latest_commit)
+  latest=$(_i_remote_edge_release_commit)
 
   if [[ -z "${latest}" ]]; then
     [[ "${force}" == "true" ]] && echo "⚠️  Could not determine the latest commit."
