@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **DEB version on release builds**: `build-deb.sh` now detects an exact git tag and
   strips the leading `v` (matching RPM behaviour); untagged builds fall back to
   `0~<sha>`. Release DEBs now carry a meaningful version number.
+- **Update check always reporting offline**: `_i_is_online` was probing
+  `https://api.github.com` which returns HTTP 403 in unauthenticated cloud/CI
+  environments; curl's `-f` flag treats 4xx as failure, so nixlper always skipped
+  the update check. Probe changed to `https://github.com` (reliably returns 200).
+  Also removed `-f` from the three API endpoint helpers — those return valid JSON
+  on individual endpoints even when the root is 403, and `-f` was silently discarding
+  successful API responses.
 - **Edge channel false update loop**: the update check now fetches the SHA from
   `/releases/tags/edge` (via `_i_remote_edge_release_commit()`) instead of raw
   `main` HEAD, so a release commit that advances `main` without publishing a new
