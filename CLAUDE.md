@@ -25,7 +25,7 @@ commit that fixes the underlying bug.
 2. **`README.md` → `## Features`** — public reference. Must stay in sync with the help files (see "Dual-location documentation rule"). Update in the same commit as the code.
 3. **`CLAUDE.md`** — update if the session introduces new files, directories, env variables, architectural decisions, or constraints.
 4. **`KNOWN_ISSUES.md`** — remove an entry in the same commit that fixes the underlying bug. Add an entry for newly discovered confirmed-but-unfixed defects.
-5. **`CHANGELOG.md`** — when cutting a release, populate from `git log` since the last tag (see "Release process").
+5. **`CHANGELOG.md`** — after every bug fix or feature, add a bullet to the `[Unreleased]` section under the appropriate heading (`Added`, `Fixed`, `Changed`, or `Removed`). When cutting a release, promote the `[Unreleased]` entries into a versioned block and clear the section (see "Release process").
 6. **Palette rendering** — if any `@cmd-palette` command was added or modified, verify it renders correctly (see "Command palette rendering check" under Testing requirement). A command with no `@keybind` or `@alias` may have a blank keybind column — that is acceptable. What is **never acceptable** is a command that *has* a keybind or alias defined but it does not appear in the palette column.
 7. **`INTERNALS.md`** — update if a feature's mechanism changes in a non-obvious way (see "INTERNALS.md rule" below).
 

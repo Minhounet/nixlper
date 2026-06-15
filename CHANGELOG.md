@@ -8,6 +8,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`INTERNALS.md`**: documents the mechanism behind non-obvious features — macro
+  `PROMPT_COMMAND` recording, navigation alias namespace/cleanup, command palette
+  `bind -x` dispatch, target staging lifecycle, and update detection
+  channels/throttling.
+
+### Fixed
+- **DEB version on release builds**: `build-deb.sh` now detects an exact git tag and
+  strips the leading `v` (matching RPM behaviour); untagged builds fall back to
+  `0~<sha>`. Release DEBs now carry a meaningful version number.
+- **Edge channel false update loop**: the update check now fetches the SHA from
+  `/releases/tags/edge` (via `_i_remote_edge_release_commit()`) instead of raw
+  `main` HEAD, so a release commit that advances `main` without publishing a new
+  edge artifact no longer triggers a spurious "update available" prompt.
+- **Edge CI race on release commits**: `publish_edge_on_push.yml` now skips when the
+  commit message starts with `🔖release|`, preventing a race where the release tag
+  was already present at edge-build time and the wrong version got embedded in the
+  edge artifact.
+- **Stale navigation aliases**: `functions_navigation.sh` now tracks the previous
+  alias count and unaliases stale `v*/n*/d*/tc*/tm*/cdf*` shortcuts before
+  regenerating them, so switching to a smaller directory no longer leaves phantom
+  shortcuts from the previous (larger) listing.
+- **Macro recording reliability**: macro recording no longer scrapes `~/.bash_history`;
+  it now uses a `PROMPT_COMMAND` hook that appends each command into an in-memory
+  array. `sr`/`fr` invocations are excluded automatically.
+
+### Changed
+- **`_i_get_pid_by_port()`**: tries `ss` first, falls back to `netstat`, and errors
+  cleanly when neither is installed.
+
 ---
 
 ## [2.2.0] - 2026-06-13
