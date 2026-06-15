@@ -26,9 +26,11 @@ function _i_update_cache_file() {
 }
 
 # Return 0 if GitHub is reachable within NIXLPER_UPDATE_TIMEOUT seconds, 1 otherwise.
+# Probes github.com (not api.github.com — that returns 403 in some environments, which
+# curl -f treats as a failure even though the network is up).
 function _i_is_online() {
   command -v curl >/dev/null 2>&1 || return 1
-  curl -fsS --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" -o /dev/null "https://api.github.com" 2>/dev/null
+  curl -fsS --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" -o /dev/null "https://github.com" 2>/dev/null
 }
 
 # Echo a field from the installed version file (e.g. "VERSION:" or "COMMIT:"), empty if absent.
@@ -40,8 +42,10 @@ function _i_installed_version_field() {
 }
 
 # Latest published (non-prerelease) release tag, empty on failure.
+# Note: -f is intentionally omitted — api.github.com returns 403 on unauthenticated
+# root requests in some environments, but individual endpoint responses are 200 and valid.
 function _i_remote_latest_tag() {
-  curl -fsSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
+  curl -sSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
     "https://api.github.com/repos/${NIXLPER_GITHUB_REPO}/releases/latest" 2>/dev/null \
     | grep '"tag_name"' \
     | sed -E 's/.*"tag_name":[[:space:]]*"([^"]+)".*/\1/'
@@ -51,7 +55,7 @@ function _i_remote_latest_tag() {
 # empty on failure. Using the release SHA — not the raw HEAD of main — means
 # "update available" is only shown when a new build is actually downloadable.
 function _i_remote_edge_release_commit() {
-  curl -fsSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
+  curl -sSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
     "https://api.github.com/repos/${NIXLPER_GITHUB_REPO}/releases/tags/edge" 2>/dev/null \
     | grep -m1 '"target_commitish"' \
     | sed -E 's/.*"target_commitish":[[:space:]]*"([^"]+)".*/\1/'
@@ -268,7 +272,7 @@ function _check_update() {
 
 # Fetch the body text of the edge pre-release from GitHub API, empty on failure.
 function _i_fetch_edge_release_body() {
-  curl -fsSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
+  curl -sSL --max-time "${NIXLPER_UPDATE_TIMEOUT:-2}" \
     "https://api.github.com/repos/${NIXLPER_GITHUB_REPO}/releases/tags/edge" 2>/dev/null \
     | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('body',''))" 2>/dev/null
 }
