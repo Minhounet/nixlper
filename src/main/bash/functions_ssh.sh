@@ -65,7 +65,8 @@ function _i_ssh_connect() {
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_ssh_load_connections() {
   local -r file="${_NIXLPER_SSH_CONNECTIONS_FILE}"
-  [[ -f "${file}" ]] && grep -v '^\s*#' "${file}" | grep -v '^\s*$'
+  [[ -f "${file}" ]] || return 0
+  grep -v '^\s*#' "${file}" | grep -v '^\s*$' || true
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -111,9 +112,9 @@ function sc() {
   selected_label=$(printf '%s' "${display_lines}" | fzf --prompt="SSH > " --height=40% --reverse | awk '{print $1}')
   [[ -z "${selected_label}" ]] && return 0
 
-  # Find matching connection line
+  # Find matching connection line (fixed-string match on label prefix)
   local conn_line
-  conn_line=$(echo "${connections}" | grep "^${selected_label}|")
+  conn_line=$(echo "${connections}" | grep -F "|" | awk -F'|' -v lbl="${selected_label}" '$1 == lbl' | head -1)
   if [[ -z "${conn_line}" ]]; then
     _i_log_as_error "Connection '${selected_label}' not found."
     return 1
@@ -143,11 +144,15 @@ function sca() {
   mkdir -p "$(dirname "${file}")"
 
   echo "── Add SSH Connection ──────────────────────────────────────────────────────"
-  read -rp "Label (short name, no spaces): " label
+  read -rp "Label (short name, no spaces or pipes): " label
   [[ -z "${label}" ]] && { _i_log_as_error "Label cannot be empty."; return 1; }
+  if [[ "${label}" =~ [[:space:]\|] ]]; then
+    _i_log_as_error "Label must not contain spaces or pipe characters."
+    return 1
+  fi
 
   # Reject duplicate labels
-  if _i_ssh_load_connections | grep -q "^${label}|"; then
+  if _i_ssh_load_connections | awk -F'|' -v lbl="${label}" '$1 == lbl {found=1} END {exit !found}'; then
     _i_log_as_error "A connection named '${label}' already exists. Use 'scr' to remove it first."
     return 1
   fi
@@ -160,6 +165,10 @@ function sca() {
 
   read -rp "Port (default 22): " port
   port="${port:-22}"
+  if ! [[ "${port}" =~ ^[0-9]+$ ]] || (( port < 1 || port > 65535 )); then
+    _i_log_as_error "Invalid port: '${port}'. Must be a number between 1 and 65535."
+    return 1
+  fi
 
   read -rp "Identity file (default: ${_NIXLPER_SSH_IDENTITY_FILE}): " key
   key="${key:-}"   # empty = use global default at connect time
@@ -197,10 +206,10 @@ function scr() {
   confirm="${confirm:-n}"
   if [[ "${confirm}" == "y" ]]; then
     local file="${_NIXLPER_SSH_CONNECTIONS_FILE}"
-    # Escape label for use in sed pattern
-    local escaped_label
-    escaped_label=$(printf '%s\n' "${selected_label}" | sed 's/[[\.*^$()+?{}|]/\\&/g')
-    sed -i "/^${escaped_label}|/d" "${file}"
+    # Use awk exact-match delete to avoid regex escaping issues with sed
+    local tmp
+    tmp=$(awk -F'|' -v lbl="${selected_label}" '$1 != lbl' "${file}")
+    printf '%s\n' "${tmp}" > "${file}"
     _i_log_as_info "Connection '${selected_label}' removed."
   else
     _i_log_as_info "Cancelled."
