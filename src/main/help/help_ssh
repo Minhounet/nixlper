@@ -1,0 +1,27 @@
+########################################################################################################################
+# Help for SSH connections
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+[CTRL + X then S] / sc   SSH connect — open the fzf picker, select a connection, and connect.
+                          On first use with a new host, nixlper pushes your SSH key automatically
+                          (you type your password once). Subsequent connections are passwordless.
+------------------------------------------------------------------------------------------------------------------------
+[sca]  Add SSH connection — interactive prompt for label, user, host, port, and optional
+       identity file. If no identity file is given, the global default is used.
+       Global default key: ~/.ssh/nixlper_id_rsa  (generated on first connect if absent).
+------------------------------------------------------------------------------------------------------------------------
+[scr]  Remove SSH connection — fzf picker to choose which connection to delete.
+------------------------------------------------------------------------------------------------------------------------
+[scl]  List SSH connections — tabular view of all saved connection profiles.
+------------------------------------------------------------------------------------------------------------------------
+Configuration (nconf / CTRL+X+C):
+  NIXLPER_SSH_CONNECTIONS_FILE  — path to the connections file
+                                  (default: ~/.config/nixlper/ssh_connections)
+  NIXLPER_SSH_IDENTITY_FILE     — default SSH key used when no per-connection key is set
+                                  (default: ~/.ssh/nixlper_id_rsa)
+------------------------------------------------------------------------------------------------------------------------
+Connection file format (one entry per line, # = comment):
+  label|user|host|port|identity_file
+  Example: myserver|alice|192.168.1.10|22|
+  Leave identity_file empty to use NIXLPER_SSH_IDENTITY_FILE.
+------------------------------------------------------------------------------------------------------------------------

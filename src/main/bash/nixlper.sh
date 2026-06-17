@@ -319,6 +319,9 @@ function _i_load_bindings() {
 
     # config editor - annotation already in functions_config.sh
     bind '"\C-x\C-c": "nconf\15"'
+
+    # SSH connection picker - annotation already in functions_ssh.sh
+    bind '"\C-x\C-s": "sc\15"'
   fi
 }
 
