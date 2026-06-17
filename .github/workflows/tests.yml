@@ -38,3 +38,6 @@ jobs:
 
       - name: Run macro-recording unit tests
         run: bash src/test/bash/test_functions_macros.sh
+
+      - name: Run SSH connection manager unit tests
+        run: bash src/test/bash/test_functions_ssh.sh
