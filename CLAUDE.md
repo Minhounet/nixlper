@@ -267,6 +267,16 @@ After implementing a bug fix or a new feature, **always test it** before committ
 - Cover at minimum: the fixed/new case, a regression case (existing behaviour unchanged), and an error/edge case.
 - If testing is genuinely impossible in the current environment (missing runtime dependency, interactive terminal required, etc.), **explicitly warn the user** before committing — never silently skip testing.
 
+### Configurability check — for every new feature
+When adding a new feature, ask: **can this behaviour reasonably vary per user?** If yes, it must be configurable via `nconf`:
+1. Add a `NIXLPER_*` variable with a sensible default to `_NIXLPER_CONFIG_VARS` in `functions_config.sh`.
+2. Use `${NIXLPER_MY_VAR:-default}` everywhere the feature reads the setting.
+3. Add the variable (commented-out) to `_nconf_create_user_conf` so new installs get it as documentation.
+4. Add it to the system conf template in `_i_install_system` (nixlper.sh) with a `:-` guard.
+5. Update `CLAUDE.md → Environment Variables` table and both doc locations (README + help file).
+
+Examples of things that should be configurable: timeouts, default modes, on/off toggles for output, paths.
+
 ### Bug sweep — MANDATORY before every commit
 Before committing any feature or fix, **actively scan the code you wrote or touched for bugs**:
 - Read each new/modified function end-to-end and ask: "What breaks if the input contains special characters? What if the file doesn't exist yet? What if this runs twice?"
