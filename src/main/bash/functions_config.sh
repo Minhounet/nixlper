@@ -24,6 +24,8 @@ _NIXLPER_CONFIG_VARS=(
   "NIXLPER_CUSTOM_DIR|path||Custom scripts directory|advanced"
   "NIXLPER_LAST_MACRO_BINDING_FILE|path||Last macro binding file|advanced"
   "NIXLPER_UPDATE_CACHE_FILE|path||Update check cache file|advanced"
+  "NIXLPER_SSH_CONNECTIONS_FILE|path||SSH connections file (default: ~/.config/nixlper/ssh_connections)|advanced"
+  "NIXLPER_SSH_IDENTITY_FILE|path||Default SSH identity file for nixlper connections|advanced"
 )
 
 #-----------------------------------------------------------------------------------------------------------------------

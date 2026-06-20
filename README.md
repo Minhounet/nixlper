@@ -322,6 +322,33 @@ Any script placed in the custom directory (default `${NIXLPER_INSTALL_DIR}/custo
 `NIXLPER_CUSTOM_DIR`) is automatically sourced at login, so you can extend Nixlper with your own
 aliases and functions.
 
+### SSH Connections
+
+Quick-connect to saved SSH hosts from the keyboard. On the first connection to a new host, nixlper pushes your public key automatically — you type your password once and every subsequent connection is passwordless.
+
+- `CTRL + X then S` (or `sc`): open the fzf picker, select a connection, and connect immediately
+- `sca`: add a new connection (label, user, host, port, optional identity file)
+- `scr`: remove a saved connection (fzf picker)
+- `scl`: list all saved connections in a tabular view
+
+**First-use flow:** nixlper generates `~/.ssh/nixlper_id_rsa` if it does not exist, then uses `ssh-copy-id` to push the key to the remote host. You are asked for the remote password exactly once. After that the key handles authentication silently.
+
+**Per-connection identity file:** leave the identity file field empty when adding a connection to use the global default (`NIXLPER_SSH_IDENTITY_FILE`). Set a custom path if you need host-specific keys.
+
+**Connection file format** (`~/.config/nixlper/ssh_connections`, one entry per line):
+
+```
+label|user|host|port|identity_file
+# example — leave identity_file empty to use the global default
+myserver|alice|192.168.1.10|22|
+```
+
+Configurable via `nconf`:
+- `NIXLPER_SSH_CONNECTIONS_FILE` — path to the connections file (default: `~/.config/nixlper/ssh_connections`)
+- `NIXLPER_SSH_IDENTITY_FILE` — default SSH key (default: `~/.ssh/nixlper_id_rsa`)
+
+> Requires [`fzf`](https://github.com/junegunn/fzf#installation) for the picker. `ssh` and `ssh-copy-id` must be available (standard on any Unix system).
+
 ### Display help
 
 - `CTRL + X then H`: give the ability to search help per topic (uses `fzf` and `less`)

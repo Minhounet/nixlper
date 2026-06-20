@@ -261,6 +261,19 @@ Source: `https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/
 2. Test installation
 3. Verify keyboard bindings work
 
+### After every push — MANDATORY CI check
+
+After every `git push`, **always verify CI passes** before reporting the task as done:
+
+1. Wait ~30 s, then poll `mcp__github__actions_list` (`list_workflow_runs`, branch filter) until
+   the latest run reaches `status: completed`.
+2. If `conclusion: success` → report done.
+3. If `conclusion: failure` → fetch logs with `mcp__github__get_job_logs`
+   (`failed_only: true`, `return_content: true`), diagnose the failure, fix it, push again,
+   and repeat from step 1.
+4. **Never hand back to the user with a red CI.** If a failure is genuinely out of scope or
+   requires a decision, explain the failure and the options — do not silently leave CI broken.
+
 ### Testing requirement (bugs and features)
 After implementing a bug fix or a new feature, **always test it** before committing:
 - Source the affected module(s) in a subshell and exercise the changed function directly.

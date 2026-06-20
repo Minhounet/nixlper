@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **SSH connection manager** (`functions_ssh.sh`): `CTRL+X+S` / `sc` opens an fzf picker
+  of saved connections and connects immediately. On first use with a new host, nixlper
+  auto-runs `ssh-copy-id` so subsequent connections are passwordless. `sca` / `scr` / `scl`
+  manage the connection list. Two new `nconf` settings: `NIXLPER_SSH_CONNECTIONS_FILE` and
+  `NIXLPER_SSH_IDENTITY_FILE`.
 - **`INTERNALS.md`**: documents the mechanism behind non-obvious features — macro
   `PROMPT_COMMAND` recording, navigation alias namespace/cleanup, command palette
   `bind -x` dispatch, target staging lifecycle, and update detection

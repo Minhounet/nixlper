@@ -27,6 +27,7 @@ function _i_check_tools() {
     "tree|tree navigation mode (navigate)"
     "netstat|kill by port (ik --port)"
     "less|help paging"
+    "ssh-copy-id|SSH connection manager (sc) auto key push"
   )
 
   for entry in "${optional_tool_entries[@]}"; do
