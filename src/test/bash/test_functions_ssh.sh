@@ -175,13 +175,13 @@ _expect_eq "label with pipe rejected" "$(echo "${pipe_output}" | grep -ci 'space
 
 # Invalid port — non-numeric
 inv_port=$(printf 'testport\nalice\n1.2.3.4\nabc\n\n' | sca 2>&1)
-_expect_eq "non-numeric port rejected" "$(echo "${inv_port}" | grep -ci 'invalid port\|port')" "1"
+_expect_eq "non-numeric port rejected" "$(echo "${inv_port}" | grep -ci 'invalid port')" "1"
 no_testport=$(grep '^testport|' "${NIXLPER_SSH_CONNECTIONS_FILE}" 2>/dev/null | wc -l)
 _expect_eq "non-numeric port: nothing written" "${no_testport// /}" "0"
 
 # Out-of-range port
 inv_port2=$(printf 'testport2\nalice\n1.2.3.4\n99999\n\n' | sca 2>&1)
-_expect_eq "out-of-range port rejected" "$(echo "${inv_port2}" | grep -ci 'invalid port\|port')" "1"
+_expect_eq "out-of-range port rejected" "$(echo "${inv_port2}" | grep -ci 'invalid port')" "1"
 
 # Custom port stored correctly
 printf 'staging\nci\nstaging.local\n2222\n\n' | sca 2>&1
