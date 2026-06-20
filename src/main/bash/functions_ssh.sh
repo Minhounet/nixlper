@@ -84,7 +84,10 @@ function _i_ssh_parse_field() {
 # @category: SSH
 # @keybind: CTRL+X+S
 # @interactive
+_SSH_EXPERIMENTAL_BANNER="⚠️  SSH connection manager is experimental and untested in a live environment. Please report issues at https://github.com/Minhounet/nixlper/issues"
+
 function sc() {
+  echo "${_SSH_EXPERIMENTAL_BANNER}"
   if ! command -v fzf &>/dev/null; then
     _i_log_as_error "fzf is required for the SSH connection picker."
     return 1
@@ -140,6 +143,7 @@ function sc() {
 # @alias: sca
 # @interactive
 function sca() {
+  echo "${_SSH_EXPERIMENTAL_BANNER}"
   local file="${_NIXLPER_SSH_CONNECTIONS_FILE}"
   mkdir -p "$(dirname "${file}")"
 
@@ -186,6 +190,7 @@ function sca() {
 # @alias: scr
 # @interactive
 function scr() {
+  echo "${_SSH_EXPERIMENTAL_BANNER}"
   if ! command -v fzf &>/dev/null; then
     _i_log_as_error "fzf is required for the SSH connection picker."
     return 1
@@ -224,6 +229,7 @@ function scr() {
 # @category: SSH
 # @alias: scl
 function scl() {
+  echo "${_SSH_EXPERIMENTAL_BANNER}"
   local connections
   connections=$(_i_ssh_load_connections)
   if [[ -z "${connections}" ]]; then

@@ -16,6 +16,20 @@ and verified. These are intended to be addressed in dedicated follow-up sessions
 
 ---
 
+## Experimental features (untested in live environments)
+
+### 🟠 SSH connection manager (`sc`, `sca`, `scr`, `scl`, `CTRL+X+S`) — untested
+
+The SSH connection manager was implemented and unit-tested with mocks (offline),
+but has not yet been exercised against a real SSH server or in a live MobaXterm/terminal
+session. All four commands display a warning banner at startup.
+
+Known untested scenarios: `ssh-copy-id` behaviour across different OS versions, key
+permission edge cases, hosts with `PasswordAuthentication no` already set, and MobaXterm
+terminal compatibility. Remove this entry once the feature has been validated in a live session.
+
+---
+
 ## Direct-usage bugs (independent of the command palette)
 
 These bugs occur when the command is invoked **directly** on the command line with its

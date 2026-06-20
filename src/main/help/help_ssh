@@ -1,6 +1,8 @@
 ########################################################################################################################
 # Help for SSH connections
 ########################################################################################################################
+⚠️  EXPERIMENTAL — not yet tested in a live environment.
+    Please report any issues at https://github.com/Minhounet/nixlper/issues
 ------------------------------------------------------------------------------------------------------------------------
 [CTRL + X then S] / sc   SSH connect — open the fzf picker, select a connection, and connect.
                           On first use with a new host, nixlper pushes your SSH key automatically
