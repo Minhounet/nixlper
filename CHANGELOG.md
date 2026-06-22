@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **SSH login syntax error on non-bash shells**: `nixlper.sh` now exits silently when sourced
+  by `dash`, `ksh`, or any POSIX `sh` (e.g. via `/etc/profile.d/` at SSH login), preventing
+  the `syntax error: '(' unexpected` crash on line 292.
+
 ### Added
 - **SSH connection manager** (`functions_ssh.sh`): `CTRL+X+S` / `sc` opens an fzf picker
   of saved connections and connects immediately. On first use with a new host, nixlper
