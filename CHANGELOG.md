@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- **SSH login syntax error on non-bash shells**: `nixlper.sh` now exits silently when sourced
-  by `dash`, `ksh`, or any POSIX `sh` (e.g. via `/etc/profile.d/` at SSH login), preventing
-  the `syntax error: '(' unexpected` crash on line 292.
+- **SSH login syntax error on non-bash shells**: `nixlper-profile.d.sh` now guards the
+  `source` call with `[ -n "$BASH_VERSION" ]`, preventing `ksh`, `dash`, or any POSIX `sh`
+  from attempting to parse bash-only syntax (e.g. `function name() {`) and crashing with
+  `syntax error: '(' unexpected` at SSH login.
 
 ### Added
 - **SSH connection manager** (`functions_ssh.sh`): `CTRL+X+S` / `sc` opens an fzf picker
