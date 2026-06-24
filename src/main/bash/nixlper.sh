@@ -15,7 +15,6 @@
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_init() {
   if [[ "${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}" != "true" ]]; then
-    _display_logo_and_version
     _i_check_tools
   fi
   _i_create_bookmarks_file_if_not_existing
