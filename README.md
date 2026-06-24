@@ -204,196 +204,21 @@ sudo dpkg -r nixlper
 
 ## Features
 
-> Throughout this section, `$NIXLPER_EDITOR` refers to the editor used to open files
-> (defaults to `vim`, configurable via the `NIXLPER_EDITOR` environment variable).
+Full command reference, keybindings, and guides are on the **[Nixlper documentation site](https://minhounet.github.io/nixlper/)**.
 
-### Configuration
+Quick overview of what's available:
 
-- `CTRL + X then C` (or `nconf`): open the interactive configuration editor
-
-`nconf` opens an `fzf`-powered list of all configurable settings. Select an entry and press Enter to edit it.
-Boolean and enum settings use a selection list; text and integer settings use a pre-filled prompt.
-Only values that differ from the default are written to `~/.config/nixlper/nixlper.conf`.
-
-**First-run migration:** if your nixlper variables are still in `~/.bashrc` (manual install), `nconf` will offer a one-time migration that moves them to `~/.config/nixlper/nixlper.conf` and leaves `~/.bashrc` with only the source line. A backup is made before any change; recovery instructions are printed if anything goes wrong.
-
-> Requires [`fzf`](https://github.com/junegunn/fzf#installation).
-
-### Command Palette (Find Action)
-
-The fastest way to discover and run any Nixlper command. It opens an `fzf`-powered,
-searchable popup of every available command (with its description, category, keybinding,
-and alias) so you can fuzzy-search and execute without remembering exact names.
-
-- `CTRL + X then A` (or `fa`): open the command palette and search commands by name, description, or category
-
-> Requires [`fzf`](https://github.com/junegunn/fzf#installation).
-
-### Bookmarks
-
-- `CTRL + X then D`: display existing bookmarks
-- `CTRL + X then B`: add or remove existing bookmark for the **current** folder
-
-### Files and folders
-
-- `cdf FILEPATH`: go to the folder containing the file
-
-
-- `c`: mark current folder, use `gc` to return to this folder from any place
-- `cf FILEPATH`: mark file as current, use `gcf` to open it in `$NIXLPER_EDITOR` from any place
-
-
-- `cpcb [FILEPATH]`: copy full path of file to clipboard (defaults to current directory if no argument)
-- `cpdcb FILEPATH`: copy full path of the directory containing the file to clipboard
-
-  (Clipboard support requires `xclip`, `xsel`, or `pbcopy`.)
-
-
-- `sn FILEPATH`: snapshot a file into the snapshots area so you can restore it later
-- `re [FILEPATH]`: restore a previously snapshotted file. Without an argument, an interactive list of restorable files is shown
-- `olf`: open the most recently modified file in the current directory tree with `$NIXLPER_EDITOR`
-- `rn FILENAME PATTERN [REPLACEMENT]`: rename a file by removing or replacing a pattern
-  (e.g. `rn file_peppa.txt _peppa` → `file.txt`, `rn test-old.txt -old -new` → `test-new.txt`)
-
-
-- `CTRL + X then E`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder && cd..` to quickly delete the current folder and to avoid `rm -rf *` in your bash history
-- `CTRL + X then R`: display a safe rm command such as `rm -i -rf /tmp/qmt/anyfolder/* ` to quickly delete the current folder contents and to avoid `rm -rf *` in your bash history
-
-### Processes
-
-- `ik`: call interactive kill to kill by pattern or by port (port mode requires `ss` from iproute2, or `netstat` from net-tools as fallback)
-
-### Users
-
-- `sucd USER`: perform a `su - USER` and stay in the current folder
-
-### Navigation
-
-- `CTRL + X THEN U`: perform a "cd .."
-- `CTRL + X THEN N`: display an interactive way to navigate to subfolders and to open files with alias/copy-paste.
-  For each file, shortcuts to open (`vN`), cd and navigate (`cdfN`), delete (`dN`), copy to target staging (`tcN`), or mark for pack (`tmN`) are available.
-  (Navigation can use tree or flat mode. "tree" is the default value and requires `tree`)
-
-Configure `NIXLPER_NAVIGATE_MODE` via `nconf` (or edit `~/.config/nixlper/nixlper.conf` directly).
-
-
-- `toggle_navigation_mode`: 
-  - toggle items sizes display during the navigate action (very useful when your hard drive is full!)
-  - also display permissions for files when the option is on
-
-- `fan PATTERN`: execute `find . -iname "*PATTERN*"` then display the results like the `CTRL + X THEN N` command.
-  Each match offers shortcuts to open (`vN`), cd and navigate (`cdfN`), delete (`dN`), copy to target (`tcN`), or mark for pack (`tmN`).
-- `fag PATTERN`: execute `grep -rn PATTERN .` then display each match with a shortcut (`vN`) to open the file directly at the matching line
-
-### Target staging
-
-Copy or accumulate files into a shared, world-readable staging folder (default `/tmp/nixlper_target`).
-Useful for shuttling files to a server via `/tmp`, or collecting scattered files before transferring them.
-
-- `tc FILEPATH` (or `tcN` from navigate/fan): copy a file directly to the target folder (`chmod 644`)
-- `tm FILEPATH` (or `tmN` from navigate/fan): mark a file for later batch pack (no-op if already marked)
-- `tml`: list currently marked files
-- `tum`: numbered menu — pick a file to remove from the mark list
-- `tcm`: clear all marks without copying anything
-- `tp` / `CTRL+X+Y`: pack all marked files into a timestamped `.tgz` in the target folder (`chmod 644`), then clear marks
-- `tsd [DIRPATH]`: show or change the target folder for this session
-- `tclean`: delete all files in the target folder (confirmation required)
-
-Configure the default folder via `nconf` or `NIXLPER_TARGET_DIR` in `~/.config/nixlper/nixlper.conf`.
-
-### Macros
-
-Record a sequence of commands once and replay it with a single shortcut.
-
-- `CTRL + P` (or `sr`): start recording
-- `CTRL + P, CTRL + P` (or `fr`): stop recording (binds the recorded commands to `CTRL + X, CTRL + X`)
-- `CTRL + X, CTRL + X`: play the recorded commands
-- `CTRL + P, CTRL + L`: re-bind and replay the last recorded macro (persisted across sessions)
-
-### Utilities
-
-- `CTRL + X then O`: open `nixlper.sh` in `$NIXLPER_EDITOR` for quick edits
-- `rf`: refresh the current directory (clears the screen and lists its contents; falls back to home if the directory was deleted)
-- `ap`: prepend the current path to the `PATH` variable in `~/.bashrc` (if not already present)
-
-### Custom scripts
-
-Any script placed in the custom directory (default `${NIXLPER_INSTALL_DIR}/custom`, configurable via
-`NIXLPER_CUSTOM_DIR`) is automatically sourced at login, so you can extend Nixlper with your own
-aliases and functions.
-
-### SSH Connections
-
-Quick-connect to saved SSH hosts from the keyboard. On the first connection to a new host, nixlper pushes your public key automatically — you type your password once and every subsequent connection is passwordless.
-
-- `CTRL + X then S` (or `sc`): open the fzf picker, select a connection, and connect immediately
-- `sca`: add a new connection (label, user, host, port, optional identity file)
-- `scr`: remove a saved connection (fzf picker)
-- `scl`: list all saved connections in a tabular view
-
-**First-use flow:** nixlper generates `~/.ssh/nixlper_id_rsa` if it does not exist, then uses `ssh-copy-id` to push the key to the remote host. You are asked for the remote password exactly once. After that the key handles authentication silently.
-
-**Per-connection identity file:** leave the identity file field empty when adding a connection to use the global default (`NIXLPER_SSH_IDENTITY_FILE`). Set a custom path if you need host-specific keys.
-
-**Connection file format** (`~/.config/nixlper/ssh_connections`, one entry per line):
-
-```
-label|user|host|port|identity_file
-# example — leave identity_file empty to use the global default
-myserver|alice|192.168.1.10|22|
-```
-
-Configurable via `nconf`:
-- `NIXLPER_SSH_CONNECTIONS_FILE` — path to the connections file (default: `~/.config/nixlper/ssh_connections`)
-- `NIXLPER_SSH_IDENTITY_FILE` — default SSH key (default: `~/.ssh/nixlper_id_rsa`)
-
-> Requires [`fzf`](https://github.com/junegunn/fzf#installation) for the picker. `ssh` and `ssh-copy-id` must be available (standard on any Unix system).
-
-### Display help
-
-- `CTRL + X then H`: give the ability to search help per topic (uses `fzf` and `less`)
-
-### Version and Logo
-
-- `CTRL + X then V`: display the Nixlper logo with version information and git SHA
-
-### Updates
-
-Nixlper can detect when a newer version is available and suggest updating. A check runs automatically at shell start (throttled) and on demand.
-
-- `CTRL + X then W` (or `nu`): check for a newer version on the active update channel
-- `CTRL + X then G` (or `nw`): show ongoing work planned for the next release
-
-Two channels are available via `NIXLPER_UPDATE_CHANNEL`:
-
-| Channel | Behavior |
+| Category | Highlights |
 |---|---|
-| `stable` (default) | Tracks tagged releases — notifies when a newer tag exists. |
-| `edge` | Tracks the latest commit on `main` — not an officially published release, rebuilt by CI on every push. Gives early access to fixes and features before they are tagged. |
-| `off` | Disables all checks and network access. |
-
-Installing or switching channels:
-
-```bash
-# stable channel (default)
-curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash
-# edge channel (latest commit, unofficial)
-curl -fsSL https://raw.githubusercontent.com/Minhounet/nixlper/main/install.sh | bash -s -- --channel edge
-```
-
-**Showing ongoing work (`nw` / `CTRL+X+G`):** fetches the edge pre-release notes from GitHub and prints the list of commits since the last stable tag. Useful to see what is being worked on before the next release.
-
-**Internet is required.** When offline, the automatic check is skipped silently and never hangs (the probe is capped by `NIXLPER_UPDATE_TIMEOUT`, default 2s). Set `NIXLPER_UPDATE_CHANNEL=off` to disable checks entirely.
-
-Use `nconf` to interactively change update settings. Or set directly in `~/.config/nixlper/nixlper.conf`: `NIXLPER_UPDATE_AUTO=true` to auto-install updates (default is notify-only), `NIXLPER_UPDATE_CHECK=false` to disable, and `NIXLPER_UPDATE_CHECK_INTERVAL` (seconds between checks, default `86400`).
-
-### Tips
-
-A tip is shown automatically at each shell start (cycling through all tips in order).
-
-- `CTRL + X then T` (or `tip`): show a random tip on demand at any time
-
-Set `NIXLPER_DISABLE_TIPS=true` in your config to suppress the startup tip (the `tip` command still works).
+| **Command palette** | `CTRL+X+A` — fuzzy-search all commands without remembering names |
+| **Navigation** | Interactive browser, search by name/content, jump to folders |
+| **Bookmarks** | Save and recall frequently used directories |
+| **Files & folders** | Snapshot/restore, rename-by-pattern, clipboard, safe delete |
+| **Target staging** | Collect and pack files for transfer |
+| **Macros** | Record and replay command sequences |
+| **SSH connections** | Quick-connect with automatic key push |
+| **Configuration** | `nconf` / `CTRL+X+C` — interactive settings editor |
+| **Updates** | Stable and edge channels with automatic checks |
 
 ## License
 

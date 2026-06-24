@@ -22,7 +22,7 @@ commit that fixes the underlying bug.
 ### Checklist — run through this after every task
 
 1. **`src/main/help/help_<category>`** — in-shell help (CTRL+X+H). Update if any command behaviour, alias, keybinding, or output format changed.
-2. **`README.md` → `## Features`** — public reference. Must stay in sync with the help files (see "Dual-location documentation rule"). Update in the same commit as the code.
+2. **`docs/feature-*.md` (GitHub Pages)** — user-facing command reference. Must stay in sync with the help files (see "Dual-location documentation rule"). Update in the same commit as the code. `README.md → ## Features` is intentionally a brief overview with a link to the Pages site — do not add command details there.
 3. **`CLAUDE.md`** — update if the session introduces new files, directories, env variables, architectural decisions, or constraints.
 4. **`KNOWN_ISSUES.md`** — remove an entry in the same commit that fixes the underlying bug. Add an entry for newly discovered confirmed-but-unfixed defects.
 5. **`CHANGELOG.md`** — after every bug fix or feature, add a bullet to the `[Unreleased]` section under the appropriate heading (`Added`, `Fixed`, `Changed`, or `Removed`). When cutting a release, promote the `[Unreleased]` entries into a versioned block and clear the section (see "Release process").
@@ -31,7 +31,11 @@ commit that fixes the underlying bug.
 
 ### Dual-location documentation rule (enforced)
 
-Every command, alias, and keybinding mentioned in `README.md → ## Features` **must** appear in the corresponding `src/main/help/help_<category>` file, and vice versa. After any feature work, compare both locations and flag any discrepancy — do not close the task until they are in sync.
+Every command, alias, and keybinding **must** appear in both:
+- the corresponding `src/main/help/help_<category>` file (in-shell help), and
+- the corresponding `docs/feature-*.md` page (GitHub Pages — user-facing reference).
+
+After any feature work, compare both locations and flag any discrepancy — do not close the task until they are in sync. `README.md → ## Features` is a summary table that links to the Pages site; it does **not** need to list every command.
 
 > **Root cause of doc drift:** code is changed but only one location (or neither) is updated. The checklist above exists to prevent this. If you find yourself thinking "I'll update the docs later" — stop and update them now, in the same commit.
 
@@ -346,12 +350,14 @@ Feature documentation lives in **two places** that must always stay in sync:
 
 | Location | Role |
 |---|---|
-| `README.md` → `## Features` → `### <Category>` | Public-facing reference |
+| `docs/feature-*.md` (GitHub Pages) | User-facing reference |
 | `src/main/help/help_<category>` | In-shell help (CTRL+X+H) |
 
 **When adding or modifying a feature, update both locations in the same commit.**
 
-To check for drift between the two at any time, compare each `### <Category>` block in `README.md` with the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in the other. Flag any discrepancy to the user before closing a session that touched features.
+`README.md → ## Features` is intentionally a brief summary table — do not add command details there.
+
+To check for drift, compare the relevant `docs/feature-*.md` page with the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in the other. Flag any discrepancy to the user before closing a session that touched features.
 
 ### Release process — CHANGELOG.md and README.md
 
@@ -588,4 +594,4 @@ Native DEB is planned (next session). Key difference from alien-converted DEB:
 - [ ] Run shellcheck if safe
 - [ ] Test build and installation (`bash build.sh && tar -xf ... && ./nixlper.sh install`)
 - [ ] RPM: `bash build-rpm.sh` on a RHEL/Fedora/Rocky system, then `dnf install`
-- [ ] **Doc sync check**: verify every command in `README.md → ## Features` matches its `src/main/help/help_*` counterpart, and vice versa (see "Dual-location documentation rule" above)
+- [ ] **Doc sync check**: verify every command in `docs/feature-*.md` (GitHub Pages) matches its `src/main/help/help_*` counterpart, and vice versa (see "Dual-location documentation rule" above)
