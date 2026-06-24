@@ -63,4 +63,20 @@ Then open a new shell. That's it.
 
 ---
 
+---
+
+## About the author
+
+Hi, I'm **Quang Minh** — an ECM expert consultant with a soft spot for software craftsmanship and Java.
+I care deeply about clean, well-crafted code, even if I'm still on the journey to master it.
+
+Nixlper was born from a simple obsession: **being fast at the terminal**. If I can shave a few keystrokes off a daily workflow, I will.
+
+> *"Développer sérieusement sans se prendre au sérieux."*
+> *(Develop seriously, without taking yourself too seriously.)*
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Quang%20Minh-blue?logo=linkedin)](https://www.linkedin.com/in/quang-minh-t-131048155)
+
+---
+
 [GitHub Repository](https://github.com/Minhounet/nixlper) · [Report an issue](https://github.com/Minhounet/nixlper/issues) · [Release notes](https://github.com/Minhounet/nixlper/releases)
