@@ -355,8 +355,7 @@ Configurable via `nconf`:
 
 ### Version and Logo
 
-- Logo and version info are displayed automatically at shell startup (suppressed when `NIXLPER_DISABLE_WELCOME_MESSAGE=true`).
-- `CTRL + X then V`: display the Nixlper logo with version information and git SHA on demand
+- `CTRL + X then V`: display the Nixlper logo with version information and git SHA
 
 ### Updates
 
