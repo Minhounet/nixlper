@@ -2,6 +2,8 @@
 
 > **Mark, open, snapshot, rename, and safely delete files — all from the keyboard.**
 
+> 🇫🇷 [Version française](fr/feature-files-folders.md)
+
 ---
 
 ## Mark a folder for quick return

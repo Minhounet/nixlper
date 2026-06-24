@@ -3,6 +3,8 @@
 > **Record a sequence of commands once and replay it with a single shortcut.**
 > No scripting required — just record what you type.
 
+> 🇫🇷 [Version française](fr/feature-macros.md)
+
 ---
 
 ## Shortcuts

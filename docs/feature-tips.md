@@ -2,6 +2,8 @@
 
 > **Learn Nixlper shortcuts progressively — one tip at a time.**
 
+> 🇫🇷 [Version française](fr/feature-tips.md)
+
 | Shortcut | Alias | Description |
 |---|---|---|
 | `CTRL+X+T` | `tip` | Show a random tip on demand |

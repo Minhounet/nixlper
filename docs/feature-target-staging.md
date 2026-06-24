@@ -3,6 +3,8 @@
 > **Collect files from anywhere and copy or pack them in one shot.**
 > Useful for shuttling files to a server via `/tmp`, or gathering scattered files before a transfer.
 
+> 🇫🇷 [Version française](fr/feature-target-staging.md)
+
 The target folder is world-readable (default: `/tmp/nixlper_target`).
 
 ---

@@ -2,6 +2,8 @@
 
 > **Kill any process by name or port — interactively, without hunting for PIDs.**
 
+> 🇫🇷 [Version française](fr/feature-processes.md)
+
 | Alias | Description |
 |---|---|
 | `ik` | Interactive kill — choose by pattern or port |

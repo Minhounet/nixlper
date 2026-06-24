@@ -2,6 +2,8 @@
 
 > **Switch to another user without losing your current directory.**
 
+> 🇫🇷 [Version française](fr/feature-users.md)
+
 | Alias | Description |
 |---|---|
 | `sucd USER` | `su - USER` and immediately `cd` back to the current folder |

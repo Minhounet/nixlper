@@ -2,6 +2,8 @@
 
 > **Browse your filesystem interactively — open files, jump into folders, search by name or content, all without leaving the terminal.**
 
+> 🇫🇷 [Version française](fr/feature-navigation.md)
+
 Requires [`fzf`](https://github.com/junegunn/fzf#installation). Tree mode also requires `tree`.
 
 ---

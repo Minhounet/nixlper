@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **French GitHub Pages** (`docs/fr/`): full French translation of all 14 documentation pages
+  (home, installation, and all feature pages). Each English page now links to its French
+  counterpart and vice versa via a 🇫🇷 / 🇬🇧 language switcher. `CLAUDE.md` updated to
+  enforce a tri-location documentation rule (in-shell help + English Pages + French Pages).
+
 ### Fixed
 - **SSH login syntax error on non-bash shells**: `nixlper-profile.d.sh` now guards the
   `source` call with `[ -n "$BASH_VERSION" ]`, preventing `ksh`, `dash`, or any POSIX `sh`
