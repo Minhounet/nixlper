@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **GitHub Pages logo size**: increased header logo `max-height` from 120px to 180px for better visibility.
+
 ### Added
 - **French GitHub Pages** (`docs/fr/`): full French translation of all 14 documentation pages
   (home, installation, and all feature pages). Each English page now links to its French
