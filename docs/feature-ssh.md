@@ -2,6 +2,8 @@
 
 > **Connect to saved SSH hosts in seconds — password once, passwordless forever after.**
 
+> 🇫🇷 [Version française](fr/feature-ssh.md)
+
 > ⚠️ **Experimental** — not yet tested in a live environment. Please [report issues](https://github.com/Minhounet/nixlper/issues).
 
 Requires [`fzf`](https://github.com/junegunn/fzf#installation).

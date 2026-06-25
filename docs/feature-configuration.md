@@ -2,6 +2,8 @@
 
 > **Customize every aspect of Nixlper interactively — no manual file editing needed.**
 
+> 🇫🇷 [Version française](fr/feature-configuration.md)
+
 | Shortcut | Alias |
 |---|---|
 | `CTRL+X+C` | `nconf` |

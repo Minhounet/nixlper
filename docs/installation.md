@@ -1,5 +1,7 @@
 # Installation
 
+> 🇫🇷 [Version française](fr/installation.md)
+
 ## Quick install (recommended)
 
 ```bash

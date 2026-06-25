@@ -2,6 +2,8 @@
 
 > **Save your most-visited directories and jump back instantly.**
 
+> 🇫🇷 [Version française](fr/feature-bookmarks.md)
+
 | Shortcut | Description |
 |---|---|
 | `CTRL+X+B` | Add or remove a bookmark for the current folder |

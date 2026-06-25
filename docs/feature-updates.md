@@ -2,6 +2,8 @@
 
 > **Nixlper checks for new versions automatically and can update itself.**
 
+> 🇫🇷 [Version française](fr/feature-updates.md)
+
 | Shortcut | Alias | Description |
 |---|---|---|
 | `CTRL+X+W` | `nu` | Check for a newer version now |

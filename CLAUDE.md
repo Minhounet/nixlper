@@ -22,20 +22,23 @@ commit that fixes the underlying bug.
 ### Checklist — run through this after every task
 
 1. **`src/main/help/help_<category>`** — in-shell help (CTRL+X+H). Update if any command behaviour, alias, keybinding, or output format changed.
-2. **`docs/feature-*.md` (GitHub Pages)** — user-facing command reference. Must stay in sync with the help files (see "Dual-location documentation rule"). Update in the same commit as the code. `README.md → ## Features` is intentionally a brief overview with a link to the Pages site — do not add command details there.
+2. **`docs/feature-*.md` and **`docs/fr/feature-*.md`** (GitHub Pages — English & French)** — user-facing command reference. Both language versions must stay in sync with the help files and with each other (see "Tri-location documentation rule"). Update all affected pages in the same commit as the code. `README.md → ## Features` is intentionally a brief overview with a link to the Pages site — do not add command details there.
 3. **`CLAUDE.md`** — update if the session introduces new files, directories, env variables, architectural decisions, or constraints.
 4. **`KNOWN_ISSUES.md`** — remove an entry in the same commit that fixes the underlying bug. Add an entry for newly discovered confirmed-but-unfixed defects.
 5. **`CHANGELOG.md`** — after every bug fix or feature, add a bullet to the `[Unreleased]` section under the appropriate heading (`Added`, `Fixed`, `Changed`, or `Removed`). When cutting a release, promote the `[Unreleased]` entries into a versioned block and clear the section (see "Release process").
 6. **Palette rendering** — if any `@cmd-palette` command was added or modified, verify it renders correctly (see "Command palette rendering check" under Testing requirement). A command with no `@keybind` or `@alias` may have a blank keybind column — that is acceptable. What is **never acceptable** is a command that *has* a keybind or alias defined but it does not appear in the palette column.
 7. **`INTERNALS.md`** — update if a feature's mechanism changes in a non-obvious way (see "INTERNALS.md rule" below).
 
-### Dual-location documentation rule (enforced)
+### Tri-location documentation rule (enforced)
 
-Every command, alias, and keybinding **must** appear in both:
+Every command, alias, and keybinding **must** appear in all three locations:
 - the corresponding `src/main/help/help_<category>` file (in-shell help), and
-- the corresponding `docs/feature-*.md` page (GitHub Pages — user-facing reference).
+- the corresponding `docs/feature-*.md` page (GitHub Pages — English), and
+- the corresponding `docs/fr/feature-*.md` page (GitHub Pages — French).
 
-After any feature work, compare both locations and flag any discrepancy — do not close the task until they are in sync. `README.md → ## Features` is a summary table that links to the Pages site; it does **not** need to list every command.
+After any feature work, compare all three locations and flag any discrepancy — do not close the task until they are in sync. `README.md → ## Features` is a summary table that links to the Pages site; it does **not** need to list every command.
+
+**French pages live in `docs/fr/`.** Each French page links back to its English counterpart with `> 🇬🇧 [English version](../feature-name.md)`, and each English page links to its French counterpart with `> 🇫🇷 [Version française](fr/feature-name.md)`.
 
 > **Root cause of doc drift:** code is changed but only one location (or neither) is updated. The checklist above exists to prevent this. If you find yourself thinking "I'll update the docs later" — stop and update them now, in the same commit.
 
@@ -90,6 +93,14 @@ nixlper/
 │   │   └── nixlper-profile.d.sh  # profile.d loader deployed to /etc/profile.d/nixlper.sh
 │   └── rpm/
 │       └── nixlper.spec          # RPM spec file
+├── docs/
+│   ├── index.md            # GitHub Pages home (English)
+│   ├── feature-*.md        # GitHub Pages feature pages (English)
+│   ├── fr/
+│   │   ├── index.md        # GitHub Pages home (French)
+│   │   └── feature-*.md    # GitHub Pages feature pages (French)
+│   ├── _config.yml         # Jekyll config
+│   └── _layouts/           # Jekyll layout overrides
 ├── INTERNALS.md            # Mechanism docs for non-obvious features (see "INTERNALS.md rule")
 └── .claude/                # AI context files
 ```
@@ -345,19 +356,20 @@ Existing feature modules do **not** have unit test files yet — this is tracked
    - Add @cmd-palette annotations for user-facing commands
    - Build will automatically include it
 
-### Dual-location documentation rule
-Feature documentation lives in **two places** that must always stay in sync:
+### Tri-location documentation rule
+Feature documentation lives in **three places** that must always stay in sync:
 
 | Location | Role |
 |---|---|
-| `docs/feature-*.md` (GitHub Pages) | User-facing reference |
+| `docs/feature-*.md` (GitHub Pages — English) | User-facing reference (English) |
+| `docs/fr/feature-*.md` (GitHub Pages — French) | User-facing reference (French) |
 | `src/main/help/help_<category>` | In-shell help (CTRL+X+H) |
 
-**When adding or modifying a feature, update both locations in the same commit.**
+**When adding or modifying a feature, update all three locations in the same commit.**
 
 `README.md → ## Features` is intentionally a brief summary table — do not add command details there.
 
-To check for drift, compare the relevant `docs/feature-*.md` page with the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in the other. Flag any discrepancy to the user before closing a session that touched features.
+To check for drift, compare the relevant `docs/feature-*.md` page, its `docs/fr/feature-*.md` counterpart, and the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in all three. Flag any discrepancy to the user before closing a session that touched features.
 
 ### Release process — CHANGELOG.md and README.md
 

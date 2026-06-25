@@ -3,6 +3,8 @@
 > **The fastest way to discover and run any Nixlper command.**
 > You don't need to memorise shortcuts — just open the palette and type.
 
+> 🇫🇷 [Version française](fr/feature-command-palette.md)
+
 | Shortcut | Alias |
 |---|---|
 | `CTRL+X+A` | `fa` |

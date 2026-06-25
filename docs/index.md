@@ -3,6 +3,8 @@
 Nixlper brings [Total Commander](https://www.ghisler.com/accueil.htm)-style keyboard shortcuts to your Unix shell.
 No GUI required — just your terminal.
 
+> 🇫🇷 [Version française](fr/index.md)
+
 > 🚀 **Current version: v2.2.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 
 ---
