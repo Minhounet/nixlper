@@ -10,7 +10,7 @@ _NIXLPER_JOKES_FR=(
 )
 
 _NIXLPER_JOKES_EN=(
-  "Monad monad monad! Must be funny, in the rich devis world.."
+  "Monad monad monad! Must be funny, in the rich dev's world.."
 )
 
 function _i_joke_lang() {
