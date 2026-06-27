@@ -372,6 +372,14 @@ Feature documentation lives in **three places** that must always stay in sync:
 
 To check for drift, compare the relevant `docs/feature-*.md` page, its `docs/fr/feature-*.md` counterpart, and the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in all three. Flag any discrepancy to the user before closing a session that touched features.
 
+### Adding jokes
+
+Adding a new joke to `_NIXLPER_JOKES_FR` or `_NIXLPER_JOKES_EN` in `src/main/bash/functions_jokes.sh` is a trivial, low-risk change that can go **directly to `main`** — no feature branch or PR needed.
+
+Commit convention: `💬text|Add <FR/EN> joke to bundled list.`
+
+No other files need updating for a joke-only addition (the joke arrays are self-contained).
+
 ### Release process — CHANGELOG.md and README.md
 
 > **Mobile-friendly release convention:** Release commits go **directly to `main`** — no feature
