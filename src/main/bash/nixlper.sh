@@ -178,6 +178,7 @@ export NIXLPER_INSTALL_DIR="\${NIXLPER_INSTALL_DIR:-${install_dir}}"
 export NIXLPER_NAVIGATE_MODE="\${NIXLPER_NAVIGATE_MODE:-tree}"
 export NIXLPER_EDITOR="\${NIXLPER_EDITOR:-vim}"
 export NIXLPER_DISABLE_WELCOME_MESSAGE="\${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}"
+export NIXLPER_JOKE_LANG="\${NIXLPER_JOKE_LANG:-auto}"
 export NIXLPER_UPDATE_CHANNEL="\${NIXLPER_UPDATE_CHANNEL:-${NIXLPER_INSTALL_CHANNEL:-stable}}"
 export NIXLPER_UPDATE_CHECK="\${NIXLPER_UPDATE_CHECK:-true}"
 export NIXLPER_UPDATE_AUTO="\${NIXLPER_UPDATE_AUTO:-false}"
@@ -314,6 +315,9 @@ function _i_load_bindings() {
     # tips - annotation already in functions_tips.sh
     bind -x '"\C-x\C-t": show_random_tip'
 
+    # jokes - annotation already in functions_jokes.sh
+    bind -x '"\C-x\C-k": show_joke'
+
     # target - annotations already in functions_target.sh
     bind -x '"\C-x\C-y": target_pack'
 
@@ -391,6 +395,7 @@ alias sr=start_recording
 alias fr=finalize_recording
 alias fa=find_action
 alias tip=show_random_tip
+alias joke=show_joke
 alias nu=_check_update
 alias nw=show_ongoing_work
 

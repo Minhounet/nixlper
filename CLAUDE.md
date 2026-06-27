@@ -522,6 +522,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_EDITOR` | `vim` | `vim` |
 | `NIXLPER_DISABLE_WELCOME_MESSAGE` | `false` | `false` |
 | `NIXLPER_DISABLE_TIPS` | `false` | `false` |
+| `NIXLPER_JOKE_LANG` | `auto` | `auto` |
 | `NIXLPER_UPDATE_CHANNEL` | `stable` | `stable` |
 | `NIXLPER_UPDATE_CHECK` | `true` | `true` |
 | `NIXLPER_UPDATE_AUTO` | `false` | `false` |

@@ -1,0 +1,14 @@
+########################################################################################################################
+# Help for jokes
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+[CTRL + X THEN K] or  joke : display a random dev pun or joke
+------------------------------------------------------------------------------------------------------------------------
+Shows a random developer pun from the bundled joke list.
+The language (French or English) is selected automatically from your locale ($LANG).
+
+Override the language via nconf (CTRL+X+C) → NIXLPER_JOKE_LANG, or in ~/.config/nixlper/nixlper.conf:
+  export NIXLPER_JOKE_LANG=fr   # always French
+  export NIXLPER_JOKE_LANG=en   # always English
+  export NIXLPER_JOKE_LANG=auto # detect from $LANG (default)
+------------------------------------------------------------------------------------------------------------------------
