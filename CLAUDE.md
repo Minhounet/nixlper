@@ -270,6 +270,7 @@ Source: `https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/
 2. Test modules individually
 3. Follow naming conventions
 4. Add @cmd-palette annotations for user commands
+5. Once the implementation is done, celebrate with a joke: `source src/main/bash/functions_jokes.sh && show_joke`
 
 ### Before Commit
 1. Build with `./build.sh`
@@ -370,6 +371,14 @@ Feature documentation lives in **three places** that must always stay in sync:
 `README.md → ## Features` is intentionally a brief summary table — do not add command details there.
 
 To check for drift, compare the relevant `docs/feature-*.md` page, its `docs/fr/feature-*.md` counterpart, and the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in all three. Flag any discrepancy to the user before closing a session that touched features.
+
+### Adding jokes
+
+Adding a new joke to `_NIXLPER_JOKES_FR` or `_NIXLPER_JOKES_EN` in `src/main/bash/functions_jokes.sh` is a trivial, low-risk change that can go **directly to `main`** — no feature branch or PR needed.
+
+Commit convention: `💬text|Add <FR/EN> joke to bundled list.`
+
+No other files need updating for a joke-only addition (the joke arrays are self-contained).
 
 ### Release process — CHANGELOG.md and README.md
 
@@ -522,6 +531,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_EDITOR` | `vim` | `vim` |
 | `NIXLPER_DISABLE_WELCOME_MESSAGE` | `false` | `false` |
 | `NIXLPER_DISABLE_TIPS` | `false` | `false` |
+| `NIXLPER_JOKE_LANG` | `auto` | `auto` |
 | `NIXLPER_UPDATE_CHANNEL` | `stable` | `stable` |
 | `NIXLPER_UPDATE_CHECK` | `true` | `true` |
 | `NIXLPER_UPDATE_AUTO` | `false` | `false` |

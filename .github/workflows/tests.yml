@@ -41,3 +41,6 @@ jobs:
 
       - name: Run SSH connection manager unit tests
         run: bash src/test/bash/test_functions_ssh.sh
+
+      - name: Run jokes unit tests
+        run: bash src/test/bash/test_functions_jokes.sh

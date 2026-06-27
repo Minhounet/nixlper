@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Jokes feature** (`functions_jokes.sh`): `CTRL+X+K` / `joke` displays a random developer pun from a bundled list. French and English joke sets are included; language is auto-detected from `$LANG` or forced via `NIXLPER_JOKE_LANG` (`auto`/`fr`/`en`). Configurable through `nconf` (`CTRL+X+C`).
+
 ### Changed
 - **GitHub Pages logo size**: increased header logo `max-height` from 120px to 180px for better visibility.
 
