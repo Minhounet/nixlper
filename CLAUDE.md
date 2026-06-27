@@ -270,6 +270,7 @@ Source: `https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/
 2. Test modules individually
 3. Follow naming conventions
 4. Add @cmd-palette annotations for user commands
+5. Once the implementation is done, celebrate with a joke: `source src/main/bash/functions_jokes.sh && show_joke`
 
 ### Before Commit
 1. Build with `./build.sh`
