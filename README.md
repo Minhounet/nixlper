@@ -1,8 +1,8 @@
 # NIXLPER
 
-> 🚀 **Current version: v2.2.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Current version: v2.3.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
-> **What's new in v2.2.0:** Adds `nconf` (`CTRL+X+C`), a menu-driven interactive editor for all `NIXLPER_*` settings with automatic `.bashrc` migration to `~/.config/nixlper/nixlper.conf`.
+> **What's new in v2.3.0:** Adds SSH connection manager (`CTRL+X+S`), recent directories (`CTRL+X+J`), jokes (`CTRL+X+K`), full French GitHub Pages, and fixes offline update detection, stale navigation aliases, and macro recording reliability.
 >
 > Nixlper evolves constantly. Tagged releases are stable snapshots. Two channels are available: **stable** (default, tagged releases) and **edge** (rolling build of every commit on `main`, not an official release). See [Updates](#updates) for installation commands.
 
