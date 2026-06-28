@@ -14,6 +14,7 @@ Requires [`fzf`](https://github.com/junegunn/fzf#installation). Tree mode also r
 |---|---|---|
 | `CTRL+X+N` | — | Open interactive file browser |
 | `CTRL+X+U` | — | Go up one directory (`cd ..`) |
+| `CTRL+X+J` | `rd` | Jump to a recently visited directory |
 
 ### Demo
 
@@ -80,6 +81,27 @@ Runs `grep -rn PATTERN .` and displays each match with a `vN` shortcut that open
 ### Demo
 
 <!-- TODO: add demo GIF — fag TODO, results appear, press v1 to jump to the matching line -->
+
+---
+
+## Recent directories
+
+```bash
+rd
+```
+
+Or press `CTRL+X+J`. Displays a numbered list of the most recently visited directories (most recent first). Type a number and press Enter to jump there. Home (`~`) and root (`/`) are excluded — they are too generic to be useful.
+
+Directories that have been removed since the last visit are skipped automatically.
+
+### Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `NIXLPER_RECENT_DIRS_MAX` | `20` | Maximum number of entries to remember |
+| `NIXLPER_RECENT_DIRS_FILE` | `~/.local/share/nixlper/recent_dirs` | History file path |
+
+Configure via `nconf` (`CTRL+X+C`) or `~/.config/nixlper/nixlper.conf`.
 
 ---
 

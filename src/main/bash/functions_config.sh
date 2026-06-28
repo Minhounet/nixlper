@@ -27,6 +27,8 @@ _NIXLPER_CONFIG_VARS=(
   "NIXLPER_UPDATE_CACHE_FILE|path||Update check cache file|advanced"
   "NIXLPER_SSH_CONNECTIONS_FILE|path||SSH connections file (default: ~/.config/nixlper/ssh_connections)|advanced"
   "NIXLPER_SSH_IDENTITY_FILE|path||Default SSH identity file for nixlper connections|advanced"
+  "NIXLPER_RECENT_DIRS_MAX|int|20|Maximum number of recent directories to remember|common"
+  "NIXLPER_RECENT_DIRS_FILE|path||Recent directories history file|advanced"
 )
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -181,11 +183,13 @@ function _nconf_create_user_conf() {
     printf "# --- Advanced settings ---\n"
     printf "# export NIXLPER_UPDATE_CHECK_INTERVAL=86400\n"
     printf "# export NIXLPER_UPDATE_TIMEOUT=2\n"
+    printf "# export NIXLPER_RECENT_DIRS_MAX=20\n"
     printf "# export NIXLPER_BOOKMARKS_FILE=\${HOME}/.local/share/nixlper/bookmarks\n"
     printf "# export NIXLPER_SNAPSHOT_DIR=\${HOME}/.local/share/nixlper/snapshots\n"
     printf "# export NIXLPER_CUSTOM_DIR=\${HOME}/.config/nixlper/custom\n"
     printf "# export NIXLPER_LAST_MACRO_BINDING_FILE=\${HOME}/.local/share/nixlper/last_macro_binding\n"
     printf "# export NIXLPER_UPDATE_CACHE_FILE=\${HOME}/.local/share/nixlper/update_check\n"
+    printf "# export NIXLPER_RECENT_DIRS_FILE=\${HOME}/.local/share/nixlper/recent_dirs\n"
   } > "${_NIXLPER_USER_CONF}"
   echo "  -> Created ${_NIXLPER_USER_CONF}"
 }

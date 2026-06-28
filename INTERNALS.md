@@ -225,3 +225,41 @@ the prior commit. Comparing against `main` HEAD would always show "update availa
 after updating, because the user installs the pre-release SHA (old) which still differs from
 the main HEAD (release). Comparing against the pre-release SHA gives the correct answer:
 "up to date" when the user has what CI actually published.
+
+---
+
+## Recent directories (`functions_recent_dirs.sh`)
+
+### Mechanism
+
+Tracking uses `PROMPT_COMMAND` — bash fires this after every interactive command, just before
+printing the next prompt. `_i_recent_dirs_init` prepends `_i_recent_dirs_track` to it at startup
+(guarded so it is never added twice).
+
+On each prompt, `_i_recent_dirs_track`:
+1. Reads `$PWD`. Skips `$HOME` and `/` (too generic).
+2. Resolves the history file (`NIXLPER_RECENT_DIRS_FILE`, default `~/.local/share/nixlper/recent_dirs`).
+3. Writes a new version of the file: current dir on top, all prior occurrences of current dir
+   removed (`grep -vxF`), trimmed to `NIXLPER_RECENT_DIRS_MAX` entries via `head -n`.
+   Uses a `mktemp` temp file + `mv` to make the write atomic — a partial write cannot corrupt
+   the history file.
+
+### Silent failure mode
+
+If `NIXLPER_RECENT_DIRS_MAX` is set to a non-integer, `head -n` will error and the temp file
+will remain empty, causing the next `mv` to truncate the history file. The value should always
+be a positive integer; `nconf` enforces the `int` type when editing via the interactive editor.
+
+### Why `grep -vxF` (not `grep -v`)
+
+`-x` matches the whole line (exact path), `-F` treats the pattern as a fixed string (not a
+regex). Without `-F`, a path like `/opt/foo.bar` would be treated as a regex where `.` matches
+any character, potentially removing unrelated paths that happen to match. Without `-x`, a path
+`/home/user` would also remove `/home/user/projects` from the list.
+
+### Why home and root are excluded
+
+These directories are visited implicitly by many commands (shell startup, `cd` with no args,
+`sudo -i`, etc.) — they would dominate the list and push actually useful recent dirs off.
+Exclusion is checked in `_i_recent_dirs_track`; `recent_dirs` additionally skips any entry
+whose directory no longer exists on disk.
