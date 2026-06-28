@@ -20,6 +20,7 @@ function _i_init() {
   _i_create_bookmarks_file_if_not_existing
   _i_create_snapshot_folder
   _i_load_bookmarks
+  _i_recent_dirs_init
   _i_load_bindings
   _i_load_custom_libraries
   _i_load_tips
@@ -191,6 +192,8 @@ export NIXLPER_LAST_MACRO_BINDING_FILE="\${NIXLPER_LAST_MACRO_BINDING_FILE:-\${H
 export NIXLPER_SNAPSHOT_DIR="\${NIXLPER_SNAPSHOT_DIR:-\${HOME}/.local/share/nixlper/snapshots}"
 export NIXLPER_CUSTOM_DIR="\${NIXLPER_CUSTOM_DIR:-\${HOME}/.config/nixlper/custom}"
 export NIXLPER_UPDATE_CACHE_FILE="\${NIXLPER_UPDATE_CACHE_FILE:-\${HOME}/.local/share/nixlper/update_check}"
+export NIXLPER_RECENT_DIRS_MAX="\${NIXLPER_RECENT_DIRS_MAX:-20}"
+export NIXLPER_RECENT_DIRS_FILE="\${NIXLPER_RECENT_DIRS_FILE:-\${HOME}/.local/share/nixlper/recent_dirs}"
 EOF
   chmod 644 /etc/nixlper/nixlper.conf
 
@@ -329,6 +332,9 @@ function _i_load_bindings() {
 
     # SSH connection picker - annotation already in functions_ssh.sh
     bind '"\C-x\C-s": "sc\15"'
+
+    # recent dirs - annotation already in functions_recent_dirs.sh
+    bind '"\C-x\C-j": "recent_dirs\15"'
   fi
 }
 

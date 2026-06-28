@@ -57,3 +57,5 @@ Flat mode
 ------------------------------------------------------------------------------------------------------------------------
 - fag PATTERN: execute "grep -rn PATTERN ." then display each match with a shortcut (vN) to open the file at the matching line
 ------------------------------------------------------------------------------------------------------------------------
+[CTRL + X THEN J] or  rd : jump to a recently visited directory (see help_recent_dirs for details)
+------------------------------------------------------------------------------------------------------------------------

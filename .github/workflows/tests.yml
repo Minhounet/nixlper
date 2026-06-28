@@ -44,3 +44,6 @@ jobs:
 
       - name: Run jokes unit tests
         run: bash src/test/bash/test_functions_jokes.sh
+
+      - name: Run recent-dirs unit tests
+        run: bash src/test/bash/test_functions_recent_dirs.sh

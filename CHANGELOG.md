@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Recent directories** (`functions_recent_dirs.sh`): `CTRL+X+J` / `rd` shows a numbered list of recently visited directories (most recent first) and jumps to the selected one. Tracking is automatic via `PROMPT_COMMAND`; home and root are excluded. Configurable via `nconf`: `NIXLPER_RECENT_DIRS_MAX` (default 20) and `NIXLPER_RECENT_DIRS_FILE`.
 - **Jokes feature** (`functions_jokes.sh`): `CTRL+X+K` / `joke` displays a random developer pun from a bundled list. French and English joke sets are included; language is auto-detected from `$LANG` or forced via `NIXLPER_JOKE_LANG` (`auto`/`fr`/`en`). Configurable through `nconf` (`CTRL+X+C`).
 
 ### Changed

@@ -1,0 +1,24 @@
+########################################################################################################################
+# Help for recent directories
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+[CTRL + X THEN J] or  rd : navigate to a recently visited directory
+------------------------------------------------------------------------------------------------------------------------
+Displays a numbered list of the most recently visited directories (most recent first).
+Type a number and press Enter to jump there instantly.
+Home (~) and root (/) are excluded from the list — they are too generic to be useful.
+Directories that have been removed since the last visit are skipped automatically.
+
+Example output:
+  1) /var/log/nginx
+  2) /etc/nixlper
+  3) /home/user/projects/myapp/src
+  Jump to [1-3] (Enter to cancel):
+
+------------------------------------------------------------------------------------------------------------------------
+Configuration (via nconf or ~/.config/nixlper/nixlper.conf):
+
+  NIXLPER_RECENT_DIRS_MAX    int    20    Maximum number of recent directories to remember
+  NIXLPER_RECENT_DIRS_FILE   path         History file (default: ~/.local/share/nixlper/recent_dirs)
+
+------------------------------------------------------------------------------------------------------------------------

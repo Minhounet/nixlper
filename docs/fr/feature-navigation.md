@@ -14,6 +14,7 @@ Nécessite [`fzf`](https://github.com/junegunn/fzf#installation). Le mode arbore
 |---|---|---|
 | `CTRL+X+N` | — | Ouvrir le navigateur de fichiers interactif |
 | `CTRL+X+U` | — | Remonter d'un répertoire (`cd ..`) |
+| `CTRL+X+J` | `rd` | Naviguer vers un répertoire récemment visité |
 
 ### Démo
 
@@ -80,6 +81,27 @@ Lance `grep -rn MOTIF .` et affiche chaque correspondance avec un raccourci `vN`
 ### Démo
 
 <!-- TODO: ajouter une démo GIF — fag TODO, les résultats apparaissent, appuyer sur v1 pour sauter à la ligne correspondante -->
+
+---
+
+## Répertoires récents
+
+```bash
+rd
+```
+
+Ou appuyez sur `CTRL+X+J`. Affiche une liste numérotée des répertoires les plus récemment visités (le plus récent en premier). Saisissez un numéro et appuyez sur Entrée pour y accéder. Le répertoire personnel (`~`) et la racine (`/`) sont exclus — trop génériques pour être utiles dans cette liste.
+
+Les répertoires supprimés depuis la dernière visite sont ignorés automatiquement.
+
+### Configuration
+
+| Variable | Défaut | Description |
+|---|---|---|
+| `NIXLPER_RECENT_DIRS_MAX` | `20` | Nombre maximum d'entrées à mémoriser |
+| `NIXLPER_RECENT_DIRS_FILE` | `~/.local/share/nixlper/recent_dirs` | Chemin du fichier d'historique |
+
+Configurez via `nconf` (`CTRL+X+C`) ou `~/.config/nixlper/nixlper.conf`.
 
 ---
 
