@@ -5,7 +5,7 @@ No GUI required — just your terminal.
 
 > 🇫🇷 [Version française](fr/index.md)
 
-> 🚀 **Current version: v2.2.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Current version: v2.3.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 
 ---
 
@@ -37,6 +37,7 @@ Then open a new shell. That's it.
 | 👤 Switch users without losing your place | [User Management](feature-users.md) |
 | 🔄 Stay up to date automatically | [Updates](feature-updates.md) |
 | 💡 Learn tips as you work | [Tips](feature-tips.md) |
+| 😄 Get a random developer joke | [Jokes](feature-jokes.md) |
 
 ---
 
@@ -61,6 +62,8 @@ Then open a new shell. That's it.
 | `CTRL+X+W` | Check for updates |
 | `CTRL+X+H` | In-shell help |
 | `CTRL+X+U` | Go up one directory |
+| `CTRL+X+J` | Jump to a recently visited directory |
+| `CTRL+X+K` | Display a random joke |
 | `CTRL+P` | Start/stop macro recording |
 
 ---
