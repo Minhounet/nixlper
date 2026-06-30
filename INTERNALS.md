@@ -10,6 +10,22 @@ an entry here.
 
 ---
 
+## Debug mode — scoped tracing (`functions_debug.sh`)
+
+### Mechanism
+
+`ndebug` wraps a function call in `{ set -x; "$func" "$@"; } 2>&1` immediately followed by `{ set +x; } 2>/dev/null`. This scopes the `set -x` trace to a single function call rather than enabling it globally for the shell session.
+
+**Why not global `set -x`?**  
+In an interactive bash session, `set -x` traces every line executed — including readline's internal dispatches, `PROMPT_COMMAND` hooks, completion functions, and every line of `_i_load_bindings`. The result is hundreds of irrelevant lines before the function of interest even starts. Scoping with `set -x` / `set +x` around the call site produces only the trace of the target function and its callees.
+
+**Why `{ set +x; } 2>/dev/null`?**  
+`set +x` itself would appear in the trace (`+ set +x`) unless its own trace output is suppressed. Wrapping it in a subgroup and redirecting stderr to `/dev/null` discards that one line cleanly.
+
+**Silent failure mode to watch for:** `declare -f "$func"` is used to validate the function exists before calling it. Without this check, a mistyped function name would produce no output (bash silently ignores an unknown command in some contexts) or a confusing "command not found" error that looks like a nixlper bug.
+
+---
+
 ## Macro recording (`functions_macros.sh`)
 
 ### Mechanism
