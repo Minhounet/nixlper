@@ -29,6 +29,7 @@ _NIXLPER_CONFIG_VARS=(
   "NIXLPER_SSH_IDENTITY_FILE|path||Default SSH identity file for nixlper connections|advanced"
   "NIXLPER_RECENT_DIRS_MAX|int|20|Maximum number of recent directories to remember|common"
   "NIXLPER_RECENT_DIRS_FILE|path||Recent directories history file|advanced"
+  "NIXLPER_DEBUG|bool|false|Enable debug mode (config summary at login, ndebug tracing)|advanced"
 )
 
 #-----------------------------------------------------------------------------------------------------------------------

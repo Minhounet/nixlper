@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Debug mode** (`functions_debug.sh`): `CTRL+X+Z` / `ndebug` / `ndbconf`. Toggle debug mode with `CTRL+X+Z` (prints all resolved `NIXLPER_*` variables); trace a single function with `ndebug <function> [args]` (scoped `set -x`/`set +x`); dump config at any time with `ndbconf`. Configurable via `nconf`: `NIXLPER_DEBUG` (bool, default `false`).
+
 ---
 
 ## [2.3.0] - 2026-06-28

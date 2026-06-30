@@ -540,6 +540,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_UPDATE_CACHE_FILE` | `$NIXLPER_INSTALL_DIR/.nixlper_update_check` | `~/.local/share/nixlper/update_check` |
 | `NIXLPER_RECENT_DIRS_MAX` | `20` | `20` |
 | `NIXLPER_RECENT_DIRS_FILE` | `~/.local/share/nixlper/recent_dirs` | `~/.local/share/nixlper/recent_dirs` |
+| `NIXLPER_DEBUG` | `false` | `false` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.
