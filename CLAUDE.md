@@ -7,6 +7,27 @@ new files or directories, architectural decisions, new env variables, build step
 discovered during implementation. The goal is that any new session can start from this file
 without re-discovering context.
 
+## Feature Backlog
+
+Features discussed and agreed upon but not yet implemented. Pick these up in future sessions.
+
+- **System health advisor** (`functions_syshealth.sh`): interprets CPU/memory/disk/process
+  metrics and outputs plain-English verdicts + suggested remediation commands. No external
+  deps (uses `free`, `df`, `uptime`, `ps`, `/proc`). Example output:
+  `[WARN] Memory at 87% — top consumers: java (1.8 GB) → consider: kill -9 <pid>`.
+  Alias: `health`, keybind TBD. Category: Utilities.
+
+- **Port/service quick-check**: given a port number, resolve to process name + PID + suggested
+  action. Extends the existing `ik` (interactive kill) in `functions_processes.sh`.
+
+- **Environment snapshot diff**: compare `env`/`PATH`/loaded modules between two points in
+  time — useful when a script breaks something and you need to know what changed.
+
+- **Log tail with pattern alerting**: `logtail FILE PATTERN` — follows a file and highlights
+  matching lines in colour. Wrapper around `tail -f | grep --color` with nixlper keybindings.
+
+---
+
 ## Known Issues
 
 Confirmed-but-unfixed defects are tracked in [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md). Consult it
