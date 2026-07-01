@@ -1,0 +1,41 @@
+########################################################################################################################
+# Help for debug mode
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+[CTRL+X+Z]  nixlper_debug_toggle : toggle nixlper debug mode on/off
+------------------------------------------------------------------------------------------------------------------------
+When enabled, debug mode prints a summary of all resolved NIXLPER_* variables.
+The NIXLPER_DEBUG variable persists for the current shell session.
+To enable permanently, set NIXLPER_DEBUG=true via nconf.
+
+------------------------------------------------------------------------------------------------------------------------
+ndebug <function> [args...]  : trace a single nixlper function call with set -x
+------------------------------------------------------------------------------------------------------------------------
+Wraps the named function in set -x / set +x so only that function's execution is
+traced — avoids the noise of global set -x in an interactive shell.
+
+  Examples:
+    ndebug navigate
+    ndebug _check_update
+    ndebug _display_existing_bookmarks
+
+Output format:
+  [NIXLPER DEBUG] Tracing: <function> <args>
+  ──────────────────────────────────────────
+  + <traced lines>
+  ──────────────────────────────────────────
+  [NIXLPER DEBUG] Exit code: <N>
+
+If the function is not found, ndebug prints an error and suggests using
+  declare -F | grep nixlper
+to list all loaded nixlper functions.
+
+------------------------------------------------------------------------------------------------------------------------
+ndbconf  : show resolved values of all NIXLPER_* variables (without toggling debug mode)
+------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------------
+Configuration:
+  NIXLPER_DEBUG   bool   false   Enable debug mode (config summary at login, ndebug tracing)
+                                 Set via: nconf  or  export NIXLPER_DEBUG=true
+------------------------------------------------------------------------------------------------------------------------

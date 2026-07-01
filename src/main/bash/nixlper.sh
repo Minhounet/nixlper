@@ -330,6 +330,9 @@ function _i_load_bindings() {
     # config editor - annotation already in functions_config.sh
     bind '"\C-x\C-c": "nconf\15"'
 
+    # debug - annotation already in functions_debug.sh
+    bind -x '"\C-x\C-z": nixlper_debug_toggle'
+
     # SSH connection picker - annotation already in functions_ssh.sh
     bind '"\C-x\C-s": "sc\15"'
 
@@ -404,6 +407,8 @@ alias tip=show_random_tip
 alias joke=show_joke
 alias nu=_check_update
 alias nw=show_ongoing_work
+alias ndebug=nixlper_debug_exec
+alias ndbconf=nixlper_debug_show_config
 
 #***********************************************************************************************************************
 ########################################################################################################################

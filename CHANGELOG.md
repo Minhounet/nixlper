@@ -9,65 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Debug mode** (`functions_debug.sh`): `CTRL+X+Z` / `ndebug` / `ndbconf`. Toggle debug mode with `CTRL+X+Z` (prints all resolved `NIXLPER_*` variables); trace a single function with `ndebug <function> [args]` (scoped `set -x`/`set +x`); dump config at any time with `ndbconf`. Configurable via `nconf`: `NIXLPER_DEBUG` (bool, default `false`).
+
+---
+
+## [2.3.0] - 2026-06-28
+
+### Added
 - **Recent directories** (`functions_recent_dirs.sh`): `CTRL+X+J` / `rd` shows a numbered list of recently visited directories (most recent first) and jumps to the selected one. Tracking is automatic via `PROMPT_COMMAND`; home and root are excluded. Configurable via `nconf`: `NIXLPER_RECENT_DIRS_MAX` (default 20) and `NIXLPER_RECENT_DIRS_FILE`.
 - **Jokes feature** (`functions_jokes.sh`): `CTRL+X+K` / `joke` displays a random developer pun from a bundled list. French and English joke sets are included; language is auto-detected from `$LANG` or forced via `NIXLPER_JOKE_LANG` (`auto`/`fr`/`en`). Configurable through `nconf` (`CTRL+X+C`).
-
-### Changed
-- **GitHub Pages logo size**: increased header logo `max-height` from 120px to 180px for better visibility.
-
-### Added
-- **French GitHub Pages** (`docs/fr/`): full French translation of all 14 documentation pages
-  (home, installation, and all feature pages). Each English page now links to its French
-  counterpart and vice versa via a 🇫🇷 / 🇬🇧 language switcher. `CLAUDE.md` updated to
-  enforce a tri-location documentation rule (in-shell help + English Pages + French Pages).
+- **French GitHub Pages** (`docs/fr/`): full French translation of all 14 documentation pages (home, installation, and all feature pages). Each English page now links to its French counterpart and vice versa via a 🇫🇷 / 🇬🇧 language switcher.
+- **SSH connection manager** (`functions_ssh.sh`): `CTRL+X+S` / `sc` opens an fzf picker of saved connections and connects immediately. On first use with a new host, nixlper auto-runs `ssh-copy-id` so subsequent connections are passwordless. `sca` / `scr` / `scl` manage the connection list. Two new `nconf` settings: `NIXLPER_SSH_CONNECTIONS_FILE` and `NIXLPER_SSH_IDENTITY_FILE`.
+- **`INTERNALS.md`**: documents the mechanism behind non-obvious features — macro `PROMPT_COMMAND` recording, navigation alias namespace/cleanup, command palette `bind -x` dispatch, target staging lifecycle, and update detection channels/throttling.
 
 ### Fixed
-- **SSH login syntax error on non-bash shells**: `nixlper-profile.d.sh` now guards the
-  `source` call with `[ -n "$BASH_VERSION" ]`, preventing `ksh`, `dash`, or any POSIX `sh`
-  from attempting to parse bash-only syntax (e.g. `function name() {`) and crashing with
-  `syntax error: '(' unexpected` at SSH login.
-
-### Added
-- **SSH connection manager** (`functions_ssh.sh`): `CTRL+X+S` / `sc` opens an fzf picker
-  of saved connections and connects immediately. On first use with a new host, nixlper
-  auto-runs `ssh-copy-id` so subsequent connections are passwordless. `sca` / `scr` / `scl`
-  manage the connection list. Two new `nconf` settings: `NIXLPER_SSH_CONNECTIONS_FILE` and
-  `NIXLPER_SSH_IDENTITY_FILE`.
-- **`INTERNALS.md`**: documents the mechanism behind non-obvious features — macro
-  `PROMPT_COMMAND` recording, navigation alias namespace/cleanup, command palette
-  `bind -x` dispatch, target staging lifecycle, and update detection
-  channels/throttling.
-
-### Fixed
-- **DEB version on release builds**: `build-deb.sh` now detects an exact git tag and
-  strips the leading `v` (matching RPM behaviour); untagged builds fall back to
-  `0~<sha>`. Release DEBs now carry a meaningful version number.
-- **Update check always reporting offline**: `_i_is_online` was probing
-  `https://api.github.com` which returns HTTP 403 in unauthenticated cloud/CI
-  environments; curl's `-f` flag treats 4xx as failure, so nixlper always skipped
-  the update check. Probe changed to `https://github.com` (reliably returns 200).
-  Also removed `-f` from the three API endpoint helpers — those return valid JSON
-  on individual endpoints even when the root is 403, and `-f` was silently discarding
-  successful API responses.
-- **Edge channel false update loop**: the update check now fetches the SHA from
-  `/releases/tags/edge` (via `_i_remote_edge_release_commit()`) instead of raw
-  `main` HEAD, so a release commit that advances `main` without publishing a new
-  edge artifact no longer triggers a spurious "update available" prompt.
-- **Edge CI race on release commits**: `publish_edge_on_push.yml` now skips when the
-  commit message starts with `🔖release|`, preventing a race where the release tag
-  was already present at edge-build time and the wrong version got embedded in the
-  edge artifact.
-- **Stale navigation aliases**: `functions_navigation.sh` now tracks the previous
-  alias count and unaliases stale `v*/n*/d*/tc*/tm*/cdf*` shortcuts before
-  regenerating them, so switching to a smaller directory no longer leaves phantom
-  shortcuts from the previous (larger) listing.
-- **Macro recording reliability**: macro recording no longer scrapes `~/.bash_history`;
-  it now uses a `PROMPT_COMMAND` hook that appends each command into an in-memory
-  array. `sr`/`fr` invocations are excluded automatically.
+- **SSH login syntax error on non-bash shells**: `nixlper-profile.d.sh` now guards the `source` call with `[ -n "$BASH_VERSION" ]`, preventing `ksh`, `dash`, or any POSIX `sh` from crashing with `syntax error: '(' unexpected` at SSH login.
+- **Update check always reporting offline**: `_i_is_online` was probing `https://api.github.com` which returns HTTP 403 in cloud/CI environments; probe changed to `https://github.com`. Also removed `-f` from the three API endpoint helpers to stop silently discarding valid responses.
+- **Edge channel false update loop**: the update check now fetches the SHA from `/releases/tags/edge` instead of raw `main` HEAD, eliminating spurious "update available" prompts after release commits.
+- **Edge CI race on release commits**: `publish_edge_on_push.yml` now skips when the commit message starts with `🔖release|`.
+- **Stale navigation aliases**: `functions_navigation.sh` now unaliases stale `v*/n*/d*/tc*/tm*/cdf*` shortcuts before regenerating them, so switching to a smaller directory no longer leaves phantom shortcuts.
+- **Macro recording reliability**: macro recording now uses a `PROMPT_COMMAND` hook instead of scraping `~/.bash_history`. `sr`/`fr` invocations are excluded automatically.
+- **DEB version on release builds**: `build-deb.sh` now detects an exact git tag and strips the leading `v`; untagged builds fall back to `0~<sha>`.
 
 ### Changed
-- **`_i_get_pid_by_port()`**: tries `ss` first, falls back to `netstat`, and errors
-  cleanly when neither is installed.
+- **GitHub Pages logo size**: increased header logo `max-height` from 120px to 180px.
+- **`_i_get_pid_by_port()`**: tries `ss` first, falls back to `netstat`, and errors cleanly when neither is installed.
 
 ---
 

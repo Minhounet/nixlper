@@ -5,7 +5,7 @@ Pas d'interface graphique — juste votre terminal.
 
 > 🇬🇧 [English version](../index.md)
 
-> 🚀 **Version actuelle : v2.2.0** — [Notes de version](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Version actuelle : v2.3.0** — [Notes de version](https://github.com/Minhounet/nixlper/releases)
 
 ---
 
@@ -37,6 +37,7 @@ Ouvrez un nouveau shell. C'est tout.
 | 👤 Changer d'utilisateur sans perdre votre position | [Gestion des utilisateurs](feature-users.md) |
 | 🔄 Rester à jour automatiquement | [Mises à jour](feature-updates.md) |
 | 💡 Apprendre des astuces au fil de l'utilisation | [Astuces](feature-tips.md) |
+| 😄 Afficher une blague de développeur aléatoire | [Blagues](feature-jokes.md) |
 
 ---
 
@@ -61,6 +62,8 @@ Ouvrez un nouveau shell. C'est tout.
 | `CTRL+X+W` | Vérifier les mises à jour |
 | `CTRL+X+H` | Aide intégrée au shell |
 | `CTRL+X+U` | Remonter d'un répertoire |
+| `CTRL+X+J` | Sauter vers un répertoire récemment visité |
+| `CTRL+X+K` | Afficher une blague aléatoire |
 | `CTRL+P` | Démarrer/arrêter l'enregistrement de macro |
 
 ---
