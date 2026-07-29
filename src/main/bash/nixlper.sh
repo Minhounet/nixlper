@@ -347,7 +347,7 @@ function _refresh_current_directory() {
   echo "✨ Refreshing current directory..."
   if [[ -d "$(pwd)" ]]; then
     # Current directory still exists
-    clear
+    cd - > /dev/null && cd - > /dev/null
     ls -l --color=auto
     echo "Directory refreshed: $(pwd)"
   else
