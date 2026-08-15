@@ -194,6 +194,9 @@ export NIXLPER_CUSTOM_DIR="\${NIXLPER_CUSTOM_DIR:-\${HOME}/.config/nixlper/custo
 export NIXLPER_UPDATE_CACHE_FILE="\${NIXLPER_UPDATE_CACHE_FILE:-\${HOME}/.local/share/nixlper/update_check}"
 export NIXLPER_RECENT_DIRS_MAX="\${NIXLPER_RECENT_DIRS_MAX:-20}"
 export NIXLPER_RECENT_DIRS_FILE="\${NIXLPER_RECENT_DIRS_FILE:-\${HOME}/.local/share/nixlper/recent_dirs}"
+export NIXLPER_HEALTH_WARN_PCT="\${NIXLPER_HEALTH_WARN_PCT:-80}"
+export NIXLPER_HEALTH_CRIT_PCT="\${NIXLPER_HEALTH_CRIT_PCT:-90}"
+export NIXLPER_HEALTH_TOP_N="\${NIXLPER_HEALTH_TOP_N:-3}"
 EOF
   chmod 644 /etc/nixlper/nixlper.conf
 
@@ -407,6 +410,7 @@ alias tip=show_random_tip
 alias joke=show_joke
 alias nu=_check_update
 alias nw=show_ongoing_work
+alias health=nixlper_health_check
 alias ndebug=nixlper_debug_exec
 alias ndbconf=nixlper_debug_show_config
 

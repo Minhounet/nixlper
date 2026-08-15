@@ -93,6 +93,9 @@ function _nixlper_debug_show_config() {
   printf "  %-40s %s\n" "NIXLPER_LAST_MACRO_BINDING_FILE" "${NIXLPER_LAST_MACRO_BINDING_FILE:-(unset)}"
   printf "  %-40s %s\n" "NIXLPER_SSH_CONNECTIONS_FILE"   "${NIXLPER_SSH_CONNECTIONS_FILE:-(unset)}"
   printf "  %-40s %s\n" "NIXLPER_SSH_IDENTITY_FILE"      "${NIXLPER_SSH_IDENTITY_FILE:-(unset)}"
+  printf "  %-40s %s\n" "NIXLPER_HEALTH_WARN_PCT"        "${NIXLPER_HEALTH_WARN_PCT:-80}"
+  printf "  %-40s %s\n" "NIXLPER_HEALTH_CRIT_PCT"        "${NIXLPER_HEALTH_CRIT_PCT:-90}"
+  printf "  %-40s %s\n" "NIXLPER_HEALTH_TOP_N"           "${NIXLPER_HEALTH_TOP_N:-3}"
   echo "──────────────────────────────────────────────────────────"
   echo ""
 }

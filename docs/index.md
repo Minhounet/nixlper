@@ -38,6 +38,7 @@ Then open a new shell. That's it.
 | 🔄 Stay up to date automatically | [Updates](feature-updates.md) |
 | 💡 Learn tips as you work | [Tips](feature-tips.md) |
 | 😄 Get a random developer joke | [Jokes](feature-jokes.md) |
+| 🩺 Check memory/disk/CPU health with remediation tips | [System Health](feature-system-health.md) |
 
 ---
 

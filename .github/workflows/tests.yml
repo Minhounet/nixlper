@@ -47,3 +47,6 @@ jobs:
 
       - name: Run recent-dirs unit tests
         run: bash src/test/bash/test_functions_recent_dirs.sh
+
+      - name: Run system health advisor unit tests
+        run: bash src/test/bash/test_functions_syshealth.sh
