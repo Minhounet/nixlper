@@ -11,12 +11,6 @@ without re-discovering context.
 
 Features discussed and agreed upon but not yet implemented. Pick these up in future sessions.
 
-- **System health advisor** (`functions_syshealth.sh`): interprets CPU/memory/disk/process
-  metrics and outputs plain-English verdicts + suggested remediation commands. No external
-  deps (uses `free`, `df`, `uptime`, `ps`, `/proc`). Example output:
-  `[WARN] Memory at 87% — top consumers: java (1.8 GB) → consider: kill -9 <pid>`.
-  Alias: `health`, keybind TBD. Category: Utilities.
-
 - **Port/service quick-check**: given a port number, resolve to process name + PID + suggested
   action. Extends the existing `ik` (interactive kill) in `functions_processes.sh`.
 
@@ -562,6 +556,9 @@ Actual precedence (lowest → highest):
 | `NIXLPER_RECENT_DIRS_MAX` | `20` | `20` |
 | `NIXLPER_RECENT_DIRS_FILE` | `~/.local/share/nixlper/recent_dirs` | `~/.local/share/nixlper/recent_dirs` |
 | `NIXLPER_DEBUG` | `false` | `false` |
+| `NIXLPER_HEALTH_WARN_PCT` | `80` | `80` |
+| `NIXLPER_HEALTH_CRIT_PCT` | `90` | `90` |
+| `NIXLPER_HEALTH_TOP_N` | `3` | `3` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.

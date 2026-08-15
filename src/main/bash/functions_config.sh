@@ -30,6 +30,9 @@ _NIXLPER_CONFIG_VARS=(
   "NIXLPER_RECENT_DIRS_MAX|int|20|Maximum number of recent directories to remember|common"
   "NIXLPER_RECENT_DIRS_FILE|path||Recent directories history file|advanced"
   "NIXLPER_DEBUG|bool|false|Enable debug mode (config summary at login, ndebug tracing)|advanced"
+  "NIXLPER_HEALTH_WARN_PCT|int|80|Health check WARN threshold (%)|advanced"
+  "NIXLPER_HEALTH_CRIT_PCT|int|90|Health check CRIT threshold (%)|advanced"
+  "NIXLPER_HEALTH_TOP_N|int|3|Top resource consumers shown per WARN/CRIT metric|advanced"
 )
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -191,6 +194,9 @@ function _nconf_create_user_conf() {
     printf "# export NIXLPER_LAST_MACRO_BINDING_FILE=\${HOME}/.local/share/nixlper/last_macro_binding\n"
     printf "# export NIXLPER_UPDATE_CACHE_FILE=\${HOME}/.local/share/nixlper/update_check\n"
     printf "# export NIXLPER_RECENT_DIRS_FILE=\${HOME}/.local/share/nixlper/recent_dirs\n"
+    printf "# export NIXLPER_HEALTH_WARN_PCT=80\n"
+    printf "# export NIXLPER_HEALTH_CRIT_PCT=90\n"
+    printf "# export NIXLPER_HEALTH_TOP_N=3\n"
   } > "${_NIXLPER_USER_CONF}"
   echo "  -> Created ${_NIXLPER_USER_CONF}"
 }

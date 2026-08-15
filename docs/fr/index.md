@@ -38,6 +38,7 @@ Ouvrez un nouveau shell. C'est tout.
 | 🔄 Rester à jour automatiquement | [Mises à jour](feature-updates.md) |
 | 💡 Apprendre des astuces au fil de l'utilisation | [Astuces](feature-tips.md) |
 | 😄 Afficher une blague de développeur aléatoire | [Blagues](feature-jokes.md) |
+| 🩺 Vérifier la santé mémoire/disque/CPU avec conseils de remédiation | [Santé système](feature-system-health.md) |
 
 ---
 
