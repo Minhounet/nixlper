@@ -54,6 +54,27 @@ _get_tar_path() {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
+# Clean stale RPM/SRPM artifacts from previous builds
+#-----------------------------------------------------------------------------------------------------------------------
+# The RPM Version is derived from the current git tag (or short SHA when untagged), so building
+# from a different commit produces a differently-named nixlper-*.rpm. rpmbuild never deletes
+# previous outputs, so without this step ~/rpmbuild/RPMS/noarch/ (and SRPMS) silently accumulate
+# one stale artifact per past build. Remove any existing nixlper RPM/SRPM before building the
+# current one so only the freshly built package remains.
+_clean_previous_rpms() {
+  local -r rpmbuild_dir="$1"
+  local -a stale=()
+  while IFS= read -r -d '' f; do
+    stale+=("${f}")
+  done < <(find "${rpmbuild_dir}/RPMS" "${rpmbuild_dir}/SRPMS" -maxdepth 2 -name 'nixlper-*.rpm' -print0 2>/dev/null)
+  if [[ ${#stale[@]} -gt 0 ]]; then
+    _log_info "Removing stale nixlper RPM artifact(s) from previous builds:"
+    printf '  %s\n' "${stale[@]}"
+    rm -f -- "${stale[@]}"
+  fi
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
 # Main
 #-----------------------------------------------------------------------------------------------------------------------
 main() {
@@ -85,6 +106,9 @@ main() {
   # Set up rpmbuild tree
   local -r rpmbuild_dir="${HOME}/rpmbuild"
   mkdir -p "${rpmbuild_dir}"/{SOURCES,SPECS,BUILD,RPMS,SRPMS}
+
+  # Remove stale RPM/SRPM artifacts left over from builds of other commits
+  _clean_previous_rpms "${rpmbuild_dir}"
 
   # Copy all sources
   cp "${tar_path}" "${rpmbuild_dir}/SOURCES/nixlper-${version}.tar"
