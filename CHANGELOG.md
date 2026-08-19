@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`build-rpm.sh` leaving stale RPMs behind**: the RPM version is derived from the current git tag/commit, so building from a different commit than the previous build left old `nixlper-*.rpm`/`.src.rpm` files sitting in `~/rpmbuild/RPMS/noarch/` and `~/rpmbuild/SRPMS/`. `build-rpm.sh` now removes any existing `nixlper-*.rpm` artifacts before running `rpmbuild`, so only the freshly built package remains.
+
 ### Added
 - **Debug mode** (`functions_debug.sh`): `CTRL+X+Z` / `ndebug` / `ndbconf`. Toggle debug mode with `CTRL+X+Z` (prints all resolved `NIXLPER_*` variables); trace a single function with `ndebug <function> [args]` (scoped `set -x`/`set +x`); dump config at any time with `ndbconf`. Configurable via `nconf`: `NIXLPER_DEBUG` (bool, default `false`).
 - **System health advisor** (`functions_syshealth.sh`): `health` interprets memory (`free`), disk (`df`, per mounted filesystem), and CPU load (`uptime` scaled by `nproc`) into `[OK]`/`[WARN]`/`[CRIT]` verdicts with suggested remediation commands and top resource consumers. No external dependencies. Configurable via `nconf`: `NIXLPER_HEALTH_WARN_PCT` (default `80`), `NIXLPER_HEALTH_CRIT_PCT` (default `90`), `NIXLPER_HEALTH_TOP_N` (default `3`).

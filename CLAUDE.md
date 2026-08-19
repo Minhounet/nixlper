@@ -599,6 +599,11 @@ bash build-rpm.sh
 # Output: ~/rpmbuild/RPMS/noarch/nixlper-VERSION-1.noarch.rpm
 ```
 
+Version is derived from the current git tag (or short SHA when untagged), so builds from
+different commits produce differently-named RPMs. `build-rpm.sh` removes any pre-existing
+`nixlper-*.rpm`/`.src.rpm` from `~/rpmbuild/RPMS/*` and `~/rpmbuild/SRPMS/` before invoking
+`rpmbuild`, so stale artifacts from previous builds never accumulate.
+
 ### Install / upgrade / uninstall
 ```bash
 dnf install nixlper-VERSION.noarch.rpm   # first install
