@@ -599,6 +599,11 @@ bash build-rpm.sh
 # Output: ~/rpmbuild/RPMS/noarch/nixlper-VERSION-1.noarch.rpm
 ```
 
+`build-rpm.sh` runs `rpmbuild` with `--quiet` by default — rpmbuild's scriptlets
+(`%install`, etc.) execute under an internal `set -x`, echoing every `+ command`, which is
+noisy for a normal build. Pass `--verbose` (or `-v`) to see that full trace, e.g. when
+debugging a failing scriptlet: `bash build-rpm.sh --verbose`.
+
 Version is derived from the current git tag (or short SHA when untagged), so builds from
 different commits produce differently-named RPMs. `build-rpm.sh` removes any pre-existing
 `nixlper-*.rpm`/`.src.rpm` from `~/rpmbuild/RPMS/*` and `~/rpmbuild/SRPMS/` before invoking

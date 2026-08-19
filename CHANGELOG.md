@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Debug mode** (`functions_debug.sh`): `CTRL+X+Z` / `ndebug` / `ndbconf`. Toggle debug mode with `CTRL+X+Z` (prints all resolved `NIXLPER_*` variables); trace a single function with `ndebug <function> [args]` (scoped `set -x`/`set +x`); dump config at any time with `ndbconf`. Configurable via `nconf`: `NIXLPER_DEBUG` (bool, default `false`).
 - **System health advisor** (`functions_syshealth.sh`): `health` interprets memory (`free`), disk (`df`, per mounted filesystem), and CPU load (`uptime` scaled by `nproc`) into `[OK]`/`[WARN]`/`[CRIT]` verdicts with suggested remediation commands and top resource consumers. No external dependencies. Configurable via `nconf`: `NIXLPER_HEALTH_WARN_PCT` (default `80`), `NIXLPER_HEALTH_CRIT_PCT` (default `90`), `NIXLPER_HEALTH_TOP_N` (default `3`).
 
+### Changed
+- **`build-rpm.sh` quiet by default**: `rpmbuild` now runs with `--quiet`, suppressing the `+ command` scriptlet trace it prints internally for `%install`. Pass `--verbose`/`-v` to see the full trace, e.g. `bash build-rpm.sh --verbose`.
+
 ---
 
 ## [2.3.0] - 2026-06-28
