@@ -78,6 +78,31 @@ _clean_previous_rpms() {
 # Main
 #-----------------------------------------------------------------------------------------------------------------------
 main() {
+  # Quiet by default — rpmbuild's scriptlets run under an internal `set -x`, echoing every
+  # "+ command" from %install. Pass --verbose (or -v) to see that raw trace when debugging
+  # a scriptlet failure.
+  local verbose="false"
+  case "${1:-}" in
+    --verbose|-v)
+      verbose="true"
+      ;;
+    --help|-h)
+      echo "Usage: $0 [--verbose|-v]"
+      echo "  --verbose, -v   Show rpmbuild's full scriptlet trace (off by default)"
+      return 0
+      ;;
+    "") ;;
+    *)
+      _log_error "\"${1}\" unknown option — use --verbose/-v or --help"
+      return 1
+      ;;
+  esac
+
+  local -a rpmbuild_flags=(-bb)
+  if [[ "${verbose}" == "false" ]]; then
+    rpmbuild_flags+=(--quiet)
+  fi
+
   _log_separator
   _log_info "Build nixlper RPM"
   _log_separator
@@ -120,7 +145,7 @@ main() {
 
   # Build binary RPM
   _log_info "Running rpmbuild..."
-  rpmbuild -bb \
+  rpmbuild "${rpmbuild_flags[@]}" \
     --define "nixlper_version ${version}" \
     --define "nixlper_changelog_date ${changelog_date}" \
     "${rpmbuild_dir}/SPECS/nixlper.spec"
