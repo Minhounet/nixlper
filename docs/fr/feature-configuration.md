@@ -43,6 +43,7 @@ Les modifications prennent effet dans les nouveaux shells. Pour les appliquer im
 | `NIXLPER_UPDATE_AUTO` | `false` | Installer automatiquement les mises à jour détectées |
 | `NIXLPER_UPDATE_CHANNEL` | `stable` | Canal de mise à jour (`stable` / `edge` / `off`) |
 | `NIXLPER_TARGET_DIR` | `/tmp/nixlper_target` | Dossier de transit pour copier/marquer/archiver |
+| `NIXLPER_LOGTAIL_IGNORE_CASE` | `false` | Correspondance de motif insensible à la casse pour `logtail` |
 
 ## Paramètres avancés
 
@@ -55,6 +56,7 @@ Les modifications prennent effet dans les nouveaux shells. Pour les appliquer im
 | `NIXLPER_CUSTOM_DIR` | Chemin du répertoire de scripts personnalisés |
 | `NIXLPER_SSH_CONNECTIONS_FILE` | Chemin du fichier de connexions SSH |
 | `NIXLPER_SSH_IDENTITY_FILE` | Clé SSH d'identité par défaut |
+| `NIXLPER_LOGTAIL_LINES` | Lignes initiales affichées par `logtail` avant de suivre (défaut `10`) |
 
 ---
 

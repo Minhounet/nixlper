@@ -39,6 +39,7 @@ Then open a new shell. That's it.
 | 💡 Learn tips as you work | [Tips](feature-tips.md) |
 | 😄 Get a random developer joke | [Jokes](feature-jokes.md) |
 | 🩺 Check memory/disk/CPU health with remediation tips | [System Health](feature-system-health.md) |
+| 📜 Follow a log file, highlighting matching lines | [Logs](feature-logs.md) |
 
 ---
 

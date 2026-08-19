@@ -43,6 +43,7 @@ Changes take effect in new shells. To apply immediately: `source ~/.bashrc`.
 | `NIXLPER_UPDATE_AUTO` | `false` | Auto-install detected updates |
 | `NIXLPER_UPDATE_CHANNEL` | `stable` | Update channel (`stable` / `edge` / `off`) |
 | `NIXLPER_TARGET_DIR` | `/tmp/nixlper_target` | Staging folder for copy/mark/pack |
+| `NIXLPER_LOGTAIL_IGNORE_CASE` | `false` | Case-insensitive pattern matching for `logtail` |
 
 ## Advanced settings
 
@@ -55,6 +56,7 @@ Changes take effect in new shells. To apply immediately: `source ~/.bashrc`.
 | `NIXLPER_CUSTOM_DIR` | Path to custom scripts directory |
 | `NIXLPER_SSH_CONNECTIONS_FILE` | Path to SSH connections file |
 | `NIXLPER_SSH_IDENTITY_FILE` | Default SSH identity key |
+| `NIXLPER_LOGTAIL_LINES` | Initial lines shown by `logtail` before following (default `10`) |
 
 ---
 
