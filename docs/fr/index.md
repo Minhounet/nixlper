@@ -39,6 +39,7 @@ Ouvrez un nouveau shell. C'est tout.
 | 💡 Apprendre des astuces au fil de l'utilisation | [Astuces](feature-tips.md) |
 | 😄 Afficher une blague de développeur aléatoire | [Blagues](feature-jokes.md) |
 | 🩺 Vérifier la santé mémoire/disque/CPU avec conseils de remédiation | [Santé système](feature-system-health.md) |
+| 📜 Suivre un fichier de log en surlignant les lignes correspondantes | [Logs](feature-logs.md) |
 
 ---
 

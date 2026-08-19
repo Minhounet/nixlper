@@ -1,0 +1,9 @@
+########################################################################################################################
+# Help for logs
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+logtail FILE PATTERN : follow FILE (tail -F, survives log rotation) and print only the lines matching PATTERN,
+                        highlighted in colour. CTRL+C to stop.
+                        Configurable via nconf: NIXLPER_LOGTAIL_IGNORE_CASE (default false),
+                        NIXLPER_LOGTAIL_LINES (initial lines shown before following, default 10).
+------------------------------------------------------------------------------------------------------------------------

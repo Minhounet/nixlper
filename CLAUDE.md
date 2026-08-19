@@ -17,8 +17,16 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
 - **Environment snapshot diff**: compare `env`/`PATH`/loaded modules between two points in
   time — useful when a script breaks something and you need to know what changed.
 
-- **Log tail with pattern alerting**: `logtail FILE PATTERN` — follows a file and highlights
-  matching lines in colour. Wrapper around `tail -f | grep --color` with nixlper keybindings.
+---
+
+## Modules Reference
+
+- **`functions_logtail.sh`** — `logtail FILE PATTERN` (`@args` command, no keybind — see the
+  `bind -x` constraint above). Wraps `tail -F FILE | grep --color=always -E PATTERN`; `-F`
+  (not `-f`) so it survives log rotation. Configurable via `nconf`: `NIXLPER_LOGTAIL_IGNORE_CASE`
+  (bool, default `false`) and `NIXLPER_LOGTAIL_LINES` (int, default `10`, initial lines shown
+  before following). Docs: `docs/feature-logs.md` / `docs/fr/feature-logs.md`, help:
+  `src/main/help/help_logs`, tests: `src/test/bash/test_functions_logtail.sh`.
 
 ---
 
