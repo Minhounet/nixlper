@@ -11,11 +11,7 @@ without re-discovering context.
 
 Features discussed and agreed upon but not yet implemented. Pick these up in future sessions.
 
-- **Port/service quick-check**: given a port number, resolve to process name + PID + suggested
-  action. Extends the existing `ik` (interactive kill) in `functions_processes.sh`.
-
-- **Environment snapshot diff**: compare `env`/`PATH`/loaded modules between two points in
-  time — useful when a script breaks something and you need to know what changed.
+_(empty — add new backlog items here as they come up)_
 
 ---
 
@@ -27,6 +23,13 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
   (bool, default `false`) and `NIXLPER_LOGTAIL_LINES` (int, default `10`, initial lines shown
   before following). Docs: `docs/feature-logs.md` / `docs/fr/feature-logs.md`, help:
   `src/main/help/help_logs`, tests: `src/test/bash/test_functions_logtail.sh`.
+
+- **`functions_processes.sh`** — `ik` (interactive kill by pattern or port) and `pc PORT`
+  (port/service quick-check: resolves a port to process name + PID via `_i_get_pid_by_port`,
+  and prints a suggested `ik --port` / `kill -9` action; no `nconf` knobs). Both share the
+  `ss` (iproute2) / `netstat` (net-tools) detection in `_i_get_pid_by_port`. Docs:
+  `docs/feature-processes.md` / `docs/fr/feature-processes.md`, help:
+  `src/main/help/help_processes`.
 
 ---
 

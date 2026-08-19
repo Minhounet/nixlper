@@ -4,4 +4,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 ik : call interactive kill, you can after decide to kill by pattern or by port.
      Port mode uses `ss` (iproute2) if available, falls back to `netstat` (net-tools).
+pc PORT : port/service quick-check. Resolves a port to the process name and PID
+          listening on it, and prints a suggested action (kill via `ik --port` or `kill -9`).
+          Uses the same `ss`/`netstat` detection as `ik --port`.
 ------------------------------------------------------------------------------------------------------------------------

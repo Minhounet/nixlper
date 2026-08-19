@@ -391,6 +391,7 @@ alias cf=_mark_file_as_current
 alias cpcb=_copy_fullpath_to_clipboard
 alias cpdcb=_copy_directory_to_clipboard
 alias ik=_interactive_kill
+alias pc=_port_check
 alias sucd=_su_to_current_directory
 alias sn=_snapshot_file
 alias re=_restore_file

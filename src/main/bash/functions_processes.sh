@@ -132,3 +132,35 @@ function _i_kill_by_port() {
     _i_log_as_info "No process found by port ${port}"
   fi
 }
+
+# @cmd-palette
+# @description: Resolve a port to its process name, PID and a suggested action
+# @category: Processes
+# @alias: pc
+# @args: PORT
+function _port_check() {
+  if [[ $# -eq 0 || -z "$1" ]]; then
+    _i_log_as_error "$0: Missing port value"
+    return 1
+  fi
+  local -r port=$1
+  if [[ ! "${port}" =~ ^[0-9]+$ ]]; then
+    _i_log_as_error "Port must be a number"
+    return 1
+  fi
+  local process_pid
+  if ! process_pid=$(_i_get_pid_by_port "${port}"); then
+    _i_log_as_error "No tool available to query ports. Please install ss (iproute2) or netstat (net-tools)."
+    return 1
+  fi
+  if [[ -z "${process_pid}" ]]; then
+    _i_log_as_info "Port ${port} is free, no process is listening on it"
+    return 0
+  fi
+  local process_name
+  process_name=$(ps -p "${process_pid}" -o comm= 2>/dev/null)
+  process_name=${process_name:-unknown}
+  _i_log_as_info "Port ${port} -> process '${process_name}' (PID ${process_pid})"
+  ps -p "${process_pid}" -f
+  echo "Suggested action: run 'ik --port ${port}' to kill it interactively, or 'kill -9 ${process_pid}' directly."
+}

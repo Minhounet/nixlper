@@ -7,6 +7,7 @@
 | Alias | Description |
 |---|---|
 | `ik` | Interactive kill — choose by pattern or port |
+| `pc PORT` | Port quick-check — process name, PID and a suggested action for a port |
 
 ---
 
@@ -34,6 +35,17 @@ Enter a port number — nixlper finds the process listening on that port and off
 
 Port detection uses `ss` (iproute2) if available, with `netstat` (net-tools) as fallback.
 
+### Port quick-check
+
+Enter a port number — nixlper looks up the process listening on it and prints its name,
+PID, and a suggested action, without prompting to kill it.
+
+```bash
+pc 8080
+```
+
+If the port is free, nixlper says so and does nothing else.
+
 ---
 
 ## Example
@@ -45,6 +57,12 @@ Pattern: myapp
   PID 12345 — java -jar myapp.jar
 Kill PID 12345? [y/N] y
 Killed.
+
+$ pc 8080
+Port 8080 -> process 'java' (PID 12345)
+UID   PID  PPID  C STIME TTY TIME     CMD
+user  12345 1    0 10:00 ?  00:00:05 java -jar myapp.jar
+Suggested action: run 'ik --port 8080' to kill it interactively, or 'kill -9 12345' directly.
 ```
 
 ---
