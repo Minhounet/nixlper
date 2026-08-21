@@ -1,0 +1,35 @@
+########################################################################################################################
+# Help for admin notice
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+bset  : register an admin notice shown to everyone at next login
+------------------------------------------------------------------------------------------------------------------------
+Interactive: prompts for the message text, then for an optional expiry in days.
+  - Leave the expiry blank for a persistent notice (shown at every login until bclear).
+  - Enter a number of days for a notice that stops being shown once it expires (checked at
+    login time — an expired notice lingers harmlessly until the next login, it is not removed
+    by a background timer).
+
+Independent from nixlper's own welcome message/tips — this is for operator-to-operator notices,
+e.g. "reboot pending" or "temporary DNS workaround, see ticket #123".
+
+------------------------------------------------------------------------------------------------------------------------
+bshow  : show the current admin notice on demand
+------------------------------------------------------------------------------------------------------------------------
+Prints "No admin notice currently set." if there is none (or it has expired).
+
+------------------------------------------------------------------------------------------------------------------------
+bclear  : remove the current admin notice
+------------------------------------------------------------------------------------------------------------------------
+Deletes the notice immediately, regardless of any expiry that was set.
+
+------------------------------------------------------------------------------------------------------------------------
+Configuration:
+  NIXLPER_DISABLE_BROADCAST_MESSAGE   bool   false   Suppress the admin notice at login
+  NIXLPER_BROADCAST_MESSAGE_FILE      path   (see below)   Where the notice is stored
+                                       Set via: nconf
+  Manual install default : $NIXLPER_INSTALL_DIR/broadcast_message
+  RPM/DEB default        : /etc/nixlper/broadcast_message
+  Only whoever can write to that path (typically root on a system-wide install) can register or
+  clear a notice; every user can read it.
+------------------------------------------------------------------------------------------------------------------------

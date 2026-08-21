@@ -35,6 +35,8 @@ _NIXLPER_CONFIG_VARS=(
   "NIXLPER_HEALTH_TOP_N|int|3|Top resource consumers shown per WARN/CRIT metric|advanced"
   "NIXLPER_LOGTAIL_IGNORE_CASE|bool|false|Case-insensitive pattern matching for logtail|common"
   "NIXLPER_LOGTAIL_LINES|int|10|Initial lines shown by logtail before following|advanced"
+  "NIXLPER_DISABLE_BROADCAST_MESSAGE|bool|false|Suppress admin notice at login|common"
+  "NIXLPER_BROADCAST_MESSAGE_FILE|path||Admin notice file path|advanced"
 )
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -186,7 +188,8 @@ function _nconf_create_user_conf() {
     printf "# export NIXLPER_UPDATE_AUTO=false\n"
     printf "# export NIXLPER_UPDATE_CHANNEL=stable\n"
     printf "# export NIXLPER_TARGET_DIR=/tmp/nixlper_target\n"
-    printf "# export NIXLPER_LOGTAIL_IGNORE_CASE=false\n\n"
+    printf "# export NIXLPER_LOGTAIL_IGNORE_CASE=false\n"
+    printf "# export NIXLPER_DISABLE_BROADCAST_MESSAGE=false\n\n"
     printf "# --- Advanced settings ---\n"
     printf "# export NIXLPER_UPDATE_CHECK_INTERVAL=86400\n"
     printf "# export NIXLPER_UPDATE_TIMEOUT=2\n"
@@ -201,6 +204,7 @@ function _nconf_create_user_conf() {
     printf "# export NIXLPER_HEALTH_CRIT_PCT=90\n"
     printf "# export NIXLPER_HEALTH_TOP_N=3\n"
     printf "# export NIXLPER_LOGTAIL_LINES=10\n"
+    printf "# export NIXLPER_BROADCAST_MESSAGE_FILE=\${NIXLPER_INSTALL_DIR}/broadcast_message\n"
   } > "${_NIXLPER_USER_CONF}"
   echo "  -> Created ${_NIXLPER_USER_CONF}"
 }

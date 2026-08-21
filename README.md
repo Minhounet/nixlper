@@ -219,6 +219,7 @@ Quick overview of what's available:
 | **SSH connections** | Quick-connect with automatic key push |
 | **Configuration** | `nconf` / `CTRL+X+C` — interactive settings editor |
 | **Updates** | Stable and edge channels with automatic checks |
+| **Admin notice** | `bset`/`bshow`/`bclear` — leave a login message for whoever logs in next, with optional auto-expiry |
 
 ## License
 

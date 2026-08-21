@@ -14,6 +14,7 @@
 # General initialization
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_init() {
+  _i_load_broadcast_message
   if [[ "${NIXLPER_DISABLE_WELCOME_MESSAGE:-false}" != "true" ]]; then
     _i_check_tools
   fi
@@ -185,6 +186,8 @@ export NIXLPER_UPDATE_CHECK="\${NIXLPER_UPDATE_CHECK:-true}"
 export NIXLPER_UPDATE_AUTO="\${NIXLPER_UPDATE_AUTO:-false}"
 export NIXLPER_UPDATE_CHECK_INTERVAL="\${NIXLPER_UPDATE_CHECK_INTERVAL:-86400}"
 export NIXLPER_UPDATE_TIMEOUT="\${NIXLPER_UPDATE_TIMEOUT:-2}"
+export NIXLPER_DISABLE_BROADCAST_MESSAGE="\${NIXLPER_DISABLE_BROADCAST_MESSAGE:-false}"
+export NIXLPER_BROADCAST_MESSAGE_FILE="\${NIXLPER_BROADCAST_MESSAGE_FILE:-/etc/nixlper/broadcast_message}"
 
 # Per-user paths — \$HOME expands at login time for each user.
 export NIXLPER_BOOKMARKS_FILE="\${NIXLPER_BOOKMARKS_FILE:-\${HOME}/.local/share/nixlper/bookmarks}"
@@ -415,6 +418,9 @@ alias nw=show_ongoing_work
 alias health=nixlper_health_check
 alias ndebug=nixlper_debug_exec
 alias ndbconf=nixlper_debug_show_config
+alias bset=set_broadcast_message
+alias bclear=clear_broadcast_message
+alias bshow=show_broadcast_message
 
 #***********************************************************************************************************************
 ########################################################################################################################

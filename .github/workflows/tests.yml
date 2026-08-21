@@ -53,3 +53,6 @@ jobs:
 
       - name: Run logtail unit tests
         run: bash src/test/bash/test_functions_logtail.sh
+
+      - name: Run admin broadcast message unit tests
+        run: bash src/test/bash/test_functions_broadcast.sh
