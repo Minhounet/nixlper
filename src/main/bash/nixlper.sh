@@ -421,6 +421,7 @@ alias ndbconf=nixlper_debug_show_config
 alias bset=set_broadcast_message
 alias bclear=clear_broadcast_message
 alias bshow=show_broadcast_message
+alias logtail=_logtail
 
 #***********************************************************************************************************************
 ########################################################################################################################
