@@ -164,6 +164,18 @@ cannot directly execute commands that prompt for input or require typed argument
 Both `@args` and `@interactive` commands still work normally when invoked via their own
 aliases/keybindings — the annotation only changes palette dispatch behavior.
 
+### `@alias:` is documentation, not registration
+
+`@alias: name` only tells the parser what short name to *display* in the palette (and, via
+`_execute_command`, what to `eval` when a plain command is selected). It does **not** create the
+shell alias itself — that alias must still be added explicitly in `nixlper.sh`'s `ALIASES`
+section (`alias name=function_name`). Annotating a function with `@alias: foo` but forgetting
+the matching `alias foo=...` line is a silent failure: the palette entry looks correct and
+`_function_name` still works when called directly, but typing `foo` on the command line (the
+form every doc page advertises) fails with `command not found`. `logtail` shipped this way for
+one release before the missing `alias logtail=_logtail` was added — when adding a new
+`@alias`-annotated command, always add its `alias` line in `nixlper.sh` in the same commit.
+
 ---
 
 ## Target staging lifecycle (`functions_target.sh`)

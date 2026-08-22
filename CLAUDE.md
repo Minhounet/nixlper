@@ -28,6 +28,19 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
   before following). Docs: `docs/feature-logs.md` / `docs/fr/feature-logs.md`, help:
   `src/main/help/help_logs`, tests: `src/test/bash/test_functions_logtail.sh`.
 
+- **`functions_broadcast.sh`** — `bset`/`bshow`/`bclear`: admin login notice, independent from
+  nixlper's own welcome message. `bset` is `@interactive` (prompts for message text, then an
+  optional expiry in days — blank means persistent until `bclear`). Storage: a single file
+  (`NIXLPER_BROADCAST_MESSAGE_FILE`, default `$NIXLPER_INSTALL_DIR/broadcast_message` manual /
+  `/etc/nixlper/broadcast_message` RPM/DEB) plus an optional `<file>.expires` sidecar holding an
+  epoch timestamp. Expiry is checked lazily at login (`_i_broadcast_active`, called from
+  `_i_init` via `_i_load_broadcast_message`) — an expired notice is deleted the next time
+  anyone logs in, not by a background timer. Configurable via `nconf`:
+  `NIXLPER_DISABLE_BROADCAST_MESSAGE` (bool, default `false`) and
+  `NIXLPER_BROADCAST_MESSAGE_FILE`. Docs: `docs/feature-admin-notice.md` /
+  `docs/fr/feature-admin-notice.md`, help: `src/main/help/help_admin`, tests:
+  `src/test/bash/test_functions_broadcast.sh`.
+
 ---
 
 ## Known Issues
@@ -567,6 +580,8 @@ Actual precedence (lowest → highest):
 | `NIXLPER_HEALTH_WARN_PCT` | `80` | `80` |
 | `NIXLPER_HEALTH_CRIT_PCT` | `90` | `90` |
 | `NIXLPER_HEALTH_TOP_N` | `3` | `3` |
+| `NIXLPER_DISABLE_BROADCAST_MESSAGE` | `false` | `false` |
+| `NIXLPER_BROADCAST_MESSAGE_FILE` | `$NIXLPER_INSTALL_DIR/broadcast_message` | `/etc/nixlper/broadcast_message` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.

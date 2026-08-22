@@ -52,6 +52,14 @@ _expect_match_count() {  # $1 name, $2 haystack, $3 regex, $4 expected count
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
+echo "== alias registration (regression) =="
+# `@alias: logtail` in functions_logtail.sh only tells the palette what name to display — it does
+# NOT create the shell alias itself. Without `alias logtail=_logtail` in nixlper.sh's ALIASES
+# section, `logtail FILE PATTERN` (the form every doc page advertises) fails with
+# "command not found" even though `_logtail` works. Guard against that regressing silently.
+NIXLPER_SH="${REPO_ROOT}/src/main/bash/nixlper.sh"
+_expect_match_count "nixlper.sh registers the logtail alias" "$(cat "${NIXLPER_SH}")" "^alias logtail=_logtail$" 1
+
 echo "== argument validation =="
 unset NIXLPER_LOGTAIL_IGNORE_CASE NIXLPER_LOGTAIL_LINES
 

@@ -40,6 +40,7 @@ Then open a new shell. That's it.
 | 😄 Get a random developer joke | [Jokes](feature-jokes.md) |
 | 🩺 Check memory/disk/CPU health with remediation tips | [System Health](feature-system-health.md) |
 | 📜 Follow a log file, highlighting matching lines | [Logs](feature-logs.md) |
+| ⚠️ Leave a login notice for whoever logs in next | [Admin Notice](feature-admin-notice.md) |
 
 ---
 
