@@ -106,6 +106,46 @@ function _i_get_pid_by_port() {
   fi
 }
 
+# @cmd-palette
+# @description: Quick-check which process is listening on a port (name + PID + suggested action)
+# @category: Processes
+# @alias: pc
+# @args: PORT
+function _port_check() {
+  if [[ $# -eq 0 ]]; then
+    _i_log_as_error "$0: Missing port value"
+    _i_log_as_error "Usage: pc PORT"
+    return 1
+  fi
+  local -r port=$1
+  if [[ ! "${port}" =~ ^[0-9]+$ ]]; then
+    _i_log_as_error "Invalid port '${port}', expected a number"
+    return 1
+  fi
+
+  local process_pid
+  if ! process_pid=$(_i_get_pid_by_port "${port}"); then
+    _i_log_as_error "No tool available to query ports. Please install ss (iproute2) or netstat (net-tools)."
+    return 1
+  fi
+
+  if [[ -z "${process_pid}" ]]; then
+    _i_log_as_info "No process is listening on port ${port}."
+    return 0
+  fi
+
+  local process_name
+  process_name=$(ps -p "${process_pid}" -o comm= 2>/dev/null)
+
+  _i_log_as_info "Port ${port} is in use by PID ${process_pid} (${process_name:-unknown})"
+  if [[ "${NIXLPER_PORT_CHECK_SHOW_CMDLINE:-true}" == "true" ]]; then
+    local process_cmd
+    process_cmd=$(ps -p "${process_pid}" -o args= 2>/dev/null)
+    echo "Command: ${process_cmd:-n/a}"
+  fi
+  echo "Suggested action: run 'ik --port ${port}' to kill it interactively, or 'kill -9 ${process_pid}' directly."
+}
+
 function _i_kill_by_port() {
   if [[ $# -eq 0 ]]; then
     _i_log_as_error "$0: Missing port value"

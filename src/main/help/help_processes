@@ -4,4 +4,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 ik : call interactive kill, you can after decide to kill by pattern or by port.
      Port mode uses `ss` (iproute2) if available, falls back to `netstat` (net-tools).
+pc PORT : quick-check what process is listening on PORT (process name, PID, command line,
+     suggested action). Read-only — does not kill anything. Uses the same port detection as `ik`.
+     Configurable via nconf: NIXLPER_PORT_CHECK_SHOW_CMDLINE (bool, default true).
 ------------------------------------------------------------------------------------------------------------------------
