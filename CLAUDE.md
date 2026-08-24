@@ -11,9 +11,6 @@ without re-discovering context.
 
 Features discussed and agreed upon but not yet implemented. Pick these up in future sessions.
 
-- **Port/service quick-check**: given a port number, resolve to process name + PID + suggested
-  action. Extends the existing `ik` (interactive kill) in `functions_processes.sh`.
-
 - **Environment snapshot diff**: compare `env`/`PATH`/loaded modules between two points in
   time — useful when a script breaks something and you need to know what changed.
 
@@ -582,6 +579,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_HEALTH_TOP_N` | `3` | `3` |
 | `NIXLPER_DISABLE_BROADCAST_MESSAGE` | `false` | `false` |
 | `NIXLPER_BROADCAST_MESSAGE_FILE` | `$NIXLPER_INSTALL_DIR/broadcast_message` | `/etc/nixlper/broadcast_message` |
+| `NIXLPER_PORT_CHECK_SHOW_CMDLINE` | `true` | `true` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.

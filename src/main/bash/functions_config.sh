@@ -37,6 +37,7 @@ _NIXLPER_CONFIG_VARS=(
   "NIXLPER_LOGTAIL_LINES|int|10|Initial lines shown by logtail before following|advanced"
   "NIXLPER_DISABLE_BROADCAST_MESSAGE|bool|false|Suppress admin notice at login|common"
   "NIXLPER_BROADCAST_MESSAGE_FILE|path||Admin notice file path|advanced"
+  "NIXLPER_PORT_CHECK_SHOW_CMDLINE|bool|true|Show full command line in port quick-check (pc) output|common"
 )
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -189,7 +190,8 @@ function _nconf_create_user_conf() {
     printf "# export NIXLPER_UPDATE_CHANNEL=stable\n"
     printf "# export NIXLPER_TARGET_DIR=/tmp/nixlper_target\n"
     printf "# export NIXLPER_LOGTAIL_IGNORE_CASE=false\n"
-    printf "# export NIXLPER_DISABLE_BROADCAST_MESSAGE=false\n\n"
+    printf "# export NIXLPER_DISABLE_BROADCAST_MESSAGE=false\n"
+    printf "# export NIXLPER_PORT_CHECK_SHOW_CMDLINE=true\n\n"
     printf "# --- Advanced settings ---\n"
     printf "# export NIXLPER_UPDATE_CHECK_INTERVAL=86400\n"
     printf "# export NIXLPER_UPDATE_TIMEOUT=2\n"
