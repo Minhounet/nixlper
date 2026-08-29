@@ -116,10 +116,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.0.0] - 2026-06-06
+## [2.0.0] "Turnabout Genesis" - 2026-06-06
 
 A major release that turns Nixlper from a personal script collection into a
-properly packaged, discoverable tool.
+properly packaged, discoverable tool. What started as a handful of bash
+shortcuts grew into a structured project with a real distribution story —
+the turning point that earns this release both its major version bump and
+its name.
+
+The headline addition is the **command palette** (`CTRL+X+A`): a
+fuzzy-searchable popup of every available command, with its description,
+category, keybinding, and alias. You no longer need to remember anything —
+just open the palette and type. This single feature changes the way the
+tool is used and discovered.
 
 ### Added
 - **Command palette** (`CTRL+X+A`): fuzzy-searchable popup of every command with

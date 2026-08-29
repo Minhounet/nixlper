@@ -10,21 +10,6 @@ Ceci est mon assistant personnel en environnement Unix. Je me suis inspiré de l
 
 > ⚠️ **L'aide intégrée (`CTRL+X puis H`) est uniquement disponible en anglais pour l'instant. Une traduction française est prévue dans une prochaine version.**
 
-## 🎉 v2.0.0 — Un nouveau départ
-
-La version 2.0.0 marque un tournant dans le projet. Ce qui a commencé comme une collection personnelle de raccourcis bash est devenu un outil structuré, correctement packagé, avec une vraie histoire de distribution.
-
-L'ajout phare est la **palette de commandes** (`CTRL+X+A`) : un popup de recherche floue listant toutes les commandes disponibles (avec leur description, catégorie, raccourci clavier et alias). Plus besoin de se souvenir de quoi que ce soit — ouvrez la palette et tapez. Cette fonctionnalité change la façon dont l'outil est utilisé et découvert, et c'est la principale raison pour laquelle cette version mérite un changement de version majeure.
-
-Au-delà de ça, v2.0.0 apporte :
-- 📦 **Paquets RPM et DEB** — installez via votre gestionnaire de paquets système, sans étape manuelle
-- ⚡ **`install.sh`** — un script d'installation et de mise à jour en une seule ligne curl
-- 🔍 **`fag`** — recherche dans les fichiers et ouverture directe à la ligne correspondante dans votre éditeur
-- 🗂️ **Raccourcis `fan`** — supprimez ou faites un `cd` vers n'importe quel résultat de recherche directement
-- ✏️ **Renommage par motif** (`rn`) et une commande **rafraîchissement** (`rf`)
-- 💡 Un **système de conseils** qui affiche un nouveau conseil à chaque démarrage du shell
-- 🛠️ Détection des outils manquants au démarrage pour savoir exactement quoi installer
-
 ## Description
 
 L'objectif de ce projet bash est de fournir des commandes Unix utiles à diverses fins. Il s'inspire de la philosophie de [Total Commander](https://www.ghisler.com/accueil.htm),
