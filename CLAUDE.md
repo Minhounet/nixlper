@@ -452,6 +452,24 @@ messages.
 **MINOR** (`X.Y+1.0`) — new features, backward-compatible.  
 **MAJOR** (`X+1.0.0`) — breaking changes or a significant paradigm shift.
 
+#### Version codenames (major releases only)
+Every **major** release (`X.0.0`) gets an evocative codename in the Ace Attorney /
+JRPG vein, following the `Turnabout <Word>` pattern (Ace Attorney case titles are
+literally "Turnabout ___"; `<Word>` carries the JRPG-epic weight — a chapter,
+an arc, a boss). Format in `CHANGELOG.md`:
+
+```markdown
+## [X.0.0] "Turnabout <Word>" - YYYY-MM-DD
+```
+
+Minor and patch releases stay unnamed — only major version bumps earn a codename,
+since the name is meant to mark a real turning point, not every release.
+`v2.0.0` was retroactively named **"Turnabout Genesis"** (the command-palette /
+proper-packaging release — see its `CHANGELOG.md` entry). When the next major
+bump happens, pick a fresh `<Word>` that fits the release's narrative rather than
+reusing a reserved list — brainstorm at that time (candidates in the spirit of
+the theme: Ascension, Nexus, Requiem, Zenith, Vanguard, Reckoning...).
+
 #### README.md
 The opening badge block of `README.md` contains the current version and a one-line "What's new" summary:
 
