@@ -4,10 +4,10 @@
 
 > 🇫🇷 [Version française](fr/feature-bookmarks.md)
 
-| Shortcut | Description |
-|---|---|
-| `CTRL+X+B` | Add or remove a bookmark for the current folder |
-| `CTRL+X+D` | Display all saved bookmarks |
+| Shortcut | Alias | Description |
+|---|---|---|
+| `CTRL+X+B` | — | Add or remove a bookmark for the current folder |
+| `CTRL+X+D` | `bd` | Display saved bookmarks and jump to one |
 
 ---
 
@@ -36,7 +36,17 @@ Press `CTRL+X+B` again from any directory. If the current folder is already book
 
 ### Jump to a bookmark
 
-Press `CTRL+X+D` to display all saved bookmarks. Select one and press Enter — nixlper `cd`s directly to that folder.
+Press `CTRL+X+D` (or run `bd`) to display all saved bookmarks and jump to one.
+
+If [`fzf`](https://github.com/junegunn/fzf#installation) is installed, this opens an **incremental filter** that supports both selection styles at once — each entry is shown with its index number, so:
+- typing **digits** (e.g. `3`) jumps straight to that numbered entry;
+- typing **letters** (e.g. `nginx`) fuzzy-filters the list live by bookmark name or path.
+
+Use the arrow keys to move, `Enter` to jump, `Esc` to cancel. Without `fzf` — or with fuzzy mode disabled — falls back to the classic numbered picker: type a number and press Enter to jump there.
+
+Bookmarks whose directory has been removed since they were saved are skipped automatically.
+
+You can also type the bookmark's own name directly at any prompt — since each bookmark is a real bash alias, typing `nginx-logs` jumps to it exactly like typing any other command. The picker above is a second way to find it when you don't remember the exact name.
 
 ---
 
@@ -44,7 +54,14 @@ Press `CTRL+X+D` to display all saved bookmarks. Select one and press Enter — 
 
 Bookmarks are stored in `NIXLPER_BOOKMARKS_FILE` (default: `$NIXLPER_INSTALL_DIR/.nixlper_bookmarks` for manual install, `~/.local/share/nixlper/bookmarks` for RPM/DEB).
 
-Configure the path via `nconf` (`CTRL+X+C`).
+### Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `NIXLPER_BOOKMARKS_FILE` | `~/.local/share/nixlper/bookmarks` | Bookmarks file path |
+| `NIXLPER_BOOKMARKS_FUZZY` | `true` | Use the `fzf` fuzzy filter when `fzf` is installed; `false` always uses the numbered picker |
+
+Configure via `nconf` (`CTRL+X+C`) or `~/.config/nixlper/nixlper.conf`.
 
 ---
 

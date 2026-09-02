@@ -342,3 +342,76 @@ unpadded `"%d  %s"` instead, at the cost of columns not lining up visually for 1
 itself contains a double space later on, because a real directory path always starts with `/`,
 never a digit — so the *first* `"  "` encountered in the full line is always the separator we
 inserted, never one occurring inside the path.
+
+---
+
+## Bookmarks (`functions_bookmarks.sh`)
+
+### Storage doubles as executable aliases
+
+Bookmarks are not stored as plain data — each line in `NIXLPER_BOOKMARKS_FILE` is a literal
+bash `alias` statement: `alias NAME='cd PATH && echo "INFO: ..."'`. This is deliberate: typing
+the bookmark's name at any prompt jumps to it directly, with zero picker involved, because it
+*is* a real alias sourced into the shell. Every other bookmark operation — display, jump,
+delete — has to parse this executable-statement format back out rather than reading structured
+data, which is why the extraction regexes below matter.
+
+### Same number-jump/fuzzy-filter trick as `rd`, adapted for two fields
+
+`bookmark_dirs` (`bd` / `CTRL+X+D`) reuses the exact hybrid trick documented above for
+`recent_dirs`: `_i_bookmarks_fuzzy_pick` feeds `fzf` lines prefixed with a 1-based index
+(`"N  alias  (path)"`), so a digit query ranks that index at the top while a letter query
+fuzzy-filters by alias name or path text — see the `recent_dirs` section for the empirical
+`fzf --filter` evidence behind why this works.
+
+The extraction differs from `rd`, though: a bookmark line carries *two* fields (alias, path)
+instead of one bare path, and the path can itself contain spaces. Reparsing the path back out
+of the selected fzf line (as `rd` does with a prefix-strip) would be fragile here, so
+`_i_bookmarks_fuzzy_pick` instead extracts only the leading index (`${selected%% *}`, everything
+before the first space — always a clean integer) and uses it to index into `names`/`paths`
+arrays built *before* the line was ever handed to `fzf`. The display line is therefore
+write-only from the picker's perspective: `fzf` only needs it to rank and return the original
+line back verbatim, never to be parsed for data.
+
+### Both pickers re-derive their candidate list independently
+
+Like `_i_recent_dirs_fuzzy_pick`/`_i_recent_dirs_numbered_pick`, `_i_bookmarks_fuzzy_pick` and
+`_i_bookmarks_numbered_pick` each call `_i_bookmarks_valid_entries` themselves rather than
+sharing arrays built by the caller. This avoids `local -n` namerefs (bash 4.3+; the RPM spec
+only requires bash ≥ 4.0) at the cost of re-parsing the (small) bookmarks file twice per `bd`
+call — a deliberate, negligible trade for wider bash compatibility.
+
+### Why the greedy path capture matters (and where it still doesn't reach)
+
+`_i_bookmarks_valid_entries`'s regex — `^alias[[:space:]]+([A-Za-z0-9_]+)='cd[[:space:]]+(.*)[[:space:]]&&` —
+captures the path with a **greedy** `(.*)`, which backtracks to the *rightmost* `" && "` in the
+line. This correctly extracts a path containing spaces (verified: `cd /home/user/my projects/dir && echo ...`
+extracts `/home/user/my projects/dir` intact). The legacy display formatter,
+`SED_PATTERN_EXTRACT_ALIAS` in `_display_existing_bookmarks`, used to capture the path with
+`\S+` (non-whitespace only) — for a spacey path that pattern fails to match the line at all, so
+`sed`'s `s///` left the line completely unformatted (the raw `alias NAME='cd ...'` text printed
+verbatim instead of the intended `"path (alias)"`). It now uses the same greedy `(.*)` capture
+as the picker, for the same reason.
+
+This greedy-capture fix only reaches the **read** side (listing and jumping). The **write**
+side — `_i_bookmark_directory`, which builds the alias line at bookmark-creation time — still
+interpolates the path unquoted (`cd $bookmarked_dir && ...`), so a bookmark whose path contains
+spaces still breaks when its alias is typed directly (word-splitting turns `cd /a/b c` into `cd`
+with two arguments). `bookmark_dirs`/`bd` sidesteps this entirely, because it never re-invokes
+the stored alias — it `cd`s to the path pulled from the parsed `paths` array with normal bash
+quoting (`cd "$target"`), which handles spaces correctly regardless of how the alias itself was
+written. See `KNOWN_ISSUES.md` for the still-open direct-alias-invocation case.
+
+### Silent failure mode: `bind -x` cannot run this picker
+
+`bookmark_dirs` calls `read` (numbered fallback) or `fzf` (fuzzy path) — both require the normal
+readline/terminal state, which is unavailable inside a `bind -x` callback (raw mode; see the
+`@interactive` constraint in `CLAUDE.md`). `CTRL+X+D` used to bind `_display_existing_bookmarks`
+directly via `bind -x`, which was safe because that function only prints. Now that `CTRL+X+D`
+resolves to the interactive `bookmark_dirs`, the binding had to move to the same
+insert-onto-the-command-line mechanism used by `rd` and `sc`:
+`bind '"\C-x\C-d": "bookmark_dirs\15"'` (types the command and a simulated Enter, then executes
+it in the normal shell) instead of `bind -x '"\C-x\C-d": bookmark_dirs'`. Any future change that
+makes a `bind -x`-bound command call `read` or `fzf` needs the same fix, or it will silently do
+nothing when triggered by its keybinding (it still works when invoked by typing its name/alias
+directly, since that never goes through `bind -x` in the first place).

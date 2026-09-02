@@ -2,8 +2,32 @@
 # Help for bookmarks
 ########################################################################################################################
 ------------------------------------------------------------------------------------------------------------------------
-[CTRL + X then D] display existing bookmarks
+[CTRL + X then D] or  bd : display bookmarks and jump to one
 ------------------------------------------------------------------------------------------------------------------------
-[CTRL + X then B] add or remote existing bookmark for **current** folder.
+Displays all saved bookmarks, then lets you jump to one.
+
+If fzf is installed (and NIXLPER_BOOKMARKS_FUZZY is not disabled), opens an incremental
+filter that supports BOTH styles at once — each entry is shown with its index number:
+  - type digits (e.g. "3") to jump straight to that numbered entry
+  - type letters (e.g. "proj") to fuzzy-filter the list live by bookmark name or path
+Arrow keys to move, Enter to jump, Esc to cancel.
+
+Without fzf — or with NIXLPER_BOOKMARKS_FUZZY=false — falls back to a numbered list:
+type a number and press Enter to jump there instantly.
+
+Bookmarks whose directory has been removed since they were saved are skipped automatically.
+
+------------------------------------------------------------------------------------------------------------------------
+[CTRL + X then B] add or remove existing bookmark for **current** folder.
 You just have to define an unused bookmark name.
+
+Once bookmarked, typing the bookmark's alias name directly also jumps to it (like a normal
+bash alias) — the fuzzy/numbered picker above is an additional way to find it if you forget
+the name.
+------------------------------------------------------------------------------------------------------------------------
+Configuration (via nconf or ~/.config/nixlper/nixlper.conf):
+
+  NIXLPER_BOOKMARKS_FILE    path         Bookmarks file (default: ~/.local/share/nixlper/bookmarks)
+  NIXLPER_BOOKMARKS_FUZZY   bool   true  Use fzf fuzzy filter when fzf is installed
+
 ------------------------------------------------------------------------------------------------------------------------

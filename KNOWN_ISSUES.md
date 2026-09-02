@@ -35,6 +35,18 @@ terminal compatibility. Remove this entry once the feature has been validated in
 These bugs occur when the command is invoked **directly** on the command line with its
 documented arguments — they are not related to the `find_action` (CTRL+X+A) palette.
 
+### 🟡 Bookmarked directories containing spaces break when the bookmark's alias is typed directly
+
+`_i_bookmark_directory` (`functions_bookmarks.sh`) writes the bookmark as
+`alias NAME='cd $bookmarked_dir && ...'` with the path interpolated **unquoted**. Bookmarking a
+directory whose path contains a space (e.g. `/home/user/my projects/dir`) stores a `cd` that
+word-splits when the alias is typed directly, so `cd` receives multiple arguments and fails or
+lands in the wrong place. Discovered while adding the `bd` / `CTRL+X+D` fuzzy/numbered picker
+(see `INTERNALS.md` → Bookmarks), which does *not* have this problem — it `cd`s to the
+properly-quoted path it parsed, bypassing the stored alias entirely. Only direct invocation of
+the alias name is affected. Fix requires quoting the path at write time and updating the read
+side to tolerate both quoted (new) and unquoted (existing, already-installed) bookmark files.
+
 ### 🟡 Macros: commands requiring interactive input silently do nothing on replay
 
 `CTRL+X+CTRL+X` replay runs inside a `bind -x` callback where readline raw mode is active.

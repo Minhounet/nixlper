@@ -592,6 +592,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_RECENT_DIRS_MAX` | `20` | `20` |
 | `NIXLPER_RECENT_DIRS_FILE` | `~/.local/share/nixlper/recent_dirs` | `~/.local/share/nixlper/recent_dirs` |
 | `NIXLPER_RECENT_DIRS_FUZZY` | `true` | `true` |
+| `NIXLPER_BOOKMARKS_FUZZY` | `true` | `true` |
 | `NIXLPER_DEBUG` | `false` | `false` |
 | `NIXLPER_HEALTH_WARN_PCT` | `80` | `80` |
 | `NIXLPER_HEALTH_CRIT_PCT` | `90` | `90` |

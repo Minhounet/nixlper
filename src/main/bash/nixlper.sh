@@ -191,6 +191,7 @@ export NIXLPER_BROADCAST_MESSAGE_FILE="\${NIXLPER_BROADCAST_MESSAGE_FILE:-/etc/n
 
 # Per-user paths — \$HOME expands at login time for each user.
 export NIXLPER_BOOKMARKS_FILE="\${NIXLPER_BOOKMARKS_FILE:-\${HOME}/.local/share/nixlper/bookmarks}"
+export NIXLPER_BOOKMARKS_FUZZY="\${NIXLPER_BOOKMARKS_FUZZY:-true}"
 export NIXLPER_LAST_MACRO_BINDING_FILE="\${NIXLPER_LAST_MACRO_BINDING_FILE:-\${HOME}/.local/share/nixlper/last_macro_binding}"
 export NIXLPER_SNAPSHOT_DIR="\${NIXLPER_SNAPSHOT_DIR:-\${HOME}/.local/share/nixlper/snapshots}"
 export NIXLPER_CUSTOM_DIR="\${NIXLPER_CUSTOM_DIR:-\${HOME}/.config/nixlper/custom}"
@@ -277,7 +278,10 @@ function _i_delete_bashrc_config() {
 function _i_load_bindings() {
   if [[ $- == *i* ]]; then
     # bookmarks - annotations already in functions_bookmarks.sh
-    bind -x '"\C-x\C-d": _display_existing_bookmarks'
+    # bookmark_dirs may call fzf/read, which cannot work inside a bind -x raw-mode callback —
+    # like recent_dirs (CTRL+X+J) and sc (CTRL+X+S), it must be inserted onto the command line
+    # and run in the normal shell, not invoked directly via bind -x.
+    bind  '"\C-x\C-d": "bookmark_dirs\15"'
     bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
 
     # help - annotation already in functions_help.sh
