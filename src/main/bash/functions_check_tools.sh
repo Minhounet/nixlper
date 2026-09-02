@@ -23,7 +23,7 @@ function _i_check_tools() {
   # Optional tools - feature-specific, with descriptions of what is affected
   # Format: "tool|affected feature description"
   local -a optional_tool_entries=(
-    "fzf|command palette (fa) and help search (CTRL+X+H)"
+    "fzf|command palette (fa), help search (CTRL+X+H), and fuzzy search for recent dirs (rd)"
     "tree|tree navigation mode (navigate)"
     "netstat|kill by port (ik --port)"
     "less|help paging"

@@ -90,9 +90,11 @@ Runs `grep -rn PATTERN .` and displays each match with a `vN` shortcut that open
 rd
 ```
 
-Or press `CTRL+X+J`. Displays a numbered list of the most recently visited directories (most recent first). Type a number and press Enter to jump there. Home (`~`) and root (`/`) are excluded — they are too generic to be useful.
+Or press `CTRL+X+J`. Home (`~`) and root (`/`) are excluded — they are too generic to be useful.
 
 Directories that have been removed since the last visit are skipped automatically.
+
+If [`fzf`](https://github.com/junegunn/fzf#installation) is installed, `rd` opens an **incremental fuzzy filter**: type a few characters to narrow the list live (like IntelliJ's "recent files"), use the arrow keys to move, `Enter` to jump, `Esc` to cancel. Without `fzf` — or with fuzzy mode disabled — `rd` falls back to the classic numbered picker: a plain list, type a number and press Enter to jump there.
 
 ### Configuration
 
@@ -100,6 +102,7 @@ Directories that have been removed since the last visit are skipped automaticall
 |---|---|---|
 | `NIXLPER_RECENT_DIRS_MAX` | `20` | Maximum number of entries to remember |
 | `NIXLPER_RECENT_DIRS_FILE` | `~/.local/share/nixlper/recent_dirs` | History file path |
+| `NIXLPER_RECENT_DIRS_FUZZY` | `true` | Use the `fzf` fuzzy filter when `fzf` is installed; `false` always uses the numbered picker |
 
 Configure via `nconf` (`CTRL+X+C`) or `~/.config/nixlper/nixlper.conf`.
 

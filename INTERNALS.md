@@ -291,3 +291,24 @@ These directories are visited implicitly by many commands (shell startup, `cd` w
 `sudo -i`, etc.) — they would dominate the list and push actually useful recent dirs off.
 Exclusion is checked in `_i_recent_dirs_track`; `recent_dirs` additionally skips any entry
 whose directory no longer exists on disk.
+
+### Fuzzy picker vs. numbered fallback
+
+`recent_dirs` dispatches to one of two pickers rather than implementing the picker itself:
+`_i_recent_dirs_fuzzy_pick` (fzf) or `_i_recent_dirs_numbered_pick` (plain `read`). The
+dispatch condition — `NIXLPER_RECENT_DIRS_FUZZY` not `false` **and** `fzf` on `$PATH` — is
+checked on every call, not cached, so installing/removing `fzf` or flipping the setting via
+`nconf` takes effect on the very next `rd` with no re-source needed.
+
+Both pickers read the candidate list through the shared `_i_recent_dirs_list` helper, which
+filters out entries whose directory no longer exists (`[[ -d "$line" ]]`) — this is the same
+"skip removed dirs" behavior the old single-function implementation had, just factored out so
+both pickers agree on what "recent" means. Each picker still re-checks `[[ -d "$target" ]]`
+right before `cd`, because a directory can be removed in the (short) window between listing it
+and the user selecting it.
+
+### Silent failure mode: fzf's empty result is ambiguous
+
+`fzf` prints nothing to stdout both when the user presses `Esc` and when they type a filter
+that matches nothing and press `Enter` (no `--print-query`, so we can't tell those apart from
+the command substitution alone). `_i_recent_dirs_fuzzy_pick` treats both the same way — "Cancelled." — since neither has a directory to jump to; the only other exit path is a directory that got removed between listing and selection.
