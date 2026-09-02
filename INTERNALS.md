@@ -312,3 +312,33 @@ and the user selecting it.
 `fzf` prints nothing to stdout both when the user presses `Esc` and when they type a filter
 that matches nothing and press `Enter` (no `--print-query`, so we can't tell those apart from
 the command substitution alone). `_i_recent_dirs_fuzzy_pick` treats both the same way — "Cancelled." — since neither has a directory to jump to; the only other exit path is a directory that got removed between listing and selection.
+
+### Number-jump and fuzzy-filter in the same picker
+
+`rd` supports two input styles at once inside the same `fzf` prompt: typing digits jumps to
+that numbered entry (matching the old numbered picker's muscle memory), typing letters
+fuzzy-filters by path (IntelliJ-style). This is not two code paths — it is a single trick in
+`_i_recent_dirs_indexed_list`: each candidate is prefixed with its 1-based index before being
+handed to `fzf` (`"N  /path"`, two spaces, no `--nth` restriction — the whole line is
+searchable). `fzf`'s default scoring (`fzf --filter` was used to verify this empirically, see
+below) strongly favors a match at the very start of the line, so a query of `3` scores the line
+starting `3  ` far above any line whose path merely *contains* a `3` somewhere in the middle —
+verified directly:
+
+```bash
+$ printf '1  /home/x/alpha\n2  /home/x/beta\n3  /home/x/gamma\n4  /home/x/proj3\n' | fzf --filter='3'
+3  /home/x/gamma
+4  /home/x/proj3
+```
+
+Entry `3` (the number match) ranks first even though entry `4`'s path also contains a literal
+`3`. This only holds because the index prefix starts at column 0 — right-padding it (e.g.
+`"%2d) %s"`, as the numbered picker does for visual alignment) would push single-digit indices
+off column 0 and weaken this bonus, so `_i_recent_dirs_indexed_list` deliberately uses an
+unpadded `"%d  %s"` instead, at the cost of columns not lining up visually for 10+ entries.
+
+`_i_recent_dirs_fuzzy_pick` strips the `"N  "` prefix back off the selected line with
+`${selected#*  }` (shortest-match removal up to the first `"  "`). This is safe even if a path
+itself contains a double space later on, because a real directory path always starts with `/`,
+never a digit — so the *first* `"  "` encountered in the full line is always the separator we
+inserted, never one occurring inside the path.

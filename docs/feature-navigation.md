@@ -94,7 +94,11 @@ Or press `CTRL+X+J`. Home (`~`) and root (`/`) are excluded — they are too gen
 
 Directories that have been removed since the last visit are skipped automatically.
 
-If [`fzf`](https://github.com/junegunn/fzf#installation) is installed, `rd` opens an **incremental fuzzy filter**: type a few characters to narrow the list live (like IntelliJ's "recent files"), use the arrow keys to move, `Enter` to jump, `Esc` to cancel. Without `fzf` — or with fuzzy mode disabled — `rd` falls back to the classic numbered picker: a plain list, type a number and press Enter to jump there.
+If [`fzf`](https://github.com/junegunn/fzf#installation) is installed, `rd` opens an **incremental filter** that supports both styles at once — each entry is shown with its index number, so:
+- typing **digits** (e.g. `3`) jumps straight to that numbered entry, same as the classic picker;
+- typing **letters** (e.g. `proj`) fuzzy-filters the list live by path, like IntelliJ's "recent files".
+
+Use the arrow keys to move, `Enter` to jump, `Esc` to cancel. Without `fzf` — or with fuzzy mode disabled — `rd` falls back to the classic numbered picker: a plain list, type a number and press Enter to jump there.
 
 ### Configuration
 

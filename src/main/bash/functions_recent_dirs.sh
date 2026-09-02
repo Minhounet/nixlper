@@ -43,27 +43,49 @@ function _i_recent_dirs_list() {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
-# _i_recent_dirs_fuzzy_pick: fzf-backed incremental fuzzy filter (type a few chars to narrow the
-# list live, arrows to move, Enter to jump, Esc to cancel) — used when fzf is available.
+# _i_recent_dirs_indexed_list: print recorded directories prefixed with their 1-based index
+# ("N  /path"), one per line. Feeding this (rather than bare paths) to fzf lets a numeric query
+# rank the matching index at the top of the list (number-jump), while a text query fuzzy-filters
+# the path itself (digits never appear in real paths' fuzzy-matched region as reliably as in the
+# index, and letters never appear in the index) — see INTERNALS.md for the full rationale.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_recent_dirs_indexed_list() {
+  local -r file="$1"
+  local i=1
+  while IFS= read -r line; do
+    printf '%d  %s\n' "$i" "$line"
+    ((i++))
+  done < <(_i_recent_dirs_list "$file")
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_recent_dirs_fuzzy_pick: fzf-backed incremental filter that supports both number-jump (type
+# the entry's index, like the numbered picker) and fuzzy text filtering (type a few characters
+# of the path, like IntelliJ's "recent files") — used when fzf is available.
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_recent_dirs_fuzzy_pick() {
   local -r file="$1"
 
   local selected
-  selected=$(_i_recent_dirs_list "$file" | fzf \
+  selected=$(_i_recent_dirs_indexed_list "$file" | fzf \
     --prompt="Recent dirs > " \
     --height=40% \
     --reverse \
-    --header="Type to fuzzy-filter | ENTER: jump | ESC: cancel")
+    --header="Type a number to jump, or letters to fuzzy-filter | ENTER: jump | ESC: cancel")
 
   [[ -z "$selected" ]] && _i_log_as_info "Cancelled." && return 0
 
-  if [[ ! -d "$selected" ]]; then
-    _i_log_as_error "Directory no longer exists: $selected"
+  # Strip the "N  " index prefix added by _i_recent_dirs_indexed_list. Safe unconditionally:
+  # real directory paths always start with "/", so the first "  " in the line is always our
+  # separator, never something that occurs inside the path itself.
+  local -r target="${selected#*  }"
+
+  if [[ ! -d "$target" ]]; then
+    _i_log_as_error "Directory no longer exists: $target"
     return 1
   fi
 
-  cd "$selected" && _i_log_as_info "Jumped to $selected"
+  cd "$target" && _i_log_as_info "Jumped to $target"
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -108,11 +130,12 @@ function _i_recent_dirs_numbered_pick() {
 
 #-----------------------------------------------------------------------------------------------------------------------
 # recent_dirs: navigate to a recently visited directory.
-# Opens an fzf incremental fuzzy filter when fzf is installed and NIXLPER_RECENT_DIRS_FUZZY is
-# not disabled (type a few characters to narrow the list live, like IntelliJ's "recent files").
-# Falls back to the classic numbered picker when fzf is unavailable or fuzzy mode is disabled.
+# Opens an fzf incremental filter when fzf is installed and NIXLPER_RECENT_DIRS_FUZZY is not
+# disabled — type digits to jump to that numbered entry, or letters to fuzzy-filter the list
+# live by path (like IntelliJ's "recent files"). Falls back to the classic numbered picker when
+# fzf is unavailable or fuzzy mode is disabled.
 # @cmd-palette
-# @description: Navigate to a recently visited directory (fuzzy search when fzf is available)
+# @description: Navigate to a recently visited directory (number-jump or fuzzy search via fzf)
 # @category: Navigation
 # @keybind: CTRL+X+J
 # @interactive

@@ -94,7 +94,11 @@ Ou appuyez sur `CTRL+X+J`. Le répertoire personnel (`~`) et la racine (`/`) son
 
 Les répertoires supprimés depuis la dernière visite sont ignorés automatiquement.
 
-Si [`fzf`](https://github.com/junegunn/fzf#installation) est installé, `rd` ouvre un **filtre flou incrémental** : tapez quelques caractères pour restreindre la liste en direct (comme les "fichiers récents" d'IntelliJ), utilisez les flèches pour naviguer, `Entrée` pour y accéder, `Échap` pour annuler. Sans `fzf` — ou avec le mode flou désactivé — `rd` revient au sélecteur numéroté classique : une liste simple, saisissez un numéro et appuyez sur Entrée pour y accéder.
+Si [`fzf`](https://github.com/junegunn/fzf#installation) est installé, `rd` ouvre un **filtre incrémental** qui combine les deux approches — chaque entrée est affichée avec son numéro d'index, donc :
+- taper des **chiffres** (ex. `3`) saute directement à l'entrée numérotée correspondante, comme le sélecteur classique ;
+- taper des **lettres** (ex. `proj`) filtre la liste en direct par chemin, comme les "fichiers récents" d'IntelliJ.
+
+Utilisez les flèches pour naviguer, `Entrée` pour y accéder, `Échap` pour annuler. Sans `fzf` — ou avec le mode flou désactivé — `rd` revient au sélecteur numéroté classique : une liste simple, saisissez un numéro et appuyez sur Entrée pour y accéder.
 
 ### Configuration
 

@@ -8,8 +8,10 @@ Home (~) and root (/) are excluded from the list — they are too generic to be 
 Directories that have been removed since the last visit are skipped automatically.
 
 If fzf is installed (and NIXLPER_RECENT_DIRS_FUZZY is not disabled), opens an incremental
-fuzzy filter: type a few characters to narrow the list live, arrow keys to move, Enter to
-jump, Esc to cancel.
+filter that supports BOTH styles at once — each entry is shown with its index number:
+  - type digits (e.g. "3") to jump straight to that numbered entry, like the numbered list
+  - type letters (e.g. "proj") to fuzzy-filter the list live by path
+Arrow keys to move, Enter to jump, Esc to cancel.
 
 Without fzf — or with NIXLPER_RECENT_DIRS_FUZZY=false — falls back to a numbered list:
 type a number and press Enter to jump there instantly.
