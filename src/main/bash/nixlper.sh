@@ -191,12 +191,14 @@ export NIXLPER_BROADCAST_MESSAGE_FILE="\${NIXLPER_BROADCAST_MESSAGE_FILE:-/etc/n
 
 # Per-user paths — \$HOME expands at login time for each user.
 export NIXLPER_BOOKMARKS_FILE="\${NIXLPER_BOOKMARKS_FILE:-\${HOME}/.local/share/nixlper/bookmarks}"
+export NIXLPER_BOOKMARKS_FUZZY="\${NIXLPER_BOOKMARKS_FUZZY:-true}"
 export NIXLPER_LAST_MACRO_BINDING_FILE="\${NIXLPER_LAST_MACRO_BINDING_FILE:-\${HOME}/.local/share/nixlper/last_macro_binding}"
 export NIXLPER_SNAPSHOT_DIR="\${NIXLPER_SNAPSHOT_DIR:-\${HOME}/.local/share/nixlper/snapshots}"
 export NIXLPER_CUSTOM_DIR="\${NIXLPER_CUSTOM_DIR:-\${HOME}/.config/nixlper/custom}"
 export NIXLPER_UPDATE_CACHE_FILE="\${NIXLPER_UPDATE_CACHE_FILE:-\${HOME}/.local/share/nixlper/update_check}"
 export NIXLPER_RECENT_DIRS_MAX="\${NIXLPER_RECENT_DIRS_MAX:-20}"
 export NIXLPER_RECENT_DIRS_FILE="\${NIXLPER_RECENT_DIRS_FILE:-\${HOME}/.local/share/nixlper/recent_dirs}"
+export NIXLPER_RECENT_DIRS_FUZZY="\${NIXLPER_RECENT_DIRS_FUZZY:-true}"
 export NIXLPER_HEALTH_WARN_PCT="\${NIXLPER_HEALTH_WARN_PCT:-80}"
 export NIXLPER_HEALTH_CRIT_PCT="\${NIXLPER_HEALTH_CRIT_PCT:-90}"
 export NIXLPER_HEALTH_TOP_N="\${NIXLPER_HEALTH_TOP_N:-3}"
@@ -276,7 +278,10 @@ function _i_delete_bashrc_config() {
 function _i_load_bindings() {
   if [[ $- == *i* ]]; then
     # bookmarks - annotations already in functions_bookmarks.sh
-    bind -x '"\C-x\C-d": _display_existing_bookmarks'
+    # bookmark_dirs may call fzf/read, which cannot work inside a bind -x raw-mode callback —
+    # like recent_dirs (CTRL+X+J) and sc (CTRL+X+S), it must be inserted onto the command line
+    # and run in the normal shell, not invoked directly via bind -x.
+    bind  '"\C-x\C-d": "bookmark_dirs\15"'
     bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
 
     # help - annotation already in functions_help.sh

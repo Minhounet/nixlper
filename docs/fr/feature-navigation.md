@@ -90,9 +90,15 @@ Lance `grep -rn MOTIF .` et affiche chaque correspondance avec un raccourci `vN`
 rd
 ```
 
-Ou appuyez sur `CTRL+X+J`. Affiche une liste numérotée des répertoires les plus récemment visités (le plus récent en premier). Saisissez un numéro et appuyez sur Entrée pour y accéder. Le répertoire personnel (`~`) et la racine (`/`) sont exclus — trop génériques pour être utiles dans cette liste.
+Ou appuyez sur `CTRL+X+J`. Le répertoire personnel (`~`) et la racine (`/`) sont exclus — trop génériques pour être utiles dans cette liste.
 
 Les répertoires supprimés depuis la dernière visite sont ignorés automatiquement.
+
+Si [`fzf`](https://github.com/junegunn/fzf#installation) est installé, `rd` ouvre un **filtre incrémental** qui combine les deux approches — chaque entrée est affichée avec son numéro d'index, donc :
+- taper des **chiffres** (ex. `3`) saute directement à l'entrée numérotée correspondante, comme le sélecteur classique ;
+- taper des **lettres** (ex. `proj`) filtre la liste en direct par chemin, comme les "fichiers récents" d'IntelliJ.
+
+Utilisez les flèches pour naviguer, `Entrée` pour y accéder, `Échap` pour annuler. Sans `fzf` — ou avec le mode flou désactivé — `rd` revient au sélecteur numéroté classique : une liste simple, saisissez un numéro et appuyez sur Entrée pour y accéder.
 
 ### Configuration
 
@@ -100,6 +106,7 @@ Les répertoires supprimés depuis la dernière visite sont ignorés automatique
 |---|---|---|
 | `NIXLPER_RECENT_DIRS_MAX` | `20` | Nombre maximum d'entrées à mémoriser |
 | `NIXLPER_RECENT_DIRS_FILE` | `~/.local/share/nixlper/recent_dirs` | Chemin du fichier d'historique |
+| `NIXLPER_RECENT_DIRS_FUZZY` | `true` | Utiliser le filtre flou `fzf` quand `fzf` est installé ; `false` force toujours le sélecteur numéroté |
 
 Configurez via `nconf` (`CTRL+X+C`) ou `~/.config/nixlper/nixlper.conf`.
 

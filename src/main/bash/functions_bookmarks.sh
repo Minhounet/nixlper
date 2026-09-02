@@ -8,7 +8,9 @@
 # Constants
 #***********************************************************************************************************************
 # sed pattern to display a bookmark like "/var/projects (projects_alias)" where "projects_alias" is an alias.
-SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
+# Path capture is greedy (.*) rather than \S+ so it backtracks to the rightmost " &&", correctly
+# extracting paths that contain spaces instead of leaving the raw alias line unformatted.
+SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (.*)( &&.*)/\2 (\1)/g"
 
 #***********************************************************************************************************************
 # Bookmarks mains actions
@@ -16,10 +18,7 @@ SED_PATTERN_EXTRACT_ALIAS="s/alias (\w+)='cd (\S+)( &&.*)/\2 (\1)/g"
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _display_existing_bookmarks: display existing bookmarks displaying path + related alias
-# @cmd-palette
-# @description: Display existing bookmarks with aliases
-# @category: Bookmarks
-# @keybind: CTRL+X+D
+# Internal helper — used by bookmark_dirs (CTRL+X+D) and _add_or_remove_bookmark (CTRL+X+B).
 #-----------------------------------------------------------------------------------------------------------------------
 function _display_existing_bookmarks() {
   additional_option=""
@@ -44,6 +43,131 @@ function _display_existing_bookmarks() {
     fi
   fi
 }
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_bookmarks_valid_entries: print "alias<TAB>path" for every bookmark whose directory still
+# exists on disk. Parses the raw `alias NAME='cd PATH && ...'` lines written by
+# _i_bookmark_directory — the greedy (.*) capture correctly extracts PATH even when it contains
+# spaces, by backtracking to the rightmost " && " (see INTERNALS.md).
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_bookmarks_valid_entries() {
+  [[ -f "${NIXLPER_BOOKMARKS_FILE}" ]] || return 0
+  local line name path
+  while IFS= read -r line; do
+    [[ "$line" =~ ^alias[[:space:]]+([A-Za-z0-9_]+)=\'cd[[:space:]]+(.*)[[:space:]]\&\& ]] || continue
+    name="${BASH_REMATCH[1]}"
+    path="${BASH_REMATCH[2]}"
+    [[ -d "$path" ]] && printf '%s\t%s\n' "$name" "$path"
+  done < "${NIXLPER_BOOKMARKS_FILE}"
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_bookmarks_fuzzy_pick: fzf-backed incremental filter that supports both number-jump (type
+# the entry's index) and fuzzy text filtering (type a few characters of the alias or path) —
+# same hybrid trick as recent_dirs' rd, see INTERNALS.md. Used when fzf is available.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_bookmarks_fuzzy_pick() {
+  local -a names=() paths=()
+  local name path
+  while IFS=$'\t' read -r name path; do
+    names+=("$name")
+    paths+=("$path")
+  done < <(_i_bookmarks_valid_entries)
+
+  local lines="" i
+  for ((i = 0; i < ${#names[@]}; i++)); do
+    lines+=$(printf '%d  %s  (%s)\n' "$((i + 1))" "${names[$i]}" "${paths[$i]}")
+    lines+=$'\n'
+  done
+
+  local selected
+  selected=$(printf '%s' "${lines}" | fzf \
+    --prompt="Bookmarks > " \
+    --height=40% \
+    --reverse \
+    --header="Type a number to jump, or letters to fuzzy-filter by name/path | ENTER: jump | ESC: cancel")
+
+  [[ -z "$selected" ]] && _i_log_as_info "Cancelled." && return 0
+
+  # The line always starts with "N  " — extract the index and look it up in the parallel arrays,
+  # rather than re-parsing the (possibly space-containing) path out of the display line.
+  local -r idx="${selected%% *}"
+  local -r target="${paths[$((idx - 1))]}"
+
+  if [[ ! -d "$target" ]]; then
+    _i_log_as_error "Directory no longer exists: $target"
+    return 1
+  fi
+
+  cd "$target" && _i_log_as_info "Jumped to ${names[$((idx - 1))]} ($target)"
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_bookmarks_numbered_pick: classic numbered picker — used when fzf is not installed, or
+# NIXLPER_BOOKMARKS_FUZZY is set to false.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_bookmarks_numbered_pick() {
+  local -a names=() paths=()
+  local name path
+  while IFS=$'\t' read -r name path; do
+    names+=("$name")
+    paths+=("$path")
+  done < <(_i_bookmarks_valid_entries)
+
+  echo ""
+  _i_log_as_info "Saved bookmarks:"
+  local i
+  for ((i = 0; i < ${#names[@]}; i++)); do
+    printf "  %2d) %-20s %s\n" "$((i + 1))" "${names[$i]}" "${paths[$i]}"
+  done
+  echo ""
+
+  local choice
+  read -rp "Jump to [1-${#names[@]}] (Enter to cancel): " choice
+
+  [[ -z "$choice" ]] && _i_log_as_info "Cancelled." && return 0
+
+  if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#names[@]} )); then
+    _i_log_as_error "Invalid selection: $choice"
+    return 1
+  fi
+
+  local -r target="${paths[$((choice - 1))]}"
+  if [[ ! -d "$target" ]]; then
+    _i_log_as_error "Directory no longer exists: $target"
+    return 1
+  fi
+
+  cd "$target" && _i_log_as_info "Jumped to ${names[$((choice - 1))]} ($target)"
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# bookmark_dirs: display saved bookmarks and jump to one.
+# Opens an fzf incremental filter when fzf is installed and NIXLPER_BOOKMARKS_FUZZY is not
+# disabled — type digits to jump to that numbered entry, or letters to fuzzy-filter by
+# alias/path (same hybrid as recent_dirs' rd). Falls back to a numbered picker otherwise.
+# @cmd-palette
+# @description: Display bookmarks and jump to one (number-jump or fuzzy search via fzf)
+# @category: Bookmarks
+# @keybind: CTRL+X+D
+# @alias: bd
+# @interactive
+#-----------------------------------------------------------------------------------------------------------------------
+function bookmark_dirs() {
+  _display_existing_bookmarks
+
+  if [[ -z "$(_i_bookmarks_valid_entries)" ]]; then
+    return 0
+  fi
+
+  if [[ "${NIXLPER_BOOKMARKS_FUZZY:-true}" == "true" ]] && command -v fzf &>/dev/null; then
+    _i_bookmarks_fuzzy_pick
+  else
+    _i_bookmarks_numbered_pick
+  fi
+}
+
+alias bd='bookmark_dirs'
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _add_or_remove_bookmark: add or remove a bookmark from current directory

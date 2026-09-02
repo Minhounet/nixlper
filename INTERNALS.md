@@ -291,3 +291,127 @@ These directories are visited implicitly by many commands (shell startup, `cd` w
 `sudo -i`, etc.) — they would dominate the list and push actually useful recent dirs off.
 Exclusion is checked in `_i_recent_dirs_track`; `recent_dirs` additionally skips any entry
 whose directory no longer exists on disk.
+
+### Fuzzy picker vs. numbered fallback
+
+`recent_dirs` dispatches to one of two pickers rather than implementing the picker itself:
+`_i_recent_dirs_fuzzy_pick` (fzf) or `_i_recent_dirs_numbered_pick` (plain `read`). The
+dispatch condition — `NIXLPER_RECENT_DIRS_FUZZY` not `false` **and** `fzf` on `$PATH` — is
+checked on every call, not cached, so installing/removing `fzf` or flipping the setting via
+`nconf` takes effect on the very next `rd` with no re-source needed.
+
+Both pickers read the candidate list through the shared `_i_recent_dirs_list` helper, which
+filters out entries whose directory no longer exists (`[[ -d "$line" ]]`) — this is the same
+"skip removed dirs" behavior the old single-function implementation had, just factored out so
+both pickers agree on what "recent" means. Each picker still re-checks `[[ -d "$target" ]]`
+right before `cd`, because a directory can be removed in the (short) window between listing it
+and the user selecting it.
+
+### Silent failure mode: fzf's empty result is ambiguous
+
+`fzf` prints nothing to stdout both when the user presses `Esc` and when they type a filter
+that matches nothing and press `Enter` (no `--print-query`, so we can't tell those apart from
+the command substitution alone). `_i_recent_dirs_fuzzy_pick` treats both the same way — "Cancelled." — since neither has a directory to jump to; the only other exit path is a directory that got removed between listing and selection.
+
+### Number-jump and fuzzy-filter in the same picker
+
+`rd` supports two input styles at once inside the same `fzf` prompt: typing digits jumps to
+that numbered entry (matching the old numbered picker's muscle memory), typing letters
+fuzzy-filters by path (IntelliJ-style). This is not two code paths — it is a single trick in
+`_i_recent_dirs_indexed_list`: each candidate is prefixed with its 1-based index before being
+handed to `fzf` (`"N  /path"`, two spaces, no `--nth` restriction — the whole line is
+searchable). `fzf`'s default scoring (`fzf --filter` was used to verify this empirically, see
+below) strongly favors a match at the very start of the line, so a query of `3` scores the line
+starting `3  ` far above any line whose path merely *contains* a `3` somewhere in the middle —
+verified directly:
+
+```bash
+$ printf '1  /home/x/alpha\n2  /home/x/beta\n3  /home/x/gamma\n4  /home/x/proj3\n' | fzf --filter='3'
+3  /home/x/gamma
+4  /home/x/proj3
+```
+
+Entry `3` (the number match) ranks first even though entry `4`'s path also contains a literal
+`3`. This only holds because the index prefix starts at column 0 — right-padding it (e.g.
+`"%2d) %s"`, as the numbered picker does for visual alignment) would push single-digit indices
+off column 0 and weaken this bonus, so `_i_recent_dirs_indexed_list` deliberately uses an
+unpadded `"%d  %s"` instead, at the cost of columns not lining up visually for 10+ entries.
+
+`_i_recent_dirs_fuzzy_pick` strips the `"N  "` prefix back off the selected line with
+`${selected#*  }` (shortest-match removal up to the first `"  "`). This is safe even if a path
+itself contains a double space later on, because a real directory path always starts with `/`,
+never a digit — so the *first* `"  "` encountered in the full line is always the separator we
+inserted, never one occurring inside the path.
+
+---
+
+## Bookmarks (`functions_bookmarks.sh`)
+
+### Storage doubles as executable aliases
+
+Bookmarks are not stored as plain data — each line in `NIXLPER_BOOKMARKS_FILE` is a literal
+bash `alias` statement: `alias NAME='cd PATH && echo "INFO: ..."'`. This is deliberate: typing
+the bookmark's name at any prompt jumps to it directly, with zero picker involved, because it
+*is* a real alias sourced into the shell. Every other bookmark operation — display, jump,
+delete — has to parse this executable-statement format back out rather than reading structured
+data, which is why the extraction regexes below matter.
+
+### Same number-jump/fuzzy-filter trick as `rd`, adapted for two fields
+
+`bookmark_dirs` (`bd` / `CTRL+X+D`) reuses the exact hybrid trick documented above for
+`recent_dirs`: `_i_bookmarks_fuzzy_pick` feeds `fzf` lines prefixed with a 1-based index
+(`"N  alias  (path)"`), so a digit query ranks that index at the top while a letter query
+fuzzy-filters by alias name or path text — see the `recent_dirs` section for the empirical
+`fzf --filter` evidence behind why this works.
+
+The extraction differs from `rd`, though: a bookmark line carries *two* fields (alias, path)
+instead of one bare path, and the path can itself contain spaces. Reparsing the path back out
+of the selected fzf line (as `rd` does with a prefix-strip) would be fragile here, so
+`_i_bookmarks_fuzzy_pick` instead extracts only the leading index (`${selected%% *}`, everything
+before the first space — always a clean integer) and uses it to index into `names`/`paths`
+arrays built *before* the line was ever handed to `fzf`. The display line is therefore
+write-only from the picker's perspective: `fzf` only needs it to rank and return the original
+line back verbatim, never to be parsed for data.
+
+### Both pickers re-derive their candidate list independently
+
+Like `_i_recent_dirs_fuzzy_pick`/`_i_recent_dirs_numbered_pick`, `_i_bookmarks_fuzzy_pick` and
+`_i_bookmarks_numbered_pick` each call `_i_bookmarks_valid_entries` themselves rather than
+sharing arrays built by the caller. This avoids `local -n` namerefs (bash 4.3+; the RPM spec
+only requires bash ≥ 4.0) at the cost of re-parsing the (small) bookmarks file twice per `bd`
+call — a deliberate, negligible trade for wider bash compatibility.
+
+### Why the greedy path capture matters (and where it still doesn't reach)
+
+`_i_bookmarks_valid_entries`'s regex — `^alias[[:space:]]+([A-Za-z0-9_]+)='cd[[:space:]]+(.*)[[:space:]]&&` —
+captures the path with a **greedy** `(.*)`, which backtracks to the *rightmost* `" && "` in the
+line. This correctly extracts a path containing spaces (verified: `cd /home/user/my projects/dir && echo ...`
+extracts `/home/user/my projects/dir` intact). The legacy display formatter,
+`SED_PATTERN_EXTRACT_ALIAS` in `_display_existing_bookmarks`, used to capture the path with
+`\S+` (non-whitespace only) — for a spacey path that pattern fails to match the line at all, so
+`sed`'s `s///` left the line completely unformatted (the raw `alias NAME='cd ...'` text printed
+verbatim instead of the intended `"path (alias)"`). It now uses the same greedy `(.*)` capture
+as the picker, for the same reason.
+
+This greedy-capture fix only reaches the **read** side (listing and jumping). The **write**
+side — `_i_bookmark_directory`, which builds the alias line at bookmark-creation time — still
+interpolates the path unquoted (`cd $bookmarked_dir && ...`), so a bookmark whose path contains
+spaces still breaks when its alias is typed directly (word-splitting turns `cd /a/b c` into `cd`
+with two arguments). `bookmark_dirs`/`bd` sidesteps this entirely, because it never re-invokes
+the stored alias — it `cd`s to the path pulled from the parsed `paths` array with normal bash
+quoting (`cd "$target"`), which handles spaces correctly regardless of how the alias itself was
+written. See `KNOWN_ISSUES.md` for the still-open direct-alias-invocation case.
+
+### Silent failure mode: `bind -x` cannot run this picker
+
+`bookmark_dirs` calls `read` (numbered fallback) or `fzf` (fuzzy path) — both require the normal
+readline/terminal state, which is unavailable inside a `bind -x` callback (raw mode; see the
+`@interactive` constraint in `CLAUDE.md`). `CTRL+X+D` used to bind `_display_existing_bookmarks`
+directly via `bind -x`, which was safe because that function only prints. Now that `CTRL+X+D`
+resolves to the interactive `bookmark_dirs`, the binding had to move to the same
+insert-onto-the-command-line mechanism used by `rd` and `sc`:
+`bind '"\C-x\C-d": "bookmark_dirs\15"'` (types the command and a simulated Enter, then executes
+it in the normal shell) instead of `bind -x '"\C-x\C-d": bookmark_dirs'`. Any future change that
+makes a `bind -x`-bound command call `read` or `fzf` needs the same fix, or it will silently do
+nothing when triggered by its keybinding (it still works when invoked by typing its name/alias
+directly, since that never goes through `bind -x` in the first place).
