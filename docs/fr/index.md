@@ -41,6 +41,7 @@ Ouvrez un nouveau shell. C'est tout.
 | 🩺 Vérifier la santé mémoire/disque/CPU avec conseils de remédiation | [Santé système](feature-system-health.md) |
 | 📜 Suivre un fichier de log en surlignant les lignes correspondantes | [Logs](feature-logs.md) |
 | ⚠️ Laisser une notice de connexion pour la prochaine personne | [Notice Admin](feature-admin-notice.md) |
+| ⏮️ Relancer une commande précédente | [Historique des commandes](feature-history.md) |
 
 ---
 
@@ -67,6 +68,7 @@ Ouvrez un nouveau shell. C'est tout.
 | `CTRL+X+U` | Remonter d'un répertoire |
 | `CTRL+X+J` | Sauter vers un répertoire récemment visité |
 | `CTRL+X+K` | Afficher une blague aléatoire |
+| `CTRL+X+L` | Relancer une commande précédente |
 | `CTRL+P` | Démarrer/arrêter l'enregistrement de macro |
 
 ---

@@ -41,6 +41,7 @@ Then open a new shell. That's it.
 | 🩺 Check memory/disk/CPU health with remediation tips | [System Health](feature-system-health.md) |
 | 📜 Follow a log file, highlighting matching lines | [Logs](feature-logs.md) |
 | ⚠️ Leave a login notice for whoever logs in next | [Admin Notice](feature-admin-notice.md) |
+| ⏮️ Re-run a previous command | [Command History](feature-history.md) |
 
 ---
 
@@ -67,6 +68,7 @@ Then open a new shell. That's it.
 | `CTRL+X+U` | Go up one directory |
 | `CTRL+X+J` | Jump to a recently visited directory |
 | `CTRL+X+K` | Display a random joke |
+| `CTRL+X+L` | Re-run a previous command |
 | `CTRL+P` | Start/stop macro recording |
 
 ---
