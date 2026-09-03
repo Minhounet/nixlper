@@ -205,6 +205,7 @@ Quick overview of what's available:
 | **Configuration** | `nconf` / `CTRL+X+C` — interactive settings editor |
 | **Updates** | Stable and edge channels with automatic checks |
 | **Admin notice** | `bset`/`bshow`/`bclear` — leave a login message for whoever logs in next, with optional auto-expiry |
+| **Command history** | `lc` / `CTRL+X+L` — number-jump or fuzzy-search bash history and re-run a previous command |
 
 ## License
 

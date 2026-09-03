@@ -1,0 +1,35 @@
+########################################################################################################################
+# Help for command history
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+[CTRL + X THEN L] or  lc : re-run a previous command from your shell history
+------------------------------------------------------------------------------------------------------------------------
+Reads bash's own history (the same list "history" shows), most recent first, deduplicated so a
+repeated command only appears once (at its most recent position).
+
+If fzf is installed (and NIXLPER_LAST_COMMAND_FUZZY is not disabled), opens an incremental
+filter that supports BOTH styles at once — each entry is shown with its index number:
+  - type digits (e.g. "3") to jump straight to that numbered entry, like the numbered list
+  - type letters (e.g. "docker") to fuzzy-filter the list live by command text
+Arrow keys to move, Enter to select, Esc to cancel.
+
+Without fzf — or with NIXLPER_LAST_COMMAND_FUZZY=false — falls back to a numbered list:
+type a number and press Enter to select it.
+
+Either way, the selected command is NOT run blindly: it is preloaded onto an editable prompt
+("Run> ") so you can review it, tweak it, or clear the line to cancel before pressing Enter.
+
+Example output (numbered fallback):
+   1) git status
+   2) docker ps -a
+   3) rm -rf build/
+   Select [1-3] (Enter to cancel):
+   Run> git status
+
+------------------------------------------------------------------------------------------------------------------------
+Configuration (via nconf or ~/.config/nixlper/nixlper.conf):
+
+  NIXLPER_LAST_COMMAND_MAX     int    50      Maximum number of history entries considered
+  NIXLPER_LAST_COMMAND_FUZZY   bool   true    Use fzf fuzzy filter when fzf is installed
+
+------------------------------------------------------------------------------------------------------------------------

@@ -47,6 +47,20 @@ properly-quoted path it parsed, bypassing the stored alias entirely. Only direct
 the alias name is affected. Fix requires quoting the path at write time and updating the read
 side to tolerate both quoted (new) and unquoted (existing, already-installed) bookmark files.
 
+### 🟡 `lc` (last command) can misorder multi-line history entries under `shopt -s lithist`
+
+`_i_last_command_history_raw` (`functions_last_command.sh`) reads bash's `history` builtin output
+line-by-line and reverses it with `tac` to get most-recent-first order. By default (`lithist`
+off, `cmdhist` on — the vast majority of interactive setups) bash flattens multi-line commands
+(e.g. a `for` loop typed across several lines) into a single history entry joined with
+semicolons, so this works correctly. If a user has explicitly enabled `shopt -s lithist`, bash
+instead embeds literal newlines inside a single history entry, which `tac`'s line-level reversal
+splits apart and reorders along with unrelated entries — the affected entry shows up garbled or
+merged with a neighbour in `lc`'s list. Fix requires joining each history entry's physical lines
+before reversing (e.g. an `awk` pass keyed on the leading `NUM  ` index) rather than reversing
+raw lines. Not fixed because `lithist` is off by default and the common case (single-line
+commands, or multi-line ones bash already flattens) is unaffected.
+
 ### 🟡 Macros: commands requiring interactive input silently do nothing on replay
 
 `CTRL+X+CTRL+X` replay runs inside a `bind -x` callback where readline raw mode is active.

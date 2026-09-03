@@ -56,3 +56,6 @@ jobs:
 
       - name: Run admin broadcast message unit tests
         run: bash src/test/bash/test_functions_broadcast.sh
+
+      - name: Run last-command unit tests
+        run: bash src/test/bash/test_functions_last_command.sh

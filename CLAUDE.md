@@ -25,6 +25,17 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
   before following). Docs: `docs/feature-logs.md` / `docs/fr/feature-logs.md`, help:
   `src/main/help/help_logs`, tests: `src/test/bash/test_functions_logtail.sh`.
 
+- **`functions_last_command.sh`** — `last_command` / `lc` / `CTRL+X+L`: re-run a previous shell
+  command. Reads bash's own `history` builtin (no separate tracking file, unlike recent dirs),
+  deduplicated and capped at `NIXLPER_LAST_COMMAND_MAX` (default `50`). Same hybrid
+  fzf-incremental/numbered picker as `rd` (recent dirs) and `bd` (bookmarks), toggled via
+  `NIXLPER_LAST_COMMAND_FUZZY` (default `true`). Bound like `rd`/`sc` — inserted onto the command
+  line (`bind '"\C-x\C-l": "last_command\15"'`), not `bind -x`, since it needs `read`/`fzf`. The
+  selected command is never run blindly: it is preloaded onto an editable `read -e -i` prompt
+  (safety pattern — display before execution) before `eval`. Docs: `docs/feature-history.md` /
+  `docs/fr/feature-history.md`, help: `src/main/help/help_history`, tests:
+  `src/test/bash/test_functions_last_command.sh`.
+
 - **`functions_broadcast.sh`** — `bset`/`bshow`/`bclear`: admin login notice, independent from
   nixlper's own welcome message. `bset` is `@interactive` (prompts for message text, then an
   optional expiry in days — blank means persistent until `bclear`). Storage: a single file
@@ -600,6 +611,8 @@ Actual precedence (lowest → highest):
 | `NIXLPER_DISABLE_BROADCAST_MESSAGE` | `false` | `false` |
 | `NIXLPER_BROADCAST_MESSAGE_FILE` | `$NIXLPER_INSTALL_DIR/broadcast_message` | `/etc/nixlper/broadcast_message` |
 | `NIXLPER_PORT_CHECK_SHOW_CMDLINE` | `true` | `true` |
+| `NIXLPER_LAST_COMMAND_MAX` | `50` | `50` |
+| `NIXLPER_LAST_COMMAND_FUZZY` | `true` | `true` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.

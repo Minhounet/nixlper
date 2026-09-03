@@ -199,6 +199,8 @@ export NIXLPER_UPDATE_CACHE_FILE="\${NIXLPER_UPDATE_CACHE_FILE:-\${HOME}/.local/
 export NIXLPER_RECENT_DIRS_MAX="\${NIXLPER_RECENT_DIRS_MAX:-20}"
 export NIXLPER_RECENT_DIRS_FILE="\${NIXLPER_RECENT_DIRS_FILE:-\${HOME}/.local/share/nixlper/recent_dirs}"
 export NIXLPER_RECENT_DIRS_FUZZY="\${NIXLPER_RECENT_DIRS_FUZZY:-true}"
+export NIXLPER_LAST_COMMAND_MAX="\${NIXLPER_LAST_COMMAND_MAX:-50}"
+export NIXLPER_LAST_COMMAND_FUZZY="\${NIXLPER_LAST_COMMAND_FUZZY:-true}"
 export NIXLPER_HEALTH_WARN_PCT="\${NIXLPER_HEALTH_WARN_PCT:-80}"
 export NIXLPER_HEALTH_CRIT_PCT="\${NIXLPER_HEALTH_CRIT_PCT:-90}"
 export NIXLPER_HEALTH_TOP_N="\${NIXLPER_HEALTH_TOP_N:-3}"
@@ -279,8 +281,8 @@ function _i_load_bindings() {
   if [[ $- == *i* ]]; then
     # bookmarks - annotations already in functions_bookmarks.sh
     # bookmark_dirs may call fzf/read, which cannot work inside a bind -x raw-mode callback —
-    # like recent_dirs (CTRL+X+J) and sc (CTRL+X+S), it must be inserted onto the command line
-    # and run in the normal shell, not invoked directly via bind -x.
+    # like recent_dirs (CTRL+X+J), sc (CTRL+X+S), and last_command (CTRL+X+L), it must be
+    # inserted onto the command line and run in the normal shell, not invoked directly via bind -x.
     bind  '"\C-x\C-d": "bookmark_dirs\15"'
     bind  '"\C-x\C-b": "_add_or_remove_bookmark\15"'
 
@@ -352,6 +354,9 @@ function _i_load_bindings() {
 
     # recent dirs - annotation already in functions_recent_dirs.sh
     bind '"\C-x\C-j": "recent_dirs\15"'
+
+    # last command - annotation already in functions_last_command.sh
+    bind '"\C-x\C-l": "last_command\15"'
   fi
 }
 
