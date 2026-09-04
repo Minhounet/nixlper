@@ -34,6 +34,7 @@ function _i_cleanup_nav_aliases() {
 # @description: Navigate folders interactively (tree/flat mode)
 # @category: Navigation
 # @keybind: CTRL+X+N
+# @interactive
 #-----------------------------------------------------------------------------------------------------------------------
 # Tree mode
 # ---------------------------------------------------------------------------------------------------------------
@@ -73,9 +74,73 @@ function _i_cleanup_nav_aliases() {
 ########################################################################################################################
 function navigate() {
   if [[ "${NIXLPER_NAVIGATE_MODE}" == "tree" ]]; then
-    _i_navigate_tree "$@"
+    _i_navigate_tree "$@" || return 1
   else
-    _i_navigate_flat "$@"
+    _i_navigate_flat "$@" || return 1
+  fi
+
+  if [[ "${NIXLPER_NAVIGATE_FUZZY:-true}" == "true" ]] && command -v fzf &>/dev/null; then
+    _i_navigate_fuzzy_pick
+  fi
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_navigate_fuzzy_pick: fzf-backed incremental filter for the current directory.
+# Folders are listed first (sorted), then files (sorted), each prefixed with a 1-based index
+# and a [D]/[F] type marker.  Typing a digit in fzf jumps to that numbered entry; typing letters
+# fuzzy-filters by name — same hybrid as rd/bd/lc.
+# On selection: folder → cd then navigate; file → open with $NIXLPER_EDITOR.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_navigate_fuzzy_pick() {
+  local -a entries=()
+  local -a paths=()
+  local i=1
+  local entry name
+
+  while IFS= read -r entry; do
+    name="${entry:2}"
+    entries+=("$(printf '%d  [D] %s' "$i" "$name")")
+    paths+=("$entry")
+    ((i++))
+  done < <(find . -mindepth 1 -maxdepth 1 -type d | sort)
+
+  while IFS= read -r entry; do
+    name="${entry:2}"
+    entries+=("$(printf '%d  [F] %s' "$i" "$name")")
+    paths+=("$entry")
+    ((i++))
+  done < <(find . -mindepth 1 -maxdepth 1 -type f | sort)
+
+  if [[ ${#entries[@]} -eq 0 ]]; then
+    _i_log_as_info "Current directory is empty."
+    return 0
+  fi
+
+  local selected
+  selected=$(printf '%s\n' "${entries[@]}" | fzf \
+    --prompt="Navigate > " \
+    --height=40% \
+    --reverse \
+    --header="Type a number to jump, or letters to fuzzy-filter | ENTER: select | ESC: cancel")
+
+  [[ -z "$selected" ]] && _i_log_as_info "Cancelled." && return 0
+
+  local idx="${selected%% *}"
+
+  if ! [[ "$idx" =~ ^[0-9]+$ ]] || (( idx < 1 || idx > ${#paths[@]} )); then
+    _i_log_as_error "Invalid selection."
+    return 1
+  fi
+
+  local target="${paths[$((idx - 1))]}"
+
+  if [[ -d "$target" ]]; then
+    cd "$target" && navigate
+  elif [[ -f "$target" ]]; then
+    ${NIXLPER_EDITOR:-vim} "$target"
+  else
+    _i_log_as_error "Target no longer exists: $target"
+    return 1
   fi
 }
 

@@ -117,7 +117,7 @@ in the current session:
 | `tmN` | Mark file N for target pack |
 | `cdfN` | `cd` to folder containing file N then navigate |
 
-CTRL+X+1 through CTRL+X+9 are also bound (via `bind -x`) to navigate into folders 1–9.
+CTRL+X+1 through CTRL+X+9 are also bound (via `bind -x`) inside `_i_navigate_tree`/`_i_navigate_flat` to navigate into folders 1–9. These inner `bind -x` calls are made as regular commands (not inside a `bind -x` callback), so they always work.
 
 ### The stale-alias problem and the fix
 
@@ -139,6 +139,28 @@ context" at any time.
 
 `_grep_and_navigate` only creates `vN` aliases (open file at matching line). `_NIXLPER_LAST_FOLDER_COUNT` is left at 0 after a `fag` call, so `_i_cleanup_nav_aliases` does not
 try to unalias `n*` entries that were never created.
+
+### Fuzzy picker index is independent from alias numbers
+
+`_i_navigate_fuzzy_pick` (called by `navigate` when `fzf` is installed and `NIXLPER_NAVIGATE_FUZZY` is true)
+lists entries using its own `find` query (folders first alphabetically, then files alphabetically), with its
+own 1-based index. This ordering does **not** match the alias numbering produced by `_i_navigate_tree` (tree order)
+or `_i_navigate_flat` (files first, then folders, in find's unspecified order). A user who sees "3  [F] build.sh"
+in the fuzzy picker and types `v3` in the shell may get a different file.
+
+This is intentional: the two systems are independent. The fuzzy picker is a one-shot navigator — it `cd`s or
+opens immediately. The `vN`/`nN` aliases are for keyboard-only navigation without fzf. Mixing both in a single
+interaction is not a supported workflow. The ordering divergence is not fixable without sharing mutable state
+between the listing and picker (a stale-alias-class risk), and the benefit is low since fzf users do not type
+numbered aliases after using fzf.
+
+### Silent failure mode: `bind -x` cannot run the fuzzy picker
+
+`_i_navigate_fuzzy_pick` calls `fzf` (or `read` in the numbered fallback), which require the normal readline/
+terminal state unavailable inside a `bind -x` callback. The `CTRL+X+N` binding was therefore changed from
+`bind -x '"\C-x\C-n": navigate'` to `bind '"\C-x\C-n": "navigate\15"'` (inserts the command text and a
+simulated Enter, running it as a normal shell command). This matches the pattern used by `rd`/`bd`/`lc`.
+See the bookmarks section below for the full rationale.
 
 ---
 

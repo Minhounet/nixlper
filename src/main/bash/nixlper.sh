@@ -201,6 +201,7 @@ export NIXLPER_RECENT_DIRS_FILE="\${NIXLPER_RECENT_DIRS_FILE:-\${HOME}/.local/sh
 export NIXLPER_RECENT_DIRS_FUZZY="\${NIXLPER_RECENT_DIRS_FUZZY:-true}"
 export NIXLPER_LAST_COMMAND_MAX="\${NIXLPER_LAST_COMMAND_MAX:-50}"
 export NIXLPER_LAST_COMMAND_FUZZY="\${NIXLPER_LAST_COMMAND_FUZZY:-true}"
+export NIXLPER_NAVIGATE_FUZZY="\${NIXLPER_NAVIGATE_FUZZY:-true}"
 export NIXLPER_HEALTH_WARN_PCT="\${NIXLPER_HEALTH_WARN_PCT:-80}"
 export NIXLPER_HEALTH_CRIT_PCT="\${NIXLPER_HEALTH_CRIT_PCT:-90}"
 export NIXLPER_HEALTH_TOP_N="\${NIXLPER_HEALTH_TOP_N:-3}"
@@ -317,7 +318,7 @@ function _i_load_bindings() {
     # @keybind: CTRL+X+U
     bind '"\C-x\C-u": "cd ..\15"'
     # navigate - annotation already in functions_navigation.sh
-    bind -x '"\C-x\C-n": navigate'
+    bind '"\C-x\C-n": "navigate\15"'
 
     # instant access to this file
     # @cmd-palette

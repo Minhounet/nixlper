@@ -613,6 +613,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_PORT_CHECK_SHOW_CMDLINE` | `true` | `true` |
 | `NIXLPER_LAST_COMMAND_MAX` | `50` | `50` |
 | `NIXLPER_LAST_COMMAND_FUZZY` | `true` | `true` |
+| `NIXLPER_NAVIGATE_FUZZY` | `true` | `true` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.

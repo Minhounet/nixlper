@@ -44,6 +44,28 @@ Changez de mode via `nconf` (`CTRL+X+C`) → `NIXLPER_NAVIGATE_MODE`, ou bascule
 toggle_navigation_mode
 ```
 
+### Sélecteur flou (fuzzy picker)
+
+Si [`fzf`](https://github.com/junegunn/fzf#installation) est installé, un sélecteur flou s'ouvre automatiquement après l'affichage de la liste — les dossiers en premier, puis les fichiers, chacun précédé de son index et d'un marqueur de type `[D]`/`[F]`. Même style hybride que `rd`/`bd`/`lc` :
+
+- taper des **chiffres** (ex. `3`) pour sauter directement à l'entrée numérotée correspondante
+- taper des **lettres** (ex. `src`) pour filtrer la liste par nom en mode flou
+
+Utilisez les flèches pour naviguer, `Entrée` pour sélectionner, `Échap` pour annuler.
+
+- **Sélectionner un dossier** — `cd` dedans et actualise la liste.
+- **Sélectionner un fichier** — l'ouvre avec `$NIXLPER_EDITOR`.
+
+Les raccourcis numérotés (`v1`, `cdf1`, `n1`, etc.) restent actifs quel que soit le mode flou.
+
+#### Configuration
+
+| Variable | Défaut | Description |
+|---|---|---|
+| `NIXLPER_NAVIGATE_FUZZY` | `true` | Utiliser le sélecteur flou `fzf` quand `fzf` est installé ; `false` le désactive toujours |
+
+Configurez via `nconf` (`CTRL+X+C`) ou `~/.config/nixlper/nixlper.conf`.
+
 ---
 
 ## Aller dans le dossier d'un fichier

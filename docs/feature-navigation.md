@@ -44,6 +44,28 @@ Switch modes via `nconf` (`CTRL+X+C`) → `NIXLPER_NAVIGATE_MODE`, or toggle siz
 toggle_navigation_mode
 ```
 
+### Fuzzy picker
+
+If [`fzf`](https://github.com/junegunn/fzf#installation) is installed, a fuzzy picker opens automatically after the listing — folders first, then files, each prefixed with its index and a `[D]`/`[F]` type marker. The same hybrid style as `rd`/`bd`/`lc`:
+
+- type **digits** (e.g. `3`) to jump straight to that numbered entry
+- type **letters** (e.g. `src`) to fuzzy-filter the list by name
+
+Use arrow keys to move, `Enter` to select, `Esc` to cancel.
+
+- **Selecting a folder** — `cd` into it and refresh the listing.
+- **Selecting a file** — open it with `$NIXLPER_EDITOR`.
+
+The numbered shortcuts (`v1`, `cdf1`, `n1`, etc.) remain active regardless of fuzzy mode.
+
+#### Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `NIXLPER_NAVIGATE_FUZZY` | `true` | Use the `fzf` fuzzy picker when `fzf` is installed; `false` always skips it |
+
+Configure via `nconf` (`CTRL+X+C`) or `~/.config/nixlper/nixlper.conf`.
+
 ---
 
 ## Go to file's folder

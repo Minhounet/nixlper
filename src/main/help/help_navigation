@@ -11,6 +11,14 @@ tree mode or flat mode.
 Configure NIXLPER_NAVIGATE_MODE via nconf (or ~/.config/nixlper/nixlper.conf) using "flat" or "tree" value.
 For each file, shortcuts to open (vN), go to its folder (cdfN), delete (dN), copy to target (tcN), or mark for pack (tmN) are available.
 
+If fzf is installed and NIXLPER_NAVIGATE_FUZZY is true (default), a fuzzy picker opens after the listing:
+  - type a NUMBER to jump directly to that entry (number-jump)
+  - type LETTERS to fuzzy-filter by name (like IntelliJ's "recent files")
+  - press ENTER to select, ESC to cancel
+  Selecting a folder: cd into it and refresh the listing.
+  Selecting a file:   open it with $NIXLPER_EDITOR.
+  Disable fuzzy mode: set NIXLPER_NAVIGATE_FUZZY=false via nconf.
+
 Tree mode
     ------------------------------------------------------------------------------------------------------------------------
     ..  ↑ CTRL + X THEN U
