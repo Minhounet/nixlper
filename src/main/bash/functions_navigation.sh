@@ -73,14 +73,26 @@ function _i_cleanup_nav_aliases() {
 # ---------------------------------------------------------------------------------------------------------------
 ########################################################################################################################
 function navigate() {
-  if [[ "${NIXLPER_NAVIGATE_MODE}" == "tree" ]]; then
-    _i_navigate_tree "$@" || return 1
-  else
-    _i_navigate_flat "$@" || return 1
-  fi
-
   if [[ "${NIXLPER_NAVIGATE_FUZZY:-true}" == "true" ]] && command -v fzf &>/dev/null; then
-    _i_navigate_fuzzy_pick
+    local listing_file
+    listing_file=$(mktemp) || return 1
+
+    if [[ "${NIXLPER_NAVIGATE_MODE}" == "tree" ]]; then
+      _i_navigate_tree "$@" > "$listing_file" || { rm -f "$listing_file"; return 1; }
+    else
+      _i_navigate_flat "$@" > "$listing_file" || { rm -f "$listing_file"; return 1; }
+    fi
+
+    if ! _i_navigate_fuzzy_pick; then
+      cat "$listing_file"
+    fi
+    rm -f "$listing_file"
+  else
+    if [[ "${NIXLPER_NAVIGATE_MODE}" == "tree" ]]; then
+      _i_navigate_tree "$@" || return 1
+    else
+      _i_navigate_flat "$@" || return 1
+    fi
   fi
 }
 
@@ -112,8 +124,7 @@ function _i_navigate_fuzzy_pick() {
   done < <(find . -mindepth 1 -maxdepth 1 -type f | sort)
 
   if [[ ${#entries[@]} -eq 0 ]]; then
-    _i_log_as_info "Current directory is empty."
-    return 0
+    return 1
   fi
 
   local selected
@@ -121,9 +132,9 @@ function _i_navigate_fuzzy_pick() {
     --prompt="Navigate > " \
     --height=40% \
     --reverse \
-    --header="Type a number to jump, or letters to fuzzy-filter | ENTER: select | ESC: cancel")
+    --header="Type a number to jump, or letters to fuzzy-filter | ENTER: select | ESC: show shortcuts")
 
-  [[ -z "$selected" ]] && _i_log_as_info "Cancelled." && return 0
+  [[ -z "$selected" ]] && return 1
 
   local idx="${selected%% *}"
 

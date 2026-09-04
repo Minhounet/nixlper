@@ -46,17 +46,18 @@ toggle_navigation_mode
 
 ### Fuzzy picker
 
-If [`fzf`](https://github.com/junegunn/fzf#installation) is installed, a fuzzy picker opens automatically after the listing — folders first, then files, each prefixed with its index and a `[D]`/`[F]` type marker. The same hybrid style as `rd`/`bd`/`lc`:
+If [`fzf`](https://github.com/junegunn/fzf#installation) is installed, the directory listing is suppressed and the fuzzy picker opens directly — folders first, then files, each prefixed with its index and a `[D]`/`[F]` type marker. The same hybrid style as `rd`/`bd`/`lc`:
 
 - type **digits** (e.g. `3`) to jump straight to that numbered entry
 - type **letters** (e.g. `src`) to fuzzy-filter the list by name
 
-Use arrow keys to move, `Enter` to select, `Esc` to cancel.
+Use arrow keys to move, `Enter` to select, `Esc` to fall back to the numbered listing.
 
-- **Selecting a folder** — `cd` into it and refresh the listing.
+- **Selecting a folder** — `cd` into it and refresh the view.
 - **Selecting a file** — open it with `$NIXLPER_EDITOR`.
+- **Pressing `Esc`** — the full numbered listing is printed so you can use `v1`, `cdf1`, `n1`, etc.
 
-The numbered shortcuts (`v1`, `cdf1`, `n1`, etc.) remain active regardless of fuzzy mode.
+The numbered shortcuts (`v1`, `cdf1`, `n1`, etc.) are always set up in the background and become available as soon as `Esc` is pressed.
 
 #### Configuration
 

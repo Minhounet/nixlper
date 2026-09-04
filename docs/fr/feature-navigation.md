@@ -46,17 +46,18 @@ toggle_navigation_mode
 
 ### Sélecteur flou (fuzzy picker)
 
-Si [`fzf`](https://github.com/junegunn/fzf#installation) est installé, un sélecteur flou s'ouvre automatiquement après l'affichage de la liste — les dossiers en premier, puis les fichiers, chacun précédé de son index et d'un marqueur de type `[D]`/`[F]`. Même style hybride que `rd`/`bd`/`lc` :
+Si [`fzf`](https://github.com/junegunn/fzf#installation) est installé, la liste du répertoire est supprimée et le sélecteur flou s'ouvre directement — les dossiers en premier, puis les fichiers, chacun précédé de son index et d'un marqueur de type `[D]`/`[F]`. Même style hybride que `rd`/`bd`/`lc` :
 
 - taper des **chiffres** (ex. `3`) pour sauter directement à l'entrée numérotée correspondante
 - taper des **lettres** (ex. `src`) pour filtrer la liste par nom en mode flou
 
-Utilisez les flèches pour naviguer, `Entrée` pour sélectionner, `Échap` pour annuler.
+Utilisez les flèches pour naviguer, `Entrée` pour sélectionner, `Échap` pour afficher la liste numérotée.
 
-- **Sélectionner un dossier** — `cd` dedans et actualise la liste.
+- **Sélectionner un dossier** — `cd` dedans et actualise la vue.
 - **Sélectionner un fichier** — l'ouvre avec `$NIXLPER_EDITOR`.
+- **Appuyer sur `Échap`** — la liste numérotée complète s'affiche pour utiliser `v1`, `cdf1`, `n1`, etc.
 
-Les raccourcis numérotés (`v1`, `cdf1`, `n1`, etc.) restent actifs quel que soit le mode flou.
+Les raccourcis numérotés (`v1`, `cdf1`, `n1`, etc.) sont toujours préparés en arrière-plan et deviennent disponibles dès que `Échap` est pressé.
 
 #### Configuration
 

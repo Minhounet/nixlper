@@ -154,6 +154,18 @@ interaction is not a supported workflow. The ordering divergence is not fixable 
 between the listing and picker (a stale-alias-class risk), and the benefit is low since fzf users do not type
 numbered aliases after using fzf.
 
+### Listing is buffered to a temp file so it is only shown on ESC
+
+`navigate` redirects the listing function's stdout to a `mktemp` file while running it in the
+current shell (so aliases and `bind` calls still take effect). If `_i_navigate_fuzzy_pick`
+returns 0 (selection made), the temp file is silently deleted. If it returns 1 (ESC or empty
+directory), `navigate` `cat`s the temp file so the user sees the numbered shortcuts. This avoids
+showing the listing unless the user explicitly asks for it (by pressing ESC), giving a clean
+fzf-first experience while preserving the full alias-based workflow as a fallback.
+
+Using a subshell (`$(...)`) to capture the listing was not an option because aliases and `bind`
+commands set inside a subshell do not propagate to the parent shell.
+
 ### Silent failure mode: `bind -x` cannot run the fuzzy picker
 
 `_i_navigate_fuzzy_pick` calls `fzf` (or `read` in the numbered fallback), which require the normal readline/
