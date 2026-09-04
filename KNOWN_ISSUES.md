@@ -35,6 +35,19 @@ terminal compatibility. Remove this entry once the feature has been validated in
 These bugs occur when the command is invoked **directly** on the command line with its
 documented arguments — they are not related to the `find_action` (CTRL+X+A) palette.
 
+### 🟡 `_i_navigate_tree` uses wrong variable for the CTRL+X+N digit-binding guard
+
+In `_i_navigate_tree` (`functions_navigation.sh`), the guard that limits `bind -x '"\C-x<N>"'`
+keybindings to folder indices 1–9 reads `if [[ ${increment} -lt 10 ]]` but the variable
+tracking the folder index is `folder_increment`, not `increment`. Because `increment` is never
+set in that function, it is always empty — bash treats an empty string as `0` in arithmetic
+comparison, so `0 < 10` is always true. Every folder, regardless of its actual index, gets a
+`\C-x<N>` binding. For indices 1–9 this is harmless (correct behavior). For index 10+, bash
+creates a `\C-x10` binding (CTRL+X then '1' then '0'), which is a two-character sequence and
+effectively a dead key — it is never triggered by a user keystroke, but it does add noise to
+`bind -p` output and slightly pollutes readline's key table. Fix: replace `${increment}` with
+`${folder_increment}` on that line.
+
 ### 🟡 Bookmarked directories containing spaces break when the bookmark's alias is typed directly
 
 `_i_bookmark_directory` (`functions_bookmarks.sh`) writes the bookmark as
