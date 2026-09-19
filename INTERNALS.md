@@ -210,6 +210,48 @@ form every doc page advertises) fails with `command not found`. `logtail` shippe
 one release before the missing `alias logtail=_logtail` was added — when adding a new
 `@alias`-annotated command, always add its `alias` line in `nixlper.sh` in the same commit.
 
+The mirror-image mistake also happens: a real `alias foo=...` line exists but the `@cmd-palette`
+block has no matching `@alias: foo`. The parser then falls back to the bare function name as the
+registry's identifier, which nothing in the docs actually mentions (they document `foo`, not the
+internal function). `recent_dirs`/`last_command` shipped this way — `rd`/`lc` worked fine as
+shell aliases, but the registry never captured them, so `scripts/check-doc-sync.sh` (below) could
+not verify they were documented. Fixed by adding the missing `@alias:` lines.
+
+---
+
+## Tri-location doc sync check (`scripts/check-doc-sync.sh`)
+
+### What it checks
+
+For every command the `_build_command_registry` parser (above) extracts, the script derives
+which `help_<slug>` and `feature-<slug>.md`/`fr/feature-<slug>.md` files are supposed to mention
+it, then greps each existing one for the command's `@alias` (only when declared — see above) and
+its `@keybind`. It does not check prose, ordering, or whether the description text matches; only
+that the fact "this alias/keybind exists" appears somewhere in each doc file that exists for it.
+
+### Why a slug isn't always `@category` lowercased
+
+The default slug is the `@category` value lowercased, with `&` dropped and spaces collapsed to
+`_` (help) or `-` (docs). This holds for most categories (`SSH` → `help_ssh`/`feature-ssh.md`),
+but several categories are shared by doc pages that have nothing to do with each other:
+`Help` covers `functions_jokes.sh` and `functions_tips.sh`, which have unrelated doc pages;
+`Utilities` covers `functions_config.sh`, `functions_syshealth.sh`, and several `nixlper.sh`
+keybindings that have no doc page of their own. Other categories map to a single doc pair, but
+the pair's name doesn't match the category word (`Admin` → `feature-admin-notice.md`, `Target` →
+`feature-target-staging.md`). These are listed in the `HELP_FILE_OVERRIDE`/`DOC_PAGE_OVERRIDE`
+associative arrays at the top of the script, keyed by the command/alias name the registry emits
+(not by category, since a whole category can't be redirected as a unit — see `Help`/`Utilities`
+above). A command with no override and no matching `help_<slug>`/`feature-<slug>.md` file at all
+is silently skipped, not flagged: the script only enforces docs that are supposed to exist.
+
+### Keybind normalization
+
+Keybinds are written inconsistently across hand-written docs (`CTRL+X+E` in the annotation vs.
+`[CTRL + X then E]` or `CTRL + X THEN U` in prose). Both the target file's full text and the
+keybind token are stripped down to bare uppercase alphanumerics before comparison
+(`_normalize_keybind`), so formatting differences never register as drift — only an
+actually-missing keybind does.
+
 ---
 
 ## Target staging lifecycle (`functions_target.sh`)
