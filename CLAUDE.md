@@ -137,6 +137,8 @@ nixlper/
 │   │   └── nixlper-profile.d.sh  # profile.d loader deployed to /etc/profile.d/nixlper.sh
 │   └── rpm/
 │       └── nixlper.spec          # RPM spec file
+├── scripts/
+│   └── prepare-release.sh  # Version bump + CHANGELOG/README release automation (see "Automated releases")
 ├── docs/
 │   ├── index.md            # GitHub Pages home (English)
 │   ├── feature-*.md        # GitHub Pages feature pages (English)
@@ -433,6 +435,11 @@ No other files need updating for a joke-only addition (the joke arrays are self-
 > Nothing to do on mobile — no manual tag push, no GitHub UI interaction needed.
 >
 > **How to trigger a release:** just say *"make a release vX.Y.Z"*. Claude handles the rest.
+>
+> **Or let it happen automatically:** `.github/workflows/scheduled_release.yml` runs
+> `scripts/prepare-release.sh` every Friday (and on manual `workflow_dispatch`) and cuts a
+> PATCH/MINOR release with no chat session involved — see "Automated releases" below. A chat
+> session is still the right tool for an on-demand or manually-versioned release.
 
 Every release requires updating **two files** in the same commit (CI creates the git tag automatically).
 
@@ -518,6 +525,51 @@ extracts the CHANGELOG entry, and publishes the GitHub release automatically. No
 tag push or GitHub UI interaction needed.
 
 The build picks up the tag automatically via `git describe --tags --exact-match HEAD`.
+
+#### Automated releases
+
+`.github/workflows/scheduled_release.yml` runs on a Friday-morning cron and on manual
+`workflow_dispatch`, and calls `scripts/prepare-release.sh` — a plain bash script, not a chat
+session, so it carries none of the CLAUDE.md/context overhead a Claude Code session pays per
+turn. It exists to remove the human/chat step from routine PATCH/MINOR releases; a chat session
+("make a release vX.Y.Z") remains the right tool for an on-demand release or one needing a
+specific version number.
+
+**What the script does (no LLM call needed for any of this):**
+1. Reads `CHANGELOG.md`'s `[Unreleased]` section. If it has no bullets, exits 0 (no-op) —
+   the cron simply does nothing most weeks.
+2. Determines the version bump deterministically:
+   - any commit since the last tag starts with the `💥` (breaking) gitmoji → **MAJOR**
+   - else `[Unreleased]` has a non-empty `### Added` section → **MINOR**
+   - else (only `Fixed`/`Changed`/`Removed`) → **PATCH**
+3. Promotes `[Unreleased]`'s existing bullets (already written in plain English by whoever
+   made each change) into a new `## [X.Y.Z] - YYYY-MM-DD` block, dropping any empty sections,
+   and resets `[Unreleased]` to empty.
+4. Updates the README badge (version number) and its "What's new" one-liner.
+
+**The one LLM-touching step** is the README "What's new" sentence: if `ANTHROPIC_API_KEY` is
+set (already configured for `claude.yml`), the script makes one small, self-contained Claude
+API call (no CLAUDE.md, no tools, just "summarize these bullets in one sentence"). If the key
+is absent or the call fails, it falls back to a templated summary built from the bullets'
+bold lead-ins — the workflow never blocks on this.
+
+**MAJOR bumps are never pushed to `main` directly.** A major release needs a human-picked
+`Turnabout <Word>` codename (see "Version codenames" above), so the script instead commits the
+draft to a `release/vX.0.0-draft` branch and exits with a distinct status; the workflow opens a
+PR from that branch instead of pushing, and a human finishes it (pick the codename, edit the
+version heading, merge).
+
+The workflow also refuses to release if `tests.yml` hasn't succeeded on the current `main` HEAD.
+
+**Setup required (one-time, by a repo admin):** a `RELEASE_PAT` secret — a personal access
+token (classic, `repo` scope, or fine-grained with Contents + Pull requests read/write on this
+repo). The default `GITHUB_TOKEN` cannot be used for the release push or PR: GitHub deliberately
+does not let a push or PR made with it trigger other workflows (anti-recursion protection),
+which would mean `create_release_on_tag.yml` never fires. `ANTHROPIC_API_KEY` is optional (see
+above).
+
+Preview without pushing: run the workflow manually with `dry_run: true`, or run
+`DRY_RUN=1 bash scripts/prepare-release.sh` locally.
 
 ### New Keyboard Shortcut
 ```bash
