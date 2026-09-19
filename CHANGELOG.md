@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- **`build-rpm.sh` leaving stale RPMs behind**: the RPM version is derived from the current git tag/commit, so building from a different commit than the previous build left old `nixlper-*.rpm`/`.src.rpm` files sitting in `~/rpmbuild/RPMS/noarch/` and `~/rpmbuild/SRPMS/`. `build-rpm.sh` now removes any existing `nixlper-*.rpm` artifacts before running `rpmbuild`, so only the freshly built package remains.
+## [2.4.0] - 2026-09-19
 
 ### Added
+
 - **Fuzzy picker for navigate** (`functions_navigation.sh`): `CTRL+X+N` now suppresses the directory listing and opens an `fzf` incremental picker directly when `fzf` is installed — folders first, then files, each prefixed with a `[D]`/`[F]` marker and a 1-based index. Type digits to jump to that numbered entry, or letters to fuzzy-filter by name. Selecting a folder `cd`s into it and refreshes the listing; selecting a file opens it with `$NIXLPER_EDITOR`. The numbered shortcuts (`v1`, `cdf1`, `n1`, etc.) remain active regardless of fuzzy mode. Configurable via `nconf`: `NIXLPER_NAVIGATE_FUZZY` (bool, default `true`).
 - **Command history** (`functions_last_command.sh`): `lc` / `CTRL+X+L` re-runs a previous shell command, picked from bash's own history via the same hybrid picker as `rd`/`bd` — an `fzf` incremental filter when `fzf` is installed (type digits to jump to that numbered entry, or letters to fuzzy-filter by command text), falling back to a numbered picker otherwise. The selected command is preloaded onto an editable prompt rather than run blindly, so it can be reviewed or cancelled first. Configurable via `nconf`: `NIXLPER_LAST_COMMAND_MAX` (default `50`) and `NIXLPER_LAST_COMMAND_FUZZY` (default `true`).
 - **Fuzzy search for bookmarks** (`functions_bookmarks.sh`): `CTRL+X+D` (now also aliased `bd`) displays saved bookmarks and lets you jump to one, using the same hybrid picker as `rd` — an `fzf` incremental filter when `fzf` is installed (type digits to jump to that numbered entry, or letters to fuzzy-filter by alias/path), falling back to a numbered picker otherwise. This also fixes a long-standing doc/implementation gap where `CTRL+X+D` was documented as letting you select and jump but only ever displayed the list. Configurable via `nconf`: `NIXLPER_BOOKMARKS_FUZZY` (bool, default `true`). Also fixes the bookmark list display (`SED_PATTERN_EXTRACT_ALIAS`) silently leaving bookmarked paths containing spaces unformatted.
@@ -23,7 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **System health advisor** (`functions_syshealth.sh`): `health` interprets memory (`free`), disk (`df`, per mounted filesystem), and CPU load (`uptime` scaled by `nproc`) into `[OK]`/`[WARN]`/`[CRIT]` verdicts with suggested remediation commands and top resource consumers. No external dependencies. Configurable via `nconf`: `NIXLPER_HEALTH_WARN_PCT` (default `80`), `NIXLPER_HEALTH_CRIT_PCT` (default `90`), `NIXLPER_HEALTH_TOP_N` (default `3`).
 - **Automated releases** (`scripts/prepare-release.sh`, `.github/workflows/scheduled_release.yml`): a weekly cron (and manual `workflow_dispatch`) cuts PATCH/MINOR releases straight from the CHANGELOG's `[Unreleased]` bullets — no chat session needed. Version bump is derived deterministically (a `💥` commit → MAJOR, an `### Added` entry → MINOR, otherwise PATCH); MAJOR bumps open a PR instead of pushing to `main`, since they need a human-picked codename. Pure bash, no external API calls of any kind — the README "What's new" sentence is built from the changelog bullets' bold lead-ins. Requires a `RELEASE_PAT` secret (the default `GITHUB_TOKEN` can't trigger `create_release_on_tag.yml` on its own push). See `CLAUDE.md` → "Automated releases".
 
+### Fixed
+
+- **`build-rpm.sh` leaving stale RPMs behind**: the RPM version is derived from the current git tag/commit, so building from a different commit than the previous build left old `nixlper-*.rpm`/`.src.rpm` files sitting in `~/rpmbuild/RPMS/noarch/` and `~/rpmbuild/SRPMS/`. `build-rpm.sh` now removes any existing `nixlper-*.rpm` artifacts before running `rpmbuild`, so only the freshly built package remains.
+
 ### Changed
+
 - **`build-rpm.sh` quiet by default**: `rpmbuild` now runs with `--quiet`, suppressing the `+ command` scriptlet trace it prints internally for `%install`. Pass `--verbose`/`-v` to see the full trace, e.g. `bash build-rpm.sh --verbose`.
 
 ---
