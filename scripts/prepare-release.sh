@@ -21,12 +21,12 @@
 #   20 - MAJOR bump: draft branch pushed, caller should open a PR
 #   1  - error (bad state, missing previous tag, etc.)
 #
+# Pure bash, no external dependencies and no LLM calls of any kind — the
+# README "What's new" sentence is built from the changelog bullets' bold
+# lead-ins, not generated.
+#
 # Env:
-#   ANTHROPIC_API_KEY  optional. Used for a single short Claude API call that
-#                      writes the README "What's new" sentence from the
-#                      promoted changelog text. Falls back to a templated
-#                      summary when unset, or when the call fails.
-#   DRY_RUN=1          compute and print the plan; write no files, commit nothing.
+#   DRY_RUN=1  compute and print the plan; write no files, commit nothing.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -123,39 +123,15 @@ new_changelog="$(awk -v newver="$new_version" -v today="$today" '
   { print }
 ' "$CHANGELOG")"
 
-# --- 6. Compute the README "What's new" summary ----------------------------
-generate_summary() {
-  local body="$1"
-  if [[ -z "${ANTHROPIC_API_KEY:-}" ]] || ! command -v curl >/dev/null || ! command -v jq >/dev/null; then
-    return 1
-  fi
-  local prompt payload response text
-  prompt="Summarize the following software changelog entries into ONE concise sentence for a README \"what's new\" line, written for end users. No markdown, no leading \"This release\" or \"Adds\", just the sentence itself.
-
-${body}"
-  payload="$(jq -n --arg prompt "$prompt" '{
-    model: "claude-sonnet-5",
-    max_tokens: 200,
-    messages: [{role: "user", content: $prompt}]
-  }')"
-  response="$(curl -sS --max-time 20 https://api.anthropic.com/v1/messages \
-    -H "x-api-key: ${ANTHROPIC_API_KEY}" \
-    -H "anthropic-version: 2023-06-01" \
-    -H "content-type: application/json" \
-    -d "$payload")" || return 1
-  text="$(jq -r '.content[0].text // empty' <<<"$response" 2>/dev/null)"
-  [[ -n "$text" ]] || return 1
-  printf '%s' "$text" | tr '\n' ' ' | sed -E 's/[[:space:]]+/ /g; s/^ +| +$//g'
-}
-
-fallback_summary() {
+# --- 6. Build the README "What's new" summary -----------------------------
+# Templated, not generated: joins the changelog bullets' bold lead-ins.
+build_summary() {
   local body="$1" leads
   leads="$(grep -oE '\*\*[^*]+\*\*' <<<"$body" | sed -E 's/\*\*//g' | head -3 | paste -sd, - | sed -E 's/,/, /g')"
   printf 'Adds/updates: %s.' "${leads:-see CHANGELOG for details}"
 }
 
-summary="$(generate_summary "$filtered_body" || true)"
-[[ -n "$summary" ]] || summary="$(fallback_summary "$filtered_body")"
+summary="$(build_summary "$filtered_body")"
 
 # --- 7. Rewrite README.md: badge version + "What's new" line --------------
 update_readme() {
