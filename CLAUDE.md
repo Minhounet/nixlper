@@ -548,10 +548,13 @@ specific version number.
 4. Updates the README badge (version number) and its "What's new" one-liner.
 
 **The one LLM-touching step** is the README "What's new" sentence: if `ANTHROPIC_API_KEY` is
-set (already configured for `claude.yml`), the script makes one small, self-contained Claude
-API call (no CLAUDE.md, no tools, just "summarize these bullets in one sentence"). If the key
-is absent or the call fails, it falls back to a templated summary built from the bullets'
-bold lead-ins — the workflow never blocks on this.
+set, the script makes one small, self-contained Claude API call (no CLAUDE.md, no tools, just
+"summarize these bullets in one sentence"). **This repo does not currently have that secret
+set** (there's no separate Anthropic Console/API billing behind this project — just Claude Code
+and claude.ai), so in practice the script always uses its fallback: a templated summary built
+from the bullets' bold lead-ins. This is by design, not a degraded mode — the fallback was
+verified working correctly in the first real dry run (see the "Scheduled release" workflow run
+history). Adding the key later is a pure optional upgrade, not a requirement.
 
 **MAJOR bumps are never pushed to `main` directly.** A major release needs a human-picked
 `Turnabout <Word>` codename (see "Version codenames" above), so the script instead commits the

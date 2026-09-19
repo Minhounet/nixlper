@@ -15,10 +15,10 @@ name: Scheduled release
 #     here — GitHub deliberately does not let pushes or PRs made with it
 #     trigger other workflows (anti-recursion protection), so
 #     create_release_on_tag.yml would never fire on the release push.
-#   - ANTHROPIC_API_KEY (already configured for claude.yml) is reused,
-#     optionally, for the one-sentence README summary. The workflow still
-#     works without it — prepare-release.sh falls back to a templated
-#     summary built from the changelog bullets.
+#   - ANTHROPIC_API_KEY is optional, for the one-sentence README summary.
+#     Not currently set on this repo (no separate Anthropic API billing
+#     here) — prepare-release.sh falls back to a templated summary built
+#     from the changelog bullets, which is what actually runs today.
 #
 # Preview a release without pushing anything: run this workflow manually
 # (Actions tab -> Scheduled release -> Run workflow) with dry_run: true.
