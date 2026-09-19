@@ -1,0 +1,99 @@
+name: Scheduled release
+
+# Cuts a release automatically from whatever has accumulated under
+# CHANGELOG.md's [Unreleased] section — no chat session required. All the
+# actual logic (version bump, changelog promotion, README badge update)
+# lives in scripts/prepare-release.sh, which is a plain, LLM-free script
+# except for one small optional call that writes the README "What's new"
+# sentence. This workflow just wires that script to CI status, the push,
+# and the PR flow for MAJOR bumps.
+#
+# Setup required (one-time, by a repo admin):
+#   - A RELEASE_PAT secret: a personal access token (classic, `repo` scope,
+#     or a fine-grained token with Contents: read/write + Pull requests:
+#     read/write on this repo). The default GITHUB_TOKEN cannot be used
+#     here — GitHub deliberately does not let pushes or PRs made with it
+#     trigger other workflows (anti-recursion protection), so
+#     create_release_on_tag.yml would never fire on the release push.
+#   - ANTHROPIC_API_KEY (already configured for claude.yml) is reused,
+#     optionally, for the one-sentence README summary. The workflow still
+#     works without it — prepare-release.sh falls back to a templated
+#     summary built from the changelog bullets.
+#
+# Preview a release without pushing anything: run this workflow manually
+# (Actions tab -> Scheduled release -> Run workflow) with dry_run: true.
+
+on:
+  schedule:
+    - cron: "0 9 * * 5" # Fridays 09:00 UTC — no-ops if nothing is releasable
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only — compute the release but do not commit or push"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_PAT }}
+
+      - name: Verify CI is green on main
+        if: github.event.inputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+        run: |
+          sha="$(git rev-parse HEAD)"
+          conclusion="$(gh run list --branch main --workflow tests.yml \
+            --json headSha,conclusion --limit 10 \
+            --jq "[.[] | select(.headSha == \"${sha}\")][0].conclusion")"
+          if [[ "$conclusion" != "success" ]]; then
+            echo "tests.yml has not succeeded on ${sha} (conclusion: ${conclusion:-none}); refusing to release." >&2
+            exit 1
+          fi
+
+      - name: Prepare release
+        id: prepare
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
+        run: |
+          set +e
+          bash scripts/prepare-release.sh
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Push release commit
+        if: steps.prepare.outputs.exit_code == '10'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+        run: git push origin main
+
+      - name: Open draft PR for MAJOR bump
+        if: steps.prepare.outputs.exit_code == '20'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+        run: |
+          branch="$(git branch --show-current)"
+          gh pr create --base main --head "$branch" \
+            --title "Prepare ${branch#release/}: needs a codename" \
+            --body "Automated MAJOR version bump. CLAUDE.md requires a human-picked \`Turnabout <Word>\` codename for major releases — pick one, update the version heading in CHANGELOG.md, then merge to cut the release."
+
+      - name: Fail on unexpected error
+        if: >-
+          steps.prepare.outputs.exit_code != '0' &&
+          steps.prepare.outputs.exit_code != '10' &&
+          steps.prepare.outputs.exit_code != '20'
+        run: |
+          echo "prepare-release.sh exited with ${{ steps.prepare.outputs.exit_code }}" >&2
+          exit 1
