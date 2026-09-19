@@ -138,6 +138,7 @@ function _i_recent_dirs_numbered_pick() {
 # @description: Navigate to a recently visited directory (number-jump or fuzzy search via fzf)
 # @category: Navigation
 # @keybind: CTRL+X+J
+# @alias: rd
 # @interactive
 #-----------------------------------------------------------------------------------------------------------------------
 function recent_dirs() {

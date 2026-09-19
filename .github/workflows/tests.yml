@@ -16,7 +16,7 @@ jobs:
       - name: Syntax-check all bash sources
         run: |
           status=0
-          for f in src/main/bash/*.sh src/test/bash/*.sh install.sh build.sh build-rpm.sh build-deb.sh; do
+          for f in src/main/bash/*.sh src/test/bash/*.sh scripts/*.sh install.sh build.sh build-rpm.sh build-deb.sh; do
             [[ -f "$f" ]] || continue
             if bash -n "$f"; then
               echo "ok   $f"
@@ -59,3 +59,6 @@ jobs:
 
       - name: Run last-command unit tests
         run: bash src/test/bash/test_functions_last_command.sh
+
+      - name: Check tri-location doc sync (help / docs / docs-fr)
+        run: bash scripts/check-doc-sync.sh

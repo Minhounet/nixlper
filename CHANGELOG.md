@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Tri-location doc sync check** (`scripts/check-doc-sync.sh`): verifies every `@cmd-palette` command's alias and keybind is mentioned in its in-shell help file, English doc page, and French doc page — catching a command added in code but never documented. Runs in CI via `tests.yml`. See `CLAUDE.md` → "Tri-location documentation rule (enforced)".
+
+### Fixed
+
+- **`help_macros`** never mentioned the `sr`/`fr` aliases for starting/stopping macro recording, only their keybinds — found by the new doc-sync check.
+- **`recent_dirs`/`last_command`** were missing an explicit `@alias` annotation (`rd`/`lc` respectively), even though both aliases exist and are the commands' actual documented names — the command palette registry was silently falling back to the internal function name.
+
 ## [2.4.0] - 2026-09-19
 
 ### Added

@@ -133,6 +133,7 @@ function _i_last_command_numbered_pick() {
 # @description: Re-run a previous command (number-jump or fuzzy search via fzf)
 # @category: History
 # @keybind: CTRL+X+L
+# @alias: lc
 # @interactive
 #-----------------------------------------------------------------------------------------------------------------------
 function last_command() {

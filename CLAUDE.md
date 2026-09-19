@@ -80,7 +80,11 @@ Every command, alias, and keybinding **must** appear in all three locations:
 - the corresponding `docs/feature-*.md` page (GitHub Pages — English), and
 - the corresponding `docs/fr/feature-*.md` page (GitHub Pages — French).
 
-After any feature work, compare all three locations and flag any discrepancy — do not close the task until they are in sync. `README.md → ## Features` is a summary table that links to the Pages site; it does **not** need to list every command.
+After any feature work, run `bash scripts/check-doc-sync.sh` and flag any discrepancy — do not close the task until it passes. `README.md → ## Features` is a summary table that links to the Pages site; it does **not** need to list every command.
+
+**`scripts/check-doc-sync.sh`** automates the fact-checking half of this rule (it does not check prose — see "Doc consolidation" below for why). For every `@cmd-palette` command it derives which `help_<slug>` and `feature-<slug>.md`/`fr/feature-<slug>.md` files should mention it (from a slugified `@category`, e.g. `SSH` → `help_ssh`/`feature-ssh.md`) and asserts the command's `@alias` (only when one is declared — a bare function name with no alias is assumed keybind-only, not user-typed) and its `@keybind` (compared after stripping formatting, so `CTRL+X+E` matches `[CTRL + X then E]`) are literally present in each file that exists. A handful of categories don't map cleanly to a single doc pair (`Help` covers both jokes.sh and tips.sh; `Utilities` covers config.sh, syshealth.sh and undocumented nixlper.sh bindings; `Admin`/`Target`/`Files & Folders` extras use a doc-page name that doesn't match the category word) — those are listed in the `HELP_FILE_OVERRIDE`/`DOC_PAGE_OVERRIDE` tables at the top of the script, keyed by command/alias name. When adding a command whose category is one of these, or introducing a new such category, add the override there rather than fighting the default slug. A command/keybind that genuinely has no doc home (e.g. `CTRL+X+O`, mentioned only in the rotating tips list) needs no override — the check is skipped when neither target file exists. Wired into CI via `tests.yml`.
+
+**Doc consolidation (why prose isn't generated):** `src/main/help/help_<category>` (terse, terminal-formatted) and `docs/feature-*.md` (narrative, Jekyll-formatted, with demos/nav/badges) are independently hand-written for different audiences — a shared template would flatten the web pages' style. `check-doc-sync.sh` was chosen instead as the lighter, lower-risk way to eliminate the actual recurring bug (a command added in code but forgotten in a doc) without a lossy prose generator. French stays fully hand-translated; the script only checks that the same alias/keybind facts appear in it, not that the translation itself is accurate or current.
 
 **French pages live in `docs/fr/`.** Each French page links back to its English counterpart with `> 🇬🇧 [English version](../feature-name.md)`, and each English page links to its French counterpart with `> 🇫🇷 [Version française](fr/feature-name.md)`.
 
@@ -138,7 +142,8 @@ nixlper/
 │   └── rpm/
 │       └── nixlper.spec          # RPM spec file
 ├── scripts/
-│   └── prepare-release.sh  # Version bump + CHANGELOG/README release automation (see "Automated releases")
+│   ├── prepare-release.sh  # Version bump + CHANGELOG/README release automation (see "Automated releases")
+│   └── check-doc-sync.sh   # Tri-location doc fact-check, run in CI (see "Tri-location documentation rule")
 ├── docs/
 │   ├── index.md            # GitHub Pages home (English)
 │   ├── feature-*.md        # GitHub Pages feature pages (English)
@@ -416,7 +421,7 @@ Feature documentation lives in **three places** that must always stay in sync:
 
 `README.md → ## Features` is intentionally a brief summary table — do not add command details there.
 
-To check for drift, compare the relevant `docs/feature-*.md` page, its `docs/fr/feature-*.md` counterpart, and the corresponding `src/main/help/help_<category>` file. Every command, alias, and keybinding mentioned in one must appear in all three. Flag any discrepancy to the user before closing a session that touched features.
+To check for drift, run `bash scripts/check-doc-sync.sh` — it verifies every `@cmd-palette` command's alias and keybind is mentioned in its `docs/feature-*.md` page, `docs/fr/feature-*.md` counterpart, and `src/main/help/help_<category>` file (see the full explanation under "Tri-location documentation rule (enforced)" near the top of this file). It checks facts, not prose — still read the three locations yourself for wording/content drift. Flag any discrepancy to the user before closing a session that touched features.
 
 ### Adding jokes
 
@@ -758,4 +763,4 @@ Native DEB is planned (next session). Key difference from alien-converted DEB:
 - [ ] Run shellcheck if safe
 - [ ] Test build and installation (`bash build.sh && tar -xf ... && ./nixlper.sh install`)
 - [ ] RPM: `bash build-rpm.sh` on a RHEL/Fedora/Rocky system, then `dnf install`
-- [ ] **Doc sync check**: verify every command in `docs/feature-*.md` (GitHub Pages) matches its `src/main/help/help_*` counterpart, and vice versa (see "Dual-location documentation rule" above)
+- [ ] **Doc sync check**: `bash scripts/check-doc-sync.sh` (see "Tri-location documentation rule" above)
