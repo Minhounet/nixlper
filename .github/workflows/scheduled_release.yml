@@ -3,10 +3,10 @@ name: Scheduled release
 # Cuts a release automatically from whatever has accumulated under
 # CHANGELOG.md's [Unreleased] section — no chat session required. All the
 # actual logic (version bump, changelog promotion, README badge update)
-# lives in scripts/prepare-release.sh, which is a plain, LLM-free script
-# except for one small optional call that writes the README "What's new"
-# sentence. This workflow just wires that script to CI status, the push,
-# and the PR flow for MAJOR bumps.
+# lives in scripts/prepare-release.sh, which is plain bash with no external
+# dependencies and no LLM calls of any kind — nothing here costs anything
+# to run beyond normal GitHub Actions minutes. This workflow just wires
+# that script to CI status, the push, and the PR flow for MAJOR bumps.
 #
 # Setup required (one-time, by a repo admin):
 #   - A RELEASE_PAT secret: a personal access token (classic, `repo` scope,
@@ -15,10 +15,6 @@ name: Scheduled release
 #     here — GitHub deliberately does not let pushes or PRs made with it
 #     trigger other workflows (anti-recursion protection), so
 #     create_release_on_tag.yml would never fire on the release push.
-#   - ANTHROPIC_API_KEY (already configured for claude.yml) is reused,
-#     optionally, for the one-sentence README summary. The workflow still
-#     works without it — prepare-release.sh falls back to a templated
-#     summary built from the changelog bullets.
 #
 # Preview a release without pushing anything: run this workflow manually
 # (Actions tab -> Scheduled release -> Run workflow) with dry_run: true.
@@ -66,7 +62,6 @@ jobs:
       - name: Prepare release
         id: prepare
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           DRY_RUN: ${{ github.event.inputs.dry_run == 'true' && '1' || '0' }}
         run: |
           set +e
