@@ -42,6 +42,7 @@ Ouvrez un nouveau shell. C'est tout.
 | 📜 Suivre un fichier de log en surlignant les lignes correspondantes | [Logs](feature-logs.md) |
 | ⚠️ Laisser une notice de connexion pour la prochaine personne | [Notice Admin](feature-admin-notice.md) |
 | ⏮️ Relancer une commande précédente | [Historique des commandes](feature-history.md) |
+| 🎵 Jouer un court air musical via le haut-parleur du PC | [Son](feature-sound.md) |
 
 ---
 

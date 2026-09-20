@@ -42,6 +42,7 @@ Then open a new shell. That's it.
 | 📜 Follow a log file, highlighting matching lines | [Logs](feature-logs.md) |
 | ⚠️ Leave a login notice for whoever logs in next | [Admin Notice](feature-admin-notice.md) |
 | ⏮️ Re-run a previous command | [Command History](feature-history.md) |
+| 🎵 Play a short pitched tune through the PC speaker | [Sound](feature-sound.md) |
 
 ---
 

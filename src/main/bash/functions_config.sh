@@ -43,6 +43,7 @@ _NIXLPER_CONFIG_VARS=(
   "NIXLPER_DISABLE_BROADCAST_MESSAGE|bool|false|Suppress admin notice at login|common"
   "NIXLPER_BROADCAST_MESSAGE_FILE|path||Admin notice file path|advanced"
   "NIXLPER_PORT_CHECK_SHOW_CMDLINE|bool|true|Show full command line in port quick-check (pc) output|common"
+  "NIXLPER_SOUND_DEFAULT_PRESET|enum:success:error:fanfare|success|Default tune preset for 'tune' when no argument is given|common"
 )
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -217,6 +218,7 @@ function _nconf_create_user_conf() {
     printf "# export NIXLPER_HEALTH_TOP_N=3\n"
     printf "# export NIXLPER_LOGTAIL_LINES=10\n"
     printf "# export NIXLPER_BROADCAST_MESSAGE_FILE=\${NIXLPER_INSTALL_DIR}/broadcast_message\n"
+    printf "# export NIXLPER_SOUND_DEFAULT_PRESET=success\n"
   } > "${_NIXLPER_USER_CONF}"
   echo "  -> Created ${_NIXLPER_USER_CONF}"
 }

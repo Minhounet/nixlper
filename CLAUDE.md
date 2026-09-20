@@ -49,6 +49,21 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
   `docs/fr/feature-admin-notice.md`, help: `src/main/help/help_admin`, tests:
   `src/test/bash/test_functions_broadcast.sh`.
 
+- **`functions_sound.sh`** — `tune [PRESET]` (`@args` command, no keybind, alias `tune`): plays a
+  short pitched tune through the local PC speaker via the external `beep` utility. Presets
+  (`success`/`error`/`fanfare`) are hardcoded note sequences (`"FREQ_HZ:LENGTH_MS ..."` pairs);
+  `_i_sound_beep_args` turns a sequence into `beep -f F -l L -n -f F -l L ...` argv. No audio file
+  playback anywhere — this was a deliberate choice so the feature has zero dependency beyond
+  `beep` itself and needs no bundled asset. **Important caveat, documented in the feature docs and
+  help file:** `beep` drives the PC speaker of whatever machine runs the command — over SSH that
+  is the remote box's speaker, not the user's, so it is not heard at all in nixlper's primary
+  (SSH) use case; it only reliably works in a local terminal session with `beep` installed and
+  `pcspkr`/console permissions available. Standalone command only — nothing auto-fires it at the
+  end of other commands (considered and explicitly deferred; see chat history). Configurable via
+  `nconf`: `NIXLPER_SOUND_DEFAULT_PRESET` (enum, default `success`). Docs: `docs/feature-sound.md`
+  / `docs/fr/feature-sound.md`, help: `src/main/help/help_sound`, tests:
+  `src/test/bash/test_functions_sound.sh`.
+
 ---
 
 ## Known Issues
@@ -683,6 +698,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_LAST_COMMAND_MAX` | `50` | `50` |
 | `NIXLPER_LAST_COMMAND_FUZZY` | `true` | `true` |
 | `NIXLPER_NAVIGATE_FUZZY` | `true` | `true` |
+| `NIXLPER_SOUND_DEFAULT_PRESET` | `success` | `success` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.

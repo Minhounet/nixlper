@@ -208,6 +208,7 @@ export NIXLPER_HEALTH_TOP_N="\${NIXLPER_HEALTH_TOP_N:-3}"
 export NIXLPER_LOGTAIL_IGNORE_CASE="\${NIXLPER_LOGTAIL_IGNORE_CASE:-false}"
 export NIXLPER_LOGTAIL_LINES="\${NIXLPER_LOGTAIL_LINES:-10}"
 export NIXLPER_PORT_CHECK_SHOW_CMDLINE="\${NIXLPER_PORT_CHECK_SHOW_CMDLINE:-true}"
+export NIXLPER_SOUND_DEFAULT_PRESET="\${NIXLPER_SOUND_DEFAULT_PRESET:-success}"
 EOF
   chmod 644 /etc/nixlper/nixlper.conf
 
@@ -435,6 +436,7 @@ alias bset=set_broadcast_message
 alias bclear=clear_broadcast_message
 alias bshow=show_broadcast_message
 alias logtail=_logtail
+alias tune=_play_tune
 
 #***********************************************************************************************************************
 ########################################################################################################################

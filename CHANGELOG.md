@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Sound** (`functions_sound.sh`): `tune [PRESET]` plays a short pitched tune (`success`, `error`, or `fanfare`) through the local PC speaker via the `beep` utility. Note: this only sounds on the machine nixlper is actually running on — over SSH that's the remote box's speaker, not yours; `tune` errors clearly (rather than failing silently) when `beep` isn't installed or speaker access is denied. Configurable via `nconf`: `NIXLPER_SOUND_DEFAULT_PRESET` (default `success`).
 - **Tri-location doc sync check** (`scripts/check-doc-sync.sh`): verifies every `@cmd-palette` command's alias and keybind is mentioned in its in-shell help file, English doc page, and French doc page — catching a command added in code but never documented. Runs in CI via `tests.yml`. See `CLAUDE.md` → "Tri-location documentation rule (enforced)".
 
 ### Fixed

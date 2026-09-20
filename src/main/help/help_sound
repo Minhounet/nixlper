@@ -1,0 +1,11 @@
+########################################################################################################################
+# Help for sound
+########################################################################################################################
+------------------------------------------------------------------------------------------------------------------------
+tune [PRESET] : play a short pitched tune through the PC speaker (alias: tune).
+                PRESET is one of: success (default), error, fanfare.
+                Requires the 'beep' utility (e.g. 'sudo apt install beep' / 'sudo dnf install beep') and PC speaker
+                access (pcspkr kernel module + permission). Only audible on the machine nixlper is running on -
+                over SSH that is the remote box's speaker, not yours.
+                Configurable via nconf: NIXLPER_SOUND_DEFAULT_PRESET (default success).
+------------------------------------------------------------------------------------------------------------------------

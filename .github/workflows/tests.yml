@@ -60,5 +60,8 @@ jobs:
       - name: Run last-command unit tests
         run: bash src/test/bash/test_functions_last_command.sh
 
+      - name: Run sound unit tests
+        run: bash src/test/bash/test_functions_sound.sh
+
       - name: Check tri-location doc sync (help / docs / docs-fr)
         run: bash scripts/check-doc-sync.sh
