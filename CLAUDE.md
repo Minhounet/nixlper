@@ -321,7 +321,6 @@ Source: `https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/
 2. Test modules individually
 3. Follow naming conventions
 4. Add @cmd-palette annotations for user commands
-5. Once the implementation is done, celebrate with a joke: `source src/main/bash/functions_jokes.sh && show_joke`
 
 ### Before Commit
 1. Build with `./build.sh`
@@ -330,16 +329,25 @@ Source: `https://raw.githubusercontent.com/carloscuesta/gitmoji/master/packages/
 
 ### After every push — MANDATORY CI check
 
-After every `git push`, **always verify CI passes** before reporting the task as done:
+After every `git push`, **always verify CI passes** before reporting the task as done. How you
+verify depends on whether the push has an open PR:
 
-1. Wait ~30 s, then poll `mcp__github__actions_list` (`list_workflow_runs`, branch filter) until
-   the latest run reaches `status: completed`.
-2. If `conclusion: success` → report done.
-3. If `conclusion: failure` → fetch logs with `mcp__github__get_job_logs`
+**Push belongs to an open PR** (the normal feature-branch flow): call `subscribe_pr_activity`
+(owner/repo/pullNumber) once instead of polling. CI results, failures, and comments then arrive
+as `<wake reason="external-event">` notifications — react to those (fix and push on failure,
+report done once green) rather than manually re-checking `actions_list` in a loop.
+
+**Push has no PR** (release commits and other changes that go directly to `main` per this file's
+own conventions): there is nothing to subscribe to, so wait an interval appropriate to the
+workflow's usual runtime, then check `mcp__github__actions_list` once.
+1. If `conclusion: success` → report done.
+2. If `conclusion: failure` → fetch logs with `mcp__github__get_job_logs`
    (`failed_only: true`, `return_content: true`), diagnose the failure, fix it, push again,
-   and repeat from step 1.
-4. **Never hand back to the user with a red CI.** If a failure is genuinely out of scope or
-   requires a decision, explain the failure and the options — do not silently leave CI broken.
+   and repeat once.
+
+**Never hand back to the user with a red CI**, under either path. If a failure is genuinely out
+of scope or requires a decision, explain the failure and the options — do not silently leave CI
+broken.
 
 ### Testing requirement (bugs and features)
 After implementing a bug fix or a new feature, **always test it** before committing:
