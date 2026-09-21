@@ -18,6 +18,17 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
 
 ## Modules Reference
 
+- **`functions_processes.sh`** — `ik` (interactive kill) and `pc` (port quick-check). `ik` with no
+  flag opens a single `fzf` picker whose rows join `ps` output with the TCP listening-socket map
+  (`ss -tlnp`, falling back to `netstat -tlnp`), so one query filters on command name, PID **and**
+  port at once — no port/pattern mode question. `--multi` (TAB) marks several processes; the marked
+  list is confirmed before `kill -9`. Deliberately has **no** `N ` index column, unlike `rd`/`bd`/`lc`:
+  digits here must mean port or PID (see INTERNALS.md). The legacy `ik --port` / `ik --pattern` paths
+  are untouched and remain the fallback when `fzf` is absent. Configurable via `nconf`:
+  `NIXLPER_KILL_FUZZY` (bool, default `true`) and `NIXLPER_PORT_CHECK_SHOW_CMDLINE` (bool, default
+  `true`). Docs: `docs/feature-processes.md` / `docs/fr/feature-processes.md`, help:
+  `src/main/help/help_processes`, tests: `src/test/bash/test_functions_processes.sh`.
+
 - **`functions_logtail.sh`** — `logtail FILE PATTERN` (`@args` command, no keybind — see the
   `bind -x` constraint above). Wraps `tail -F FILE | grep --color=always -E PATTERN`; `-F`
   (not `-f`) so it survives log rotation. Configurable via `nconf`: `NIXLPER_LOGTAIL_IGNORE_CASE`
@@ -683,6 +694,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_LAST_COMMAND_MAX` | `50` | `50` |
 | `NIXLPER_LAST_COMMAND_FUZZY` | `true` | `true` |
 | `NIXLPER_NAVIGATE_FUZZY` | `true` | `true` |
+| `NIXLPER_KILL_FUZZY` | `true` | `true` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.

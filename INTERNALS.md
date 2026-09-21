@@ -491,3 +491,76 @@ it in the normal shell) instead of `bind -x '"\C-x\C-d": bookmark_dirs'`. Any fu
 makes a `bind -x`-bound command call `read` or `fzf` needs the same fix, or it will silently do
 nothing when triggered by its keybinding (it still works when invoked by typing its name/alias
 directly, since that never goes through `bind -x` in the first place).
+
+---
+
+## Interactive kill picker (`functions_processes.sh`)
+
+### Mechanism
+
+`ik` builds one flat list where each row carries everything a query could reasonably target:
+
+```
+PID     PORTS           USER       COMMAND
+1234    :8080,:9090     user       java -jar myapp.jar
+```
+
+That row is a **join** of two independent sources, done in `_i_kill_candidates`:
+
+1. `ps -eo pid=,user=,args=` — every process.
+2. `_i_kill_ports_map` — `pid port` pairs for every TCP listening socket, from `ss -tlnp` or
+   (fallback) `netstat -tlnp`, parsed by `_i_kill_parse_ss_ports` / `_i_kill_parse_netstat_ports`.
+
+The join is an associative array keyed by PID, so the ports end up on the same *line* as the
+command name. That colocation is the entire feature: `fzf` matches against whole lines, so a
+query of `8080` and a query of `java` hit the same list without the user declaring which axis
+they are searching on. The old flow had to ask "port or pattern?" precisely because the two
+lived in separate code paths.
+
+A PID can appear several times in the socket map — once per bound address. `0.0.0.0:8080` and
+`[::]:8080` are two sockets, one service, so the accumulator checks membership before appending
+(`",${ports}," != *",:${port},"*`) or the column would read `:8080,:8080`.
+
+Parsing is deliberately split from collection so it can be unit-tested with canned tool output:
+`src/test/bash/test_functions_processes.sh` pipes fixture text through the parsers and mocks
+`ps` / `_i_kill_ports_map`, so CI needs neither `ss`, `netstat`, nor a live process.
+
+### Why there is no index column here
+
+`rd`, `bd` and `lc` prefix each row with `N  ` so digits mean "jump to entry N" (see *Recent
+directories → Number-jump and fuzzy-filter in the same picker*). `ik` deliberately does **not**:
+here digits must mean *port* or *PID*, which is the whole point. An index column would compete
+with the port for every numeric query — typing `8080` would rank row 8080 (and rows containing
+those digits in their index) against the process actually holding the port.
+
+The PID takes the index's structural role instead: it is the first field, so the selected line
+maps back to a target with `${line%% *}` — no parallel arrays needed, unlike `_i_bookmarks_fuzzy_pick`.
+
+### Silent failure mode: a pipeline makes fzf list itself
+
+The candidate list is built into a variable **before** `fzf` is invoked:
+
+```bash
+candidates=$(_i_kill_candidates)
+selected=$(printf '%s\n' "${candidates}" | fzf "${fzf_args[@]}")
+```
+
+The obvious `_i_kill_candidates | fzf` is wrong: both sides of a pipeline start concurrently, so
+`ps` runs while `fzf` is already alive and `fzf` appears in its own kill list. Nothing errors —
+you just get a puzzling extra row, and killing it takes the picker down with it.
+
+For the same reason `_i_kill_candidates` filters out the `ps` invocation it just spawned. The
+match is against the exact command line (`ps -eo ${_NIXLPER_KILL_PS_FORMAT}`), not a broad
+`^ps ` pattern, so a real `ps` the user *does* want to kill still shows up. This is the same
+concern as the historical `grep -v grep` in `_i_kill_by_pattern`.
+
+The caller's own shell (`$$`) is filtered out on the same pass. `$$` is the parent shell's PID
+even inside the command substitution, so this works without any extra plumbing.
+
+### Why the legacy flags stay
+
+`ik --port` / `ik --pattern` bypass the picker entirely and keep their original code paths.
+Besides backward compatibility, `pc` prints `ik --port N` as its suggested action, and the
+port/pattern prompt remains the fallback when `fzf` is absent or `NIXLPER_KILL_FUZZY=false` —
+so that flow cannot be deleted, only demoted. A bare non-flag argument (`ik java`), which used
+to be rejected as an invalid parameter, now seeds the picker's initial query.

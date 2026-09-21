@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Unified fuzzy picker for interactive kill** (`functions_processes.sh`): `ik` no longer asks "port or pattern?" up front. It opens a single `fzf` picker listing every process with its PID, listening ports, user and command line on one row — so the same query matches a command name (`java`), a port (`8080`) or a PID, with no mode to choose. `TAB` marks several processes, the marked list is echoed back and confirmed before any `kill -9`, and each kill reports individually. Your own shell is never listed. `ik PATTERN` opens the picker pre-filtered (previously an "invalid parameter" error); `ik --port VALUE` and `ik --pattern VALUE` keep their original behaviour, and the historical port/pattern prompt remains the fallback when `fzf` is missing. Configurable via `nconf`: `NIXLPER_KILL_FUZZY` (bool, default `true`).
 - **Tri-location doc sync check** (`scripts/check-doc-sync.sh`): verifies every `@cmd-palette` command's alias and keybind is mentioned in its in-shell help file, English doc page, and French doc page — catching a command added in code but never documented. Runs in CI via `tests.yml`. See `CLAUDE.md` → "Tri-location documentation rule (enforced)".
 
 ### Fixed

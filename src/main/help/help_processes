@@ -2,8 +2,30 @@
 # Help for processes
 ########################################################################################################################
 ------------------------------------------------------------------------------------------------------------------------
-ik : call interactive kill, you can after decide to kill by pattern or by port.
-     Port mode uses `ss` (iproute2) if available, falls back to `netstat` (net-tools).
+ik : interactive kill. Opens one fzf picker listing every process with its PID, listening
+     ports, user and command line — so a single query matches either a name or a port, with
+     no mode to choose first:
+
+       PID     PORTS           USER       COMMAND
+       1234    :8080,:9090     user       java -jar myapp.jar
+       5678    -               user       node worker.js
+
+     Type 8080 to find who holds the port, or java to find it by name. TAB marks several
+     processes, ENTER validates. The marked processes are listed back and confirmed before
+     any kill -9. Your own shell is never listed.
+     Port detection uses `ss` (iproute2) if available, falls back to `netstat` (net-tools);
+     with neither, the ports column shows "-" and the picker still works by command name.
+
+ik PATTERN : same picker, opened pre-filtered on PATTERN.
+ik --pattern VALUE : skip the picker, use the historical numbered kill-by-pattern flow.
+ik --port VALUE : skip the picker, kill whatever listens on VALUE.
+
+     Without fzf — or with NIXLPER_KILL_FUZZY=false — `ik` falls back to the historical
+     prompt asking for a kill mode (port/pattern) then a value.
+
+  Settings (nconf):
+    NIXLPER_KILL_FUZZY   bool   true   Use the fzf unified picker when fzf is installed
+
 pc PORT : quick-check what process is listening on PORT (process name, PID, command line,
      suggested action). Read-only — does not kill anything. Uses the same port detection as `ik`.
      Configurable via nconf: NIXLPER_PORT_CHECK_SHOW_CMDLINE (bool, default true).
