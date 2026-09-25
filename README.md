@@ -1,8 +1,8 @@
 # NIXLPER
 
-> 🚀 **Current version: v2.4.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Current version: v2.5.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
-> **What's new in v2.4.0:** Adds/updates: Fuzzy picker for navigate, Command history, Fuzzy search for bookmarks.
+> **What's new in v2.5.0:** Adds/updates: Unified fuzzy picker for interactive kill, Tri-location doc sync check, `help_macros`.
 >
 > Nixlper evolves constantly. Tagged releases are stable snapshots. Two channels are available: **stable** (default, tagged releases) and **edge** (rolling build of every commit on `main`, not an official release). See [Updates](#updates) for installation commands.
 
