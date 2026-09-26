@@ -60,6 +60,31 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
   `docs/fr/feature-admin-notice.md`, help: `src/main/help/help_admin`, tests:
   `src/test/bash/test_functions_broadcast.sh`.
 
+- **`src/main/powershell/Nixlper/`**: PowerShell port (preview), a module (`Nixlper.psd1` +
+  `Nixlper.psm1`, which dot-sources `Private/*.ps1` and `Public/*.ps1`). **Not** part of `build.sh`, the tar,
+  RPM or DEB: it has its own packager, `build-ps.sh`, which zips the module folder to
+  `build/distributions/nixlper-powershell-<tag|sha>.zip` (single top-level `Nixlper/` folder plus a `version` file;
+  a plain `vX.Y.Z` tag is stamped into the packaged `ModuleVersion`, the source manifest stays `0.1.0`; the build
+  fails on non-ASCII sources). Unlike `build.sh` it never wipes `build/distributions`, so
+  `create_release_on_tag.yml` runs it after the tar/RPM/DEB builds and uploads the zip as a release asset;
+  `tests.yml` builds it and imports it by name on every push. Users install by `Unblock-File` (Windows only) + `Expand-Archive`
+  into the first `$env:PSModulePath` entry (the user modules folder on every OS; `(Split-Path $PROFILE)\Modules`
+  is only right on Windows), or `Import-Module` from a clone. PowerShell Gallery publishing is future work.
+  Contains the bash-compat layer (`Public/BashCompat.ps1`: `grep`, `head`, `tail`, `wc`, `touch`, `which`, `export`,
+  `ls`, `rm`, `cp`, `mv` as `Invoke-Nixlper<Cmd>` functions, reached through global aliases), bookmarks
+  (`Public/Bookmarks.ps1`, `bd`/`bm`, same file format as bash) and the palette (`Public/CommandPalette.ps1`, `fa`,
+  which parses the same `# @cmd-palette` annotations from the module's own `Public/*.ps1`). Constraints: keep the
+  sources **pure ASCII** and **Windows PowerShell 5.1-compatible** (no `??`, ternary or `&&`/`||`), and never call a
+  bare `ls`/`rm`/`cp`/`mv` inside the module; use module-qualified cmdlets (`Microsoft.PowerShell.Management\Remove-Item`).
+  Settings are **environment variables only** (no `nconf`, which is bash): `NIXLPER_BASH_COMPAT`
+  (`auto`/`true`/`false`, default `auto` = Windows only, real executables on `PATH` win), `NIXLPER_PS_KEYBINDINGS`
+  (bool, default `true`), plus the shared `NIXLPER_BOOKMARKS_FILE`/`NIXLPER_BOOKMARKS_FUZZY`. Mechanism: see
+  INTERNALS.md → "PowerShell port". Docs: `docs/feature-powershell.md` / `docs/fr/feature-powershell.md`, help:
+  `src/main/help/help_powershell`. Tests: `src/test/powershell/Test-Nixlper.ps1` (pure pwsh, no Pester; run with
+  `pwsh -NoProfile -File src/test/powershell/Test-Nixlper.ps1`, wired into `tests.yml`). `check-doc-sync.sh` only
+  scans `src/main/bash`, so keep the PowerShell doc/help tables in sync by hand. In a cloud session without
+  `pwsh`, download the Linux tarball from the PowerShell GitHub releases into the scratchpad to run the tests.
+
 ---
 
 ## Known Issues
@@ -129,6 +154,7 @@ Nixlper is a bash helper inspired by Total Commander for Unix/Linux environments
 ```
 src/main/bash/*.sh → build.sh → build/distributions/nixlper-*.tar
                               → build-rpm.sh → ~/rpmbuild/RPMS/noarch/nixlper-*.rpm
+src/main/powershell/Nixlper → build-ps.sh → build/distributions/nixlper-powershell-*.zip
 ```
 
 ---
@@ -141,10 +167,14 @@ nixlper/
 │   ├── nixlper.sh          # Main entry point
 │   ├── functions_config.sh # Interactive config editor (nconf, migration)
 │   └── functions_*.sh      # Feature modules
+├── src/main/powershell/Nixlper/  # PowerShell port (preview) - see Modules Reference
+├── src/test/bash/          # Bash unit tests (test_functions_*.sh)
+├── src/test/powershell/    # PowerShell unit tests (Test-Nixlper.ps1)
 ├── src/main/help/
 │   └── help_config         # In-shell help for nconf (CTRL+X+H)
 ├── build.sh                # Build script (concatenation + tar packaging)
 ├── build-rpm.sh            # RPM build script (calls build.sh, then rpmbuild)
+├── build-ps.sh             # PowerShell module zip (independent of build.sh)
 ├── install.sh              # Manual tar-based installer (downloads from GitHub releases)
 ├── packaging/
 │   ├── shared/

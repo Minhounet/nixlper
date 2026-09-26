@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y dos2unix rpm
+        run: sudo apt-get update && sudo apt-get install -y dos2unix rpm zip
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,6 +60,12 @@ jobs:
         run: |
           chmod +x ./build-deb.sh
           ./build-deb.sh
+
+      # Runs after the tar/RPM/DEB builds on purpose: build.sh wipes build/distributions, build-ps.sh does not.
+      - name: Build PowerShell module zip
+        run: |
+          chmod +x ./build-ps.sh
+          ./build-ps.sh
 
       - name: Locate built packages
         id: paths
@@ -124,5 +130,15 @@ jobs:
           asset_path: ${{ steps.paths.outputs.deb_path }}
           asset_name: ${{ steps.paths.outputs.deb_name }}
           asset_content_type: application/vnd.debian.binary-package
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload PowerShell module zip
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/distributions/nixlper-powershell-${{ steps.tag.outputs.name }}.zip
+          asset_name: nixlper-powershell-${{ steps.tag.outputs.name }}.zip
+          asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
