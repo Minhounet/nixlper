@@ -16,7 +16,7 @@ jobs:
       - name: Syntax-check all bash sources
         run: |
           status=0
-          for f in src/main/bash/*.sh src/test/bash/*.sh scripts/*.sh install.sh build.sh build-rpm.sh build-deb.sh; do
+          for f in src/main/bash/*.sh src/test/bash/*.sh scripts/*.sh install.sh build.sh build-rpm.sh build-deb.sh build-ps.sh; do
             [[ -f "$f" ]] || continue
             if bash -n "$f"; then
               echo "ok   $f"
@@ -66,6 +66,21 @@ jobs:
       - name: Run PowerShell port unit tests
         shell: pwsh
         run: pwsh -NoProfile -File src/test/powershell/Test-Nixlper.ps1
+
+      # Builds the release zip and loads it by module name from a scratch modules folder, the way a user installs it.
+      - name: Build and import PowerShell module zip
+        shell: pwsh
+        run: |
+          bash ./build-ps.sh
+          $zip = Get-ChildItem build/distributions/nixlper-powershell-*.zip | Select-Object -First 1
+          $modules = Join-Path ([IO.Path]::GetTempPath()) 'nixlper-modules'
+          Expand-Archive -Path $zip.FullName -DestinationPath $modules -Force
+          $env:PSModulePath = $modules + [IO.Path]::PathSeparator + $env:PSModulePath
+          $env:NIXLPER_BASH_COMPAT = 'true'
+          Import-Module Nixlper -ErrorAction Stop
+          if (((Write-Output 'a' 'b') | grep b) -ne 'b') { throw 'grep from the packaged module failed' }
+          if (-not (Test-Path (Join-Path (Get-Module Nixlper).ModuleBase 'version'))) { throw 'version file missing' }
+          "Packaged module $((Get-Module Nixlper).Version) imports and runs"
 
       - name: Check tri-location doc sync (help / docs / docs-fr)
         run: bash scripts/check-doc-sync.sh

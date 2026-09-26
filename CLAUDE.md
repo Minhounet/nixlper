@@ -62,7 +62,14 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
 
 - **`src/main/powershell/Nixlper/`**: PowerShell port (preview), a module (`Nixlper.psd1` +
   `Nixlper.psm1`, which dot-sources `Private/*.ps1` and `Public/*.ps1`). **Not** part of `build.sh`, the tar,
-  RPM or DEB: users `Import-Module` it from a clone (packaging for the PowerShell Gallery is future work).
+  RPM or DEB: it has its own packager, `build-ps.sh`, which zips the module folder to
+  `build/distributions/nixlper-powershell-<tag|sha>.zip` (single top-level `Nixlper/` folder plus a `version` file;
+  a plain `vX.Y.Z` tag is stamped into the packaged `ModuleVersion`, the source manifest stays `0.1.0`; the build
+  fails on non-ASCII sources). Unlike `build.sh` it never wipes `build/distributions`, so
+  `create_release_on_tag.yml` runs it after the tar/RPM/DEB builds and uploads the zip as a release asset;
+  `tests.yml` builds it and imports it by name on every push. Users install by `Unblock-File` (Windows only) + `Expand-Archive`
+  into the first `$env:PSModulePath` entry (the user modules folder on every OS; `(Split-Path $PROFILE)\Modules`
+  is only right on Windows), or `Import-Module` from a clone. PowerShell Gallery publishing is future work.
   Contains the bash-compat layer (`Public/BashCompat.ps1`: `grep`, `head`, `tail`, `wc`, `touch`, `which`, `export`,
   `ls`, `rm`, `cp`, `mv` as `Invoke-Nixlper<Cmd>` functions, reached through global aliases), bookmarks
   (`Public/Bookmarks.ps1`, `bd`/`bm`, same file format as bash) and the palette (`Public/CommandPalette.ps1`, `fa`,
@@ -147,6 +154,7 @@ Nixlper is a bash helper inspired by Total Commander for Unix/Linux environments
 ```
 src/main/bash/*.sh → build.sh → build/distributions/nixlper-*.tar
                               → build-rpm.sh → ~/rpmbuild/RPMS/noarch/nixlper-*.rpm
+src/main/powershell/Nixlper → build-ps.sh → build/distributions/nixlper-powershell-*.zip
 ```
 
 ---
@@ -166,6 +174,7 @@ nixlper/
 │   └── help_config         # In-shell help for nconf (CTRL+X+H)
 ├── build.sh                # Build script (concatenation + tar packaging)
 ├── build-rpm.sh            # RPM build script (calls build.sh, then rpmbuild)
+├── build-ps.sh             # PowerShell module zip (independent of build.sh)
 ├── install.sh              # Manual tar-based installer (downloads from GitHub releases)
 ├── packaging/
 │   ├── shared/

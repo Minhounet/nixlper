@@ -2,9 +2,12 @@
 # Help for the PowerShell port (preview)
 ########################################################################################################################
 Nixlper also exists as a PowerShell module (Windows PowerShell 5.1 / PowerShell 7), for when you have to work in
-PowerShell but think in bash. Load it from your PowerShell $PROFILE:
+PowerShell but think in bash. Each GitHub release ships nixlper-powershell-vX.Y.Z.zip: unblock it, extract it
+into your modules folder, then load it from your PowerShell $PROFILE:
 
-  Import-Module <nixlper clone>\src\main\powershell\Nixlper\Nixlper.psd1
+  Unblock-File nixlper-powershell-vX.Y.Z.zip
+  Expand-Archive nixlper-powershell-vX.Y.Z.zip -DestinationPath ($env:PSModulePath -split [IO.Path]::PathSeparator)[0]
+  Import-Module Nixlper            # or, from a clone: Import-Module <clone>\src\main\powershell\Nixlper\Nixlper.psd1
 
 ------------------------------------------------------------------------------------------------------------------------
 Same shortcuts as bash (PSReadLine chords: CTRL+X, then the second key)

@@ -22,15 +22,36 @@
 
 ## Installation
 
-Nixlper pour PowerShell est un module PowerShell classique. En attendant sa publication, utilisez-le depuis un clone du dépôt :
+Nixlper pour PowerShell est un module PowerShell classique, fourni sous forme de `nixlper-powershell-vX.Y.Z.zip` avec chaque [version GitHub](https://github.com/Minhounet/nixlper/releases) (à partir de la première version publiée après cette préversion).
+
+### Depuis le zip de la version (recommandé)
+
+Téléchargez le zip, puis dans PowerShell (adaptez le nom du fichier) :
+
+```powershell
+$zip = "$HOME\Downloads\nixlper-powershell-vX.Y.Z.zip"
+# Windows marque les fichiers téléchargés comme venant d'Internet ; sans cette étape, le module est refusé.
+# (Windows uniquement : ignorez cette ligne sous Linux/macOS.)
+Unblock-File -Path $zip
+# Extraire dans votre dossier de modules personnel (la première entrée de PSModulePath, pour PowerShell 7 comme 5.1).
+Expand-Archive -Path $zip -DestinationPath ($env:PSModulePath -split [IO.Path]::PathSeparator)[0] -Force
+# Le charger dans chaque nouvelle session.
+if (-not (Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force | Out-Null }
+Add-Content -Path $PROFILE -Value 'Import-Module Nixlper'
+```
+
+Ouvrez une nouvelle fenêtre PowerShell. Pour mettre à jour plus tard, relancez les trois premières commandes avec le nouveau zip (`-Force` remplace les anciens fichiers).
+
+### Depuis un clone du dépôt
+
+Pour essayer le code le plus récent avant sa publication :
 
 ```powershell
 git clone https://github.com/Minhounet/nixlper.git $HOME\nixlper
-# Le charger dans chaque nouvelle session :
 Add-Content -Path $PROFILE -Value 'Import-Module $HOME\nixlper\src\main\powershell\Nixlper\Nixlper.psd1'
 ```
 
-Ouvrez une nouvelle fenêtre PowerShell. Si l'exécution des scripts est bloquée, autorisez les scripts locaux une fois avec
+Si l'exécution des scripts est bloquée dans l'un ou l'autre cas, autorisez les scripts locaux une fois avec
 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
 [`fzf`](https://github.com/junegunn/fzf#installation) est facultatif mais recommandé (`winget install fzf`) : avec lui, la palette et le sélecteur de signets deviennent des filtres flous en direct.

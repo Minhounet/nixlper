@@ -22,15 +22,36 @@
 
 ## Install
 
-Nixlper for PowerShell is a regular PowerShell module. Until it is published, run it from a clone of the repository:
+Nixlper for PowerShell is a regular PowerShell module, shipped as `nixlper-powershell-vX.Y.Z.zip` with each [GitHub release](https://github.com/Minhounet/nixlper/releases) (starting with the first release after this preview).
+
+### From the release zip (recommended)
+
+Download the zip, then in PowerShell (adjust the file name):
+
+```powershell
+$zip = "$HOME\Downloads\nixlper-powershell-vX.Y.Z.zip"
+# Windows marks downloaded files as coming from the internet; without this the module is refused.
+# (Windows only: skip this line on Linux/macOS.)
+Unblock-File -Path $zip
+# Extract into your personal modules folder (the first PSModulePath entry, for PowerShell 7 and 5.1 alike).
+Expand-Archive -Path $zip -DestinationPath ($env:PSModulePath -split [IO.Path]::PathSeparator)[0] -Force
+# Load it in every new session.
+if (-not (Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force | Out-Null }
+Add-Content -Path $PROFILE -Value 'Import-Module Nixlper'
+```
+
+Open a new PowerShell window. To upgrade later, repeat the first three commands with the new zip (`-Force` replaces the old files).
+
+### From a clone of the repository
+
+To try the latest code before it is released:
 
 ```powershell
 git clone https://github.com/Minhounet/nixlper.git $HOME\nixlper
-# Load it in every new session:
 Add-Content -Path $PROFILE -Value 'Import-Module $HOME\nixlper\src\main\powershell\Nixlper\Nixlper.psd1'
 ```
 
-Open a new PowerShell window. If script execution is blocked, allow local scripts once with
+If script execution is blocked in either case, allow local scripts once with
 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
 [`fzf`](https://github.com/junegunn/fzf#installation) is optional but recommended (`winget install fzf`): with it, the palette and the bookmark picker become live fuzzy filters.
