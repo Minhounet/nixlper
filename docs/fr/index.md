@@ -38,6 +38,7 @@ Ouvrez un nouveau shell. C'est tout.
 | 🔄 Rester à jour automatiquement | [Mises à jour](feature-updates.md) |
 | 💡 Apprendre des astuces au fil de l'utilisation | [Astuces](feature-tips.md) |
 | 😄 Afficher une blague de développeur aléatoire | [Blagues](feature-jokes.md) |
+| 🪟 Utiliser des commandes à la bash et nixlper dans PowerShell (préversion) | [PowerShell](feature-powershell.md) |
 | 🩺 Vérifier la santé mémoire/disque/CPU avec conseils de remédiation | [Santé système](feature-system-health.md) |
 | 📜 Suivre un fichier de log en surlignant les lignes correspondantes | [Logs](feature-logs.md) |
 | ⚠️ Laisser une notice de connexion pour la prochaine personne | [Notice Admin](feature-admin-notice.md) |

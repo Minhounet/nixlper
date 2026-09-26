@@ -1,0 +1,48 @@
+########################################################################################################################
+# Help for the PowerShell port (preview)
+########################################################################################################################
+Nixlper also exists as a PowerShell module (Windows PowerShell 5.1 / PowerShell 7), for when you have to work in
+PowerShell but think in bash. Load it from your PowerShell $PROFILE:
+
+  Import-Module <nixlper clone>\src\main\powershell\Nixlper\Nixlper.psd1
+
+------------------------------------------------------------------------------------------------------------------------
+Same shortcuts as bash (PSReadLine chords: CTRL+X, then the second key)
+------------------------------------------------------------------------------------------------------------------------
+[CTRL + X then A] or  fa : command palette - search and run any nixlper command
+[CTRL + X then D] or  bd : display bookmarks and jump to one (fzf when installed)
+[CTRL + X then B] or  bm : add or remove a bookmark for the current folder
+
+The bookmarks file uses the same format as bash and can be shared between the two shells.
+Typing a bookmark's name jumps to it.
+
+------------------------------------------------------------------------------------------------------------------------
+Bash-style commands (Windows by default)
+------------------------------------------------------------------------------------------------------------------------
+  grep   -i -v -n -r -l -c -w -x -o -F -E -e --include      (GNU basic-regex rules: 'a\|b', [[:digit:]])
+  head   -n N | -N
+  tail   -n N | -N | -n +N | -f
+  wc     -l -w -c                                          (ls | wc -l counts items)
+  ls     -a -l -R -t -S -r -1 -d
+  rm     -r -f -i -v
+  cp     -r -f -i -v
+  mv     -f -i -v
+  touch  [-c] FILE...
+  which  [-a] COMMAND...
+  export NAME=VALUE | -n NAME
+
+PowerShell-style calls (ls -Recurse, rm -Force, Get-ChildItem *.tmp | rm) still work: they are passed to the
+original PowerShell commands.
+
+Differences: PowerShell swallows a bare "--" (use grep -e -PATTERN); environment variables are $env:NAME.
+
+------------------------------------------------------------------------------------------------------------------------
+Configuration (environment variables, set before Import-Module):
+
+  NIXLPER_BASH_COMPAT       auto|true|false  auto  bash-style commands (auto = Windows only, real executables win)
+  NIXLPER_BOOKMARKS_FILE    path                   Bookmarks file (default: ~/.local/share/nixlper/bookmarks)
+  NIXLPER_BOOKMARKS_FUZZY   bool             true  Use fzf for the bookmark picker when installed
+  NIXLPER_PS_KEYBINDINGS    bool             true  Bind the CTRL+X chords (on Windows, CTRL+X then no longer cuts)
+
+Full documentation: https://minhounet.github.io/nixlper/feature-powershell.html
+------------------------------------------------------------------------------------------------------------------------

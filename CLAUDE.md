@@ -60,6 +60,24 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
   `docs/fr/feature-admin-notice.md`, help: `src/main/help/help_admin`, tests:
   `src/test/bash/test_functions_broadcast.sh`.
 
+- **`src/main/powershell/Nixlper/`**: PowerShell port (preview), a module (`Nixlper.psd1` +
+  `Nixlper.psm1`, which dot-sources `Private/*.ps1` and `Public/*.ps1`). **Not** part of `build.sh`, the tar,
+  RPM or DEB: users `Import-Module` it from a clone (packaging for the PowerShell Gallery is future work).
+  Contains the bash-compat layer (`Public/BashCompat.ps1`: `grep`, `head`, `tail`, `wc`, `touch`, `which`, `export`,
+  `ls`, `rm`, `cp`, `mv` as `Invoke-Nixlper<Cmd>` functions, reached through global aliases), bookmarks
+  (`Public/Bookmarks.ps1`, `bd`/`bm`, same file format as bash) and the palette (`Public/CommandPalette.ps1`, `fa`,
+  which parses the same `# @cmd-palette` annotations from the module's own `Public/*.ps1`). Constraints: keep the
+  sources **pure ASCII** and **Windows PowerShell 5.1-compatible** (no `??`, ternary or `&&`/`||`), and never call a
+  bare `ls`/`rm`/`cp`/`mv` inside the module; use module-qualified cmdlets (`Microsoft.PowerShell.Management\Remove-Item`).
+  Settings are **environment variables only** (no `nconf`, which is bash): `NIXLPER_BASH_COMPAT`
+  (`auto`/`true`/`false`, default `auto` = Windows only, real executables on `PATH` win), `NIXLPER_PS_KEYBINDINGS`
+  (bool, default `true`), plus the shared `NIXLPER_BOOKMARKS_FILE`/`NIXLPER_BOOKMARKS_FUZZY`. Mechanism: see
+  INTERNALS.md → "PowerShell port". Docs: `docs/feature-powershell.md` / `docs/fr/feature-powershell.md`, help:
+  `src/main/help/help_powershell`. Tests: `src/test/powershell/Test-Nixlper.ps1` (pure pwsh, no Pester; run with
+  `pwsh -NoProfile -File src/test/powershell/Test-Nixlper.ps1`, wired into `tests.yml`). `check-doc-sync.sh` only
+  scans `src/main/bash`, so keep the PowerShell doc/help tables in sync by hand. In a cloud session without
+  `pwsh`, download the Linux tarball from the PowerShell GitHub releases into the scratchpad to run the tests.
+
 ---
 
 ## Known Issues
@@ -141,6 +159,9 @@ nixlper/
 │   ├── nixlper.sh          # Main entry point
 │   ├── functions_config.sh # Interactive config editor (nconf, migration)
 │   └── functions_*.sh      # Feature modules
+├── src/main/powershell/Nixlper/  # PowerShell port (preview) - see Modules Reference
+├── src/test/bash/          # Bash unit tests (test_functions_*.sh)
+├── src/test/powershell/    # PowerShell unit tests (Test-Nixlper.ps1)
 ├── src/main/help/
 │   └── help_config         # In-shell help for nconf (CTRL+X+H)
 ├── build.sh                # Build script (concatenation + tar packaging)
