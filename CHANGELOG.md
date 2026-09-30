@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **PowerShell port, preview** (`src/main/powershell/Nixlper`): a PowerShell module (Windows PowerShell 5.1 and PowerShell 7) for people who know bash but have to work in PowerShell. It adds bash-style `grep` (`-i -v -n -r -l -c -w -x -o -F -E -e --include`, GNU basic-regex rules such as `'a\|b'`), `head`, `tail` (`-f`, `-n +N`), `wc`, `touch`, `which` and `export`, and replaces PowerShell's `ls`/`rm`/`cp`/`mv` so that `ls -la`, `rm -rf` and `cp -r` work. PowerShell-style calls (`ls -Recurse`, `Get-ChildItem *.tmp | rm`) are passed to the original commands unchanged. The module also brings bookmarks (`bd` / `CTRL+X+D`, `bm` / `CTRL+X+B`) using the same file format as bash, and the command palette (`fa` / `CTRL+X+A`). The bash-style commands are on by default on Windows only, and a real `grep.exe` (Git for Windows, uutils...) on `PATH` takes precedence. Configurable via `NIXLPER_BASH_COMPAT`, `NIXLPER_PS_KEYBINDINGS`, `NIXLPER_BOOKMARKS_FILE` and `NIXLPER_BOOKMARKS_FUZZY`. See `docs/feature-powershell.md`.
+- **PowerShell module zip in releases** (`build-ps.sh`): each GitHub release now also ships `nixlper-powershell-vX.Y.Z.zip`, ready to extract into a PowerShell modules folder so that `Import-Module Nixlper` works without cloning the repository. The module version is taken from the release tag, and CI checks that the zip builds and loads on every push.
+
 ## [2.5.0] - 2026-09-25
 
 ### Added

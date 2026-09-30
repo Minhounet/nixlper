@@ -38,6 +38,7 @@ Then open a new shell. That's it.
 | 🔄 Stay up to date automatically | [Updates](feature-updates.md) |
 | 💡 Learn tips as you work | [Tips](feature-tips.md) |
 | 😄 Get a random developer joke | [Jokes](feature-jokes.md) |
+| 🪟 Use bash-style commands and nixlper in PowerShell (preview) | [PowerShell](feature-powershell.md) |
 | 🩺 Check memory/disk/CPU health with remediation tips | [System Health](feature-system-health.md) |
 | 📜 Follow a log file, highlighting matching lines | [Logs](feature-logs.md) |
 | ⚠️ Leave a login notice for whoever logs in next | [Admin Notice](feature-admin-notice.md) |

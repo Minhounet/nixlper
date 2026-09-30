@@ -564,3 +564,68 @@ Besides backward compatibility, `pc` prints `ik --port N` as its suggested actio
 port/pattern prompt remains the fallback when `fzf` is absent or `NIXLPER_KILL_FUZZY=false` —
 so that flow cannot be deleted, only demoted. A bare non-flag argument (`ik java`), which used
 to be rejected as an invalid parameter, now seeds the picker's initial query.
+
+---
+
+## PowerShell port (`src/main/powershell/Nixlper`)
+
+### Why global aliases, not exported functions
+
+On Windows, `ls`, `rm`, `cp` and `mv` already exist as built-in **AllScope aliases**, and in PowerShell's command
+lookup an alias always wins over a function of the same name. A module that simply exported a function called `ls`
+would never be reached. So the bash-style commands are implemented as `Invoke-Nixlper<Cmd>` functions, and
+`Register-NixlperBashCompat` (in `Nixlper.psm1`) points the bash names at them with
+`Set-Alias -Scope Global -Force`. The previous alias targets are remembered and restored by the module's `OnRemove`
+handler, so `Remove-Module Nixlper` puts PowerShell back exactly as it was.
+
+In `auto` mode (the default) the layer only runs on Windows, and skips any name that exists as a real executable on
+`PATH`: on Linux/macOS, or with Git for Windows' `usr/bin` on `PATH`, the genuine `grep` must not be shadowed by an
+emulation.
+
+### Bash flags vs PowerShell parameters
+
+The compat functions are *simple functions* (no `param()` block), so PowerShell hands every argument over untouched in
+`$args`: `-rn` arrives as the string `"-rn"`. `Test-NixlperBashFlags` checks, case-sensitively, that every option-like
+argument is a cluster of that command's bash letters (`rRfiv` for `rm`). If any is not (`-Recurse`, `-Force`,
+`-Destination`), the call is PowerShell-style and is forwarded as `& Remove-Item @args`. Splatting `$args` keeps
+`-Force` a named parameter rather than a string, so the forwarded call behaves as if the alias still pointed at the
+cmdlet. Without this, any existing script or module that calls `rm -Recurse` in the session would break once nixlper
+is loaded (a **silent failure mode** for code the user did not write). Pipeline input is forwarded the same way
+(`$input | Remove-Item @args`). In bash mode, piped `FileSystemInfo` objects become leading path arguments, so
+`Get-ChildItem *.tmp | rm` keeps working.
+
+PowerShell's parser consumes a bare `--` before the function runs, so `grep -- -x` cannot be detected. `grep -e -x` is
+the documented workaround.
+
+### grep: BRE translation and exit codes
+
+`ConvertTo-NixlperRegex` walks the pattern once. In basic mode (no `-E`), `\|`, `\(`, `\)`, `\{`, `\}`, `\+` and `\?`
+become operators and their bare forms become literals (GNU BRE rules). POSIX classes (`[[:digit:]]`) and `\<`/`\>` are
+translated in both modes. Inside a bracket expression backslash is literal, as in POSIX. The result is compiled once
+as a .NET `Regex`. `$global:LASTEXITCODE` is set to 0/1/2 like GNU grep, so `grep -q x f; if ($LASTEXITCODE -eq 0)`
+works in scripts.
+
+### Keybindings: submit a line, do not run code in the handler
+
+Each `CTRL+X` chord is a PSReadLine handler that does `RevertLine()`, `Insert('bd')` and `AcceptLine()`. This is the
+equivalent of bash's `bind '"\C-x\C-d": "bookmark_dirs\15"'`, not `bind -x`. The command therefore runs at the
+normal prompt, where `Read-Host` and `fzf` work, and none of the raw-mode constraints of the bash palette apply. That
+is also why the palette can simply `Read-Host` a command's `@args` before running it, instead of pre-filling the
+command line. Handlers are only registered when the PSReadLine module is loaded (interactive sessions), so importing
+the module in a script or in CI is side-effect free.
+
+### Bookmark jump functions
+
+Bookmarks are read from the bash-format file with the same greedy regex as `_i_bookmarks_valid_entries`. Each one
+becomes a global function built from **single-quoted literals only**, escaped with
+`CodeGeneration.EscapeSingleQuotedStringContent` (which also handles the typographic quotes PowerShell accepts as
+single quotes). A folder named `x$(...)y` therefore can never execute code, unlike the bash alias (see
+`KNOWN_ISSUES.md`). A bookmark whose name is already a command is skipped. The functions are removed with
+`Remove-Item Function:\NAME`, without a scope qualifier: from the module scope the lookup walks up to the global
+function, whereas `Function:\global:NAME` silently removes nothing.
+
+### Windows PowerShell 5.1 constraints
+
+Windows PowerShell 5.1 reads BOM-less `.ps1` files as ANSI, so the module sources are kept pure ASCII. Under ANSI
+decoding a UTF-8 em-dash turns into bytes that PowerShell treats as a quote character. The syntax also avoids 7-only
+features (`??`, ternary, `&&`/`||`), and `$IsWindows` is only read after checking `PSEdition` (it does not exist in 5.1).

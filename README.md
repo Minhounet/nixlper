@@ -206,6 +206,7 @@ Quick overview of what's available:
 | **Updates** | Stable and edge channels with automatic checks |
 | **Admin notice** | `bset`/`bshow`/`bclear` — leave a login message for whoever logs in next, with optional auto-expiry |
 | **Command history** | `lc` / `CTRL+X+L` — number-jump or fuzzy-search bash history and re-run a previous command |
+| **PowerShell (preview)** | Bash-style `grep`/`ls -la`/`rm -rf`/`tail -f` in PowerShell, plus bookmarks and the palette on the same `CTRL+X` keys |
 
 ## License
 

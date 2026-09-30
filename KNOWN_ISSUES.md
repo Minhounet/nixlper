@@ -60,6 +60,18 @@ properly-quoted path it parsed, bypassing the stored alias entirely. Only direct
 the alias name is affected. Fix requires quoting the path at write time and updating the read
 side to tolerate both quoted (new) and unquoted (existing, already-installed) bookmark files.
 
+### 🟠 A bookmarked folder name containing `$(...)` or backticks runs as code when its alias is typed
+
+Same root cause as the entry above: the path is stored unquoted inside the alias, so bash expands
+it every time the alias runs. Bookmarking a folder literally named `x$(touch INJECTED)y` and then
+typing the bookmark's name executes `touch INJECTED` (verified: the file appears, and `cd` fails
+because the expansion removed that part of the name). It needs someone to create such a folder,
+but it runs whatever the name contains. The `bd` picker is not affected (it parses the path and
+`cd`s to it quoted), and the PowerShell port is not affected (its jump functions use a
+single-quoted literal, covered by `src/test/powershell/Test-Nixlper.ps1`). Fix together with the
+spaces issue: write the path single-quoted-escaped and teach both parsers (bash
+`_i_bookmarks_valid_entries` and PowerShell `Get-NixlperBookmarkEntry`) the quoted form.
+
 ### 🟡 `lc` (last command) can misorder multi-line history entries under `shopt -s lithist`
 
 `_i_last_command_history_raw` (`functions_last_command.sh`) reads bash's `history` builtin output
