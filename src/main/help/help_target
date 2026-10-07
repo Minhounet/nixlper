@@ -2,10 +2,12 @@
 # Help for target staging
 ########################################################################################################################
 Target staging lets you accumulate files from anywhere and either copy them directly or pack them
-into a .tgz — all landing in a world-readable folder (default: /tmp/nixlper_target).
-Configure the folder via NIXLPER_TARGET_DIR in ~/.bashrc or nixlper.conf.
+into a .tgz — all landing in a shared folder (default: /tmp/nixlper_target).
+Configure the folder via NIXLPER_TARGET_DIR, and its permissions via NIXLPER_TARGET_CHMOD
+(default 777), in ~/.bashrc or nixlper.conf.
 ------------------------------------------------------------------------------------------------------------------------
-tc FILEPATH           : copy a single file to the target folder (chmod 644)
+tc FILEPATH           : copy or move a single file to the target folder (asks cp/mv, default: cp;
+                        chmod NIXLPER_TARGET_CHMOD, default 777)
                         also available as tcNUMBER shortcut inside navigate/fan results
 ------------------------------------------------------------------------------------------------------------------------
 tm FILEPATH           : mark a file for later batch pack (no-op if already marked)

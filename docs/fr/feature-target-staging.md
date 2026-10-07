@@ -5,7 +5,10 @@
 
 > 🇬🇧 [English version](../feature-target-staging.md)
 
-Le dossier cible est accessible en lecture (défaut : `/tmp/nixlper_target`).
+Le dossier cible vaut par défaut `/tmp/nixlper_target`, et les fichiers qui y arrivent sont passés
+en `chmod NIXLPER_TARGET_CHMOD` (défaut `777` — accessible en écriture à tous, pour qu'un autre
+utilisateur ou processus de la machine puisse aussi consommer le fichier ; resserrez cette valeur
+via `nconf` si ce n'est pas ce que vous voulez).
 
 ---
 
@@ -13,7 +16,7 @@ Le dossier cible est accessible en lecture (défaut : `/tmp/nixlper_target`).
 
 | Commande | Description |
 |---|---|
-| `tc CHEMIN_FICHIER` | Copier un fichier directement vers le dossier cible (`chmod 644`) |
+| `tc CHEMIN_FICHIER` | Copier ou déplacer un fichier vers le dossier cible — demande `cp`/`mv` (défaut : `cp`), puis `chmod NIXLPER_TARGET_CHMOD` |
 | `tm CHEMIN_FICHIER` | Marquer un fichier pour un archivage groupé ultérieur |
 | `tml` | Lister les fichiers actuellement marqués |
 | `tum` | Retirer un fichier de la liste de marquage (sélecteur numéroté) |
@@ -49,6 +52,12 @@ Changez le dossier cible par défaut via `nconf` (`CTRL+X+C`) → `NIXLPER_TARGE
 
 ```bash
 NIXLPER_TARGET_DIR=/home/partage/transfert
+```
+
+Changez les permissions appliquées par `tc` via `NIXLPER_TARGET_CHMOD` (défaut `777`) :
+
+```bash
+NIXLPER_TARGET_CHMOD=644
 ```
 
 Pour changer le dossier uniquement pour la session courante (sans modifier la configuration) :

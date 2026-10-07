@@ -5,7 +5,9 @@
 
 > 🇫🇷 [Version française](fr/feature-target-staging.md)
 
-The target folder is world-readable (default: `/tmp/nixlper_target`).
+The target folder defaults to `/tmp/nixlper_target`, and files landing in it are chmod'd to
+`NIXLPER_TARGET_CHMOD` (default `777` — world-writable, so another user or process on the box can
+consume the file too; tighten it via `nconf` if that's not what you want).
 
 ---
 
@@ -13,7 +15,7 @@ The target folder is world-readable (default: `/tmp/nixlper_target`).
 
 | Command | Description |
 |---|---|
-| `tc FILEPATH` | Copy a file directly to the target folder (`chmod 644`) |
+| `tc FILEPATH` | Copy or move a file to the target folder — asks `cp`/`mv` (default: `cp`), then `chmod NIXLPER_TARGET_CHMOD` |
 | `tm FILEPATH` | Mark a file for later batch pack |
 | `tml` | List currently marked files |
 | `tum` | Remove a file from the mark list (numbered picker) |
@@ -49,6 +51,12 @@ Change the default target folder via `nconf` (`CTRL+X+C`) → `NIXLPER_TARGET_DI
 
 ```bash
 NIXLPER_TARGET_DIR=/home/shared/transfer
+```
+
+Change the permissions applied to files landed by `tc` via `NIXLPER_TARGET_CHMOD` (default `777`):
+
+```bash
+NIXLPER_TARGET_CHMOD=644
 ```
 
 To change the folder only for the current session (no config change):

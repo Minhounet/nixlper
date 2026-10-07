@@ -76,16 +76,47 @@ echo "=== target_copy ==="
 _reset
 src="${TEST_DIR}/file_a.txt"
 _make_file "${src}"
-target_copy "${src}" > /dev/null
+echo "" | target_copy "${src}" > /dev/null  # blank input -> default cp
+_expect_true  "copy: default (blank) keeps source file" test -f "${src}"
 _expect_true  "copy: dest file exists"            test -f "${NIXLPER_TARGET_DIR}/file_a.txt"
 perms=$(stat -c "%a" "${NIXLPER_TARGET_DIR}/file_a.txt")
-_expect_eq    "copy: dest file is 644"            "${perms}" "644"
+_expect_eq    "copy: dest file is 777 by default" "${perms}" "777"
+
+_reset
+src="${TEST_DIR}/file_cp.txt"
+_make_file "${src}"
+echo "cp" | target_copy "${src}" > /dev/null
+_expect_true  "copy: explicit cp keeps source file" test -f "${src}"
+_expect_true  "copy: explicit cp creates dest file" test -f "${NIXLPER_TARGET_DIR}/file_cp.txt"
+
+_reset
+src="${TEST_DIR}/file_mv.txt"
+_make_file "${src}"
+echo "mv" | target_copy "${src}" > /dev/null
+_expect_false "move: mv removes source file"       test -f "${src}"
+_expect_true  "move: mv creates dest file"         test -f "${NIXLPER_TARGET_DIR}/file_mv.txt"
+
+_reset
+src="${TEST_DIR}/file_bad.txt"
+_make_file "${src}"
+echo "delete" | target_copy "${src}" > /dev/null 2>&1
+_expect_eq   "copy: invalid mode returns error"    "$?" "1"
+_expect_false "copy: invalid mode leaves no dest file" test -f "${NIXLPER_TARGET_DIR}/file_bad.txt"
 
 _reset
 _expect_false "copy: missing arg returns error"   target_copy
 
 _reset
 _expect_false "copy: non-existent file returns error" target_copy "/no/such/file.txt"
+
+_reset
+export NIXLPER_TARGET_CHMOD=644
+src="${TEST_DIR}/file_custom_chmod.txt"
+_make_file "${src}"
+echo "" | target_copy "${src}" > /dev/null
+perms=$(stat -c "%a" "${NIXLPER_TARGET_DIR}/file_custom_chmod.txt")
+_expect_eq    "copy: honours NIXLPER_TARGET_CHMOD" "${perms}" "644"
+export NIXLPER_TARGET_CHMOD=777
 
 #-----------------------------------------------------------------------------------------------------------------------
 # target_mark / target_list_marks

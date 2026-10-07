@@ -8,12 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`tc` (target staging copy)** (`functions_target.sh`): now asks whether to copy or move the file (default: `cp`, preserving the previous one-shot behaviour on Enter), and chmods the landed file to `NIXLPER_TARGET_CHMOD` (default `777`, configurable via `nconf`) instead of a hardcoded `644`.
+
 ## [2.6.0] - 2026-10-02
 
 ### Added
 
 - **PowerShell port, preview** (`src/main/powershell/Nixlper`): a PowerShell module (Windows PowerShell 5.1 and PowerShell 7) for people who know bash but have to work in PowerShell. It adds bash-style `grep` (`-i -v -n -r -l -c -w -x -o -F -E -e --include`, GNU basic-regex rules such as `'a\|b'`), `head`, `tail` (`-f`, `-n +N`), `wc`, `touch`, `which` and `export`, and replaces PowerShell's `ls`/`rm`/`cp`/`mv` so that `ls -la`, `rm -rf` and `cp -r` work. PowerShell-style calls (`ls -Recurse`, `Get-ChildItem *.tmp | rm`) are passed to the original commands unchanged. The module also brings bookmarks (`bd` / `CTRL+X+D`, `bm` / `CTRL+X+B`) using the same file format as bash, and the command palette (`fa` / `CTRL+X+A`). The bash-style commands are on by default on Windows only, and a real `grep.exe` (Git for Windows, uutils...) on `PATH` takes precedence. Configurable via `NIXLPER_BASH_COMPAT`, `NIXLPER_PS_KEYBINDINGS`, `NIXLPER_BOOKMARKS_FILE` and `NIXLPER_BOOKMARKS_FUZZY`. See `docs/feature-powershell.md`.
 - **PowerShell module zip in releases** (`build-ps.sh`): each GitHub release now also ships `nixlper-powershell-vX.Y.Z.zip`, ready to extract into a PowerShell modules folder so that `Import-Module Nixlper` works without cloning the repository. The module version is taken from the release tag, and CI checks that the zip builds and loads on every push.
+
+## [2.5.0] - 2026-09-25
+
+### Added
+
+- **Unified fuzzy picker for interactive kill** (`functions_processes.sh`): `ik` no longer asks "port or pattern?" up front. It opens a single `fzf` picker listing every process with its PID, listening ports, user and command line on one row — so the same query matches a command name (`java`), a port (`8080`) or a PID, with no mode to choose. `TAB` marks several processes, the marked list is echoed back and confirmed before any `kill -9`, and each kill reports individually. Your own shell is never listed. `ik PATTERN` opens the picker pre-filtered (previously an "invalid parameter" error); `ik --port VALUE` and `ik --pattern VALUE` keep their original behaviour, and the historical port/pattern prompt remains the fallback when `fzf` is missing. Configurable via `nconf`: `NIXLPER_KILL_FUZZY` (bool, default `true`).
+- **Tri-location doc sync check** (`scripts/check-doc-sync.sh`): verifies every `@cmd-palette` command's alias and keybind is mentioned in its in-shell help file, English doc page, and French doc page — catching a command added in code but never documented. Runs in CI via `tests.yml`. See `CLAUDE.md` → "Tri-location documentation rule (enforced)".
+
+### Fixed
+
+- **`help_macros`** never mentioned the `sr`/`fr` aliases for starting/stopping macro recording, only their keybinds — found by the new doc-sync check.
+- **`recent_dirs`/`last_command`** were missing an explicit `@alias` annotation (`rd`/`lc` respectively), even though both aliases exist and are the commands' actual documented names — the command palette registry was silently falling back to the internal function name.
 
 ---
 

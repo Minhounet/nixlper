@@ -725,6 +725,8 @@ Actual precedence (lowest → highest):
 | `NIXLPER_LAST_COMMAND_FUZZY` | `true` | `true` |
 | `NIXLPER_NAVIGATE_FUZZY` | `true` | `true` |
 | `NIXLPER_KILL_FUZZY` | `true` | `true` |
+| `NIXLPER_TARGET_DIR` | `/tmp/nixlper_target` | `/tmp/nixlper_target` |
+| `NIXLPER_TARGET_CHMOD` | `777` | `777` |
 
 `NIXLPER_SNAPSHOT_DIR` and `NIXLPER_CUSTOM_DIR` are resolved inside nixlper.sh with `:-` fallbacks
 to `$NIXLPER_INSTALL_DIR/snapshots` and `$NIXLPER_INSTALL_DIR/custom` when not explicitly set.

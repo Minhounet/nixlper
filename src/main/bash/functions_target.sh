@@ -6,6 +6,7 @@
 
 export NIXLPER_TARGET_DIR="${NIXLPER_TARGET_DIR:-/tmp/nixlper_target}"
 export NIXLPER_MARKS_FILE="${NIXLPER_MARKS_FILE:-/tmp/.nixlper_marks_${USER}}"
+export NIXLPER_TARGET_CHMOD="${NIXLPER_TARGET_CHMOD:-777}"
 
 #-----------------------------------------------------------------------------------------------------------------------
 # _i_target_ensure_dir: create target dir if missing, with world-readable permissions
@@ -17,12 +18,13 @@ function _i_target_ensure_dir() {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
-# target_copy: copy a file to NIXLPER_TARGET_DIR and make it world-readable
+# target_copy: copy or move a file to NIXLPER_TARGET_DIR and chmod it to NIXLPER_TARGET_CHMOD
 # @cmd-palette
-# @description: Copy a file to the target staging folder
+# @description: Copy or move a file to the target staging folder
 # @category: Target
 # @alias: tc
 # @args: FILEPATH
+# @interactive
 #-----------------------------------------------------------------------------------------------------------------------
 function target_copy() {
   if [[ $# -eq 0 ]]; then
@@ -34,9 +36,28 @@ function target_copy() {
     _i_log_as_error "File not found: ${src}"
     return 1
   fi
+
+  local mode
+  read -rp "Copy or move '${src}'? [cp/mv] (default: cp): " mode
+  mode="${mode:-cp}"
+  if [[ "${mode}" != "cp" && "${mode}" != "mv" ]]; then
+    _i_log_as_error "Invalid choice '${mode}', expected 'cp' or 'mv'."
+    return 1
+  fi
+
   _i_target_ensure_dir
-  cp "${src}" "${NIXLPER_TARGET_DIR}/" && chmod 644 "${NIXLPER_TARGET_DIR}/$(basename "${src}")"
-  echo "Copied $(basename "${src}") → ${NIXLPER_TARGET_DIR}/"
+  local -r dest="${NIXLPER_TARGET_DIR}/$(basename "${src}")"
+  if "${mode}" "${src}" "${dest}"; then
+    chmod "${NIXLPER_TARGET_CHMOD}" "${dest}"
+    if [[ "${mode}" == "cp" ]]; then
+      echo "Copied $(basename "${src}") → ${NIXLPER_TARGET_DIR}/"
+    else
+      echo "Moved $(basename "${src}") → ${NIXLPER_TARGET_DIR}/"
+    fi
+  else
+    _i_log_as_error "Failed to ${mode} ${src}"
+    return 1
+  fi
 }
 alias tc='target_copy'
 
