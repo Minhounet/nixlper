@@ -1,8 +1,8 @@
 # NIXLPER
 
-> 🚀 **Current version: v2.6.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Current version: v2.6.1** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
-> **What's new in v2.6.0:** Adds/updates: PowerShell port,  preview, PowerShell module zip in releases.
+> **What's new in v2.6.1:** Adds/updates: `tc` (target staging copy).
 >
 > Nixlper evolves constantly. Tagged releases are stable snapshots. Two channels are available: **stable** (default, tagged releases) and **edge** (rolling build of every commit on `main`, not an official release). See [Updates](#updates) for installation commands.
 
