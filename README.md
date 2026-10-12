@@ -1,5 +1,7 @@
 # NIXLPER
 
+<p align="center"><img src="docs/assets/banner.webp" alt="Nixlper banner: a prickly-good helper for people who live in Bash"></p>
+
 > 🚀 **Current version: v2.6.1** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
 > **What's new in v2.6.1:** Adds/updates: `tc` (target staging copy).

@@ -1,5 +1,7 @@
 # Nixlper — Gestion de fichiers pilotée au clavier sous Unix
 
+![Nixlper banner: a prickly-good helper for people who live in Bash](../assets/banner.webp)
+
 Nixlper apporte les raccourcis clavier style [Total Commander](https://www.ghisler.com/accueil.htm) à votre shell Unix.
 Pas d'interface graphique — juste votre terminal.
 

@@ -1,5 +1,7 @@
 # NIXLPER
 
+<p align="center"><img src="docs/assets/banner.webp" alt="Nixlper banner: a prickly-good helper for people who live in Bash"></p>
+
 > 🚀 **Version actuelle : v2.0.0** — [Notes de version](https://github.com/Minhounet/nixlper/releases)
 >
 > Nixlper évolue en permanence. Les versions taguées sont des instantanés stables, mais la branche `master` contient toujours les dernières améliorations. Le script `install.sh` installe depuis la dernière version publiée — pour obtenir l'absolute dernier état, compilez depuis les sources avec `./build.sh`.

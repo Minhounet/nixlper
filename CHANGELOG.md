@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Project banner**: manga-style "Objection!" banner (`docs/assets/banner.webp`) shown at the top of both READMEs and the GitHub Pages home pages.
+
 ## [2.6.1] - 2026-10-09
 
 ### Changed

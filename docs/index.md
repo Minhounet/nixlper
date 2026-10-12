@@ -1,5 +1,7 @@
 # Nixlper — Keyboard-driven file management for Unix
 
+![Nixlper banner: a prickly-good helper for people who live in Bash](assets/banner.webp)
+
 Nixlper brings [Total Commander](https://www.ghisler.com/accueil.htm)-style keyboard shortcuts to your Unix shell.
 No GUI required — just your terminal.
 
