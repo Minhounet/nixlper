@@ -114,7 +114,10 @@ function _i_kill_fuzzy_pick() {
     --height=60%
     --reverse
     --prompt="Kill > "
-    --header="Filter by command, PID or port | TAB: mark several | ENTER: validate | ESC: cancel"
+    --header="Filter by command, PID or port | TAB: mark one | CTRL-A: mark ALL matches | CTRL-D: unmark all | ENTER: validate | ESC: cancel"
+    # select-all acts on the rows the current query leaves visible, which is what makes
+    # "type intellij, CTRL-A, ENTER" a group kill.
+    --bind="ctrl-a:select-all,ctrl-d:deselect-all"
   )
   [[ -n "${query}" ]] && fzf_args+=(--query "${query}")
 
@@ -138,14 +141,27 @@ function _i_kill_fuzzy_pick() {
     labels+=("${line}")
   done <<< "${selected}"
 
-  if [[ ${#pids[@]} -eq 0 ]]; then
+  _i_kill_confirm_and_kill pids labels
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_kill_confirm_and_kill: shared tail of the picker and of `ik --all`. Takes the NAMES of two
+# arrays (PIDs and their display lines), echoes the list back, asks for confirmation, then kill -9.
+# Nothing is ever killed without the explicit "y".
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_kill_confirm_and_kill() {
+  local -n _kc_pids="$1"
+  local -n _kc_labels="$2"
+
+  if [[ ${#_kc_pids[@]} -eq 0 ]]; then
     _i_log_as_info "Nothing to kill, exit interactive kill"
     return 0
   fi
 
+  local line
   echo ""
-  _i_log_as_info "About to kill ${#pids[@]} process(es):"
-  for line in "${labels[@]}"; do
+  _i_log_as_info "About to kill ${#_kc_pids[@]} process(es):"
+  for line in "${_kc_labels[@]}"; do
     echo "  ${line}"
   done
   echo ""
@@ -160,7 +176,7 @@ function _i_kill_fuzzy_pick() {
 
   local pid
   local failures=0
-  for pid in "${pids[@]}"; do
+  for pid in "${_kc_pids[@]}"; do
     if kill -9 "${pid}" 2>/dev/null; then
       _i_log_as_info "Killed ${pid}"
     else
@@ -170,6 +186,66 @@ function _i_kill_fuzzy_pick() {
   done
   [[ ${failures} -eq 0 ]] && _i_log_as_info "-> DONE"
   return 0
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_kill_all_matching: group kill. Every process whose COMMAND LINE contains PATTERN
+# (case-insensitive, literal — not a regex) is collected, listed, and killed after one confirmation.
+# Only the command line is matched: matching the whole display row would let `ik --all root`
+# or `ik --all 80` sweep up every process of a user, or every PID/port containing those digits.
+#
+# The caller must never be in its own kill list. _i_kill_candidates already drops $$, but a
+# subshell (pipeline, process substitution) or a `bash -c '... ik --all foo'` wrapper carries the
+# pattern in ITS command line too, so the caller's whole process subtree is excluded as well.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_kill_self_pids() {
+  local -A self=(["$$"]=1 ["${BASHPID}"]=1)
+  local -a rows=()
+  local pid ppid changed=1
+  mapfile -t rows < <(ps -eo pid=,ppid= 2>/dev/null)
+  while [[ ${changed} -eq 1 ]]; do
+    changed=0
+    for row in "${rows[@]}"; do
+      read -r pid ppid <<< "${row}"
+      if [[ -n "${ppid}" && -n "${self[${ppid}]:-}" && -z "${self[${pid}]:-}" ]]; then
+        self["${pid}"]=1
+        changed=1
+      fi
+    done
+  done
+  printf '%s\n' "${!self[@]}"
+}
+
+function _i_kill_all_matching() {
+  local -r pattern="${1:-}"
+  if [[ -z "${pattern}" ]]; then
+    _i_log_as_error "Missing pattern: usage is ik --all PATTERN"
+    return 1
+  fi
+
+  local -A self=()
+  local -a pids=() labels=()
+  local line pid ports user args row
+  while IFS= read -r pid; do self["${pid}"]=1; done < <(_i_kill_self_pids)
+  while IFS= read -r line; do
+    [[ -z "${line}" ]] && continue
+    read -r pid ports user args <<< "${line}"
+    [[ "${pid}" =~ ^[0-9]+$ ]] || continue
+    [[ -n "${self[${pid}]:-}" ]] && continue
+    # The snapshot can hold short-lived helpers (e.g. the subshell that just ran ps) that are
+    # already gone; offering them would only produce a bogus "could not kill".
+    kill -0 "${pid}" 2>/dev/null || continue
+    if [[ "${args,,}" == *"${pattern,,}"* ]]; then
+      pids+=("${pid}")
+      labels+=("${line}")
+    fi
+  done < <(_i_kill_candidates)
+
+  if [[ ${#pids[@]} -eq 0 ]]; then
+    _i_log_as_info "No process matches '${pattern}'"
+    return 0
+  fi
+  _i_kill_confirm_and_kill pids labels
 }
 
 # Opens a single fzf picker listing every process with its PID, listening ports, user and
@@ -186,7 +262,11 @@ function _interactive_kill() {
   local fuzzy_query=""
   if [[ $# -gt 0 ]]; then
     param_killmode=$1
-    if [[ "${param_killmode}" == "--port" || "${param_killmode}" == "--pattern" ]]; then
+    if [[ "${param_killmode}" == "--all" ]]; then
+      # Group kill by command-line substring; needs no fzf.
+      _i_kill_all_matching "${2:-}"
+      return $?
+    elif [[ "${param_killmode}" == "--port" || "${param_killmode}" == "--pattern" ]]; then
       if [[ $# -gt 1 ]]; then
         value=$2
       fi

@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`ik` group kill** (`functions_processes.sh`): `CTRL-A` in the picker marks every row the current filter shows (`CTRL-D` unmarks all), and the new `ik --all PATTERN` kills every process whose command line contains `PATTERN` after a single confirmation (case-insensitive, literal, works without `fzf`; never includes the calling shell). Example: `ik --all intellij`.
+
 ## [2.6.1] - 2026-10-09
 
 ### Changed

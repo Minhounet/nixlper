@@ -135,6 +135,77 @@ _expect_eq "fuzzy: enabled by default, gated on fzf being installed" "${enabled}
 unset NIXLPER_KILL_FUZZY
 
 #-----------------------------------------------------------------------------------------------------------------------
+# Tests: group kill (ik --all PATTERN)
+#-----------------------------------------------------------------------------------------------------------------------
+echo ""
+echo "=== processes: _i_kill_all_matching ==="
+
+# Fake process table: 3 IntelliJ processes (one with a different case), 1 user literally named
+# "idea", and unrelated ones. PIDs 1/2/3 contain digits that must not match a text pattern.
+_i_kill_candidates() {
+  printf '%-7s %-15s %-10s %s\n' \
+    "100" "-"      "me"   "/opt/idea/bin/IntelliJ-idea --foo" \
+    "101" ":8080"  "me"   "/opt/jetbrains/intellij/jbr/bin/java -Dx" \
+    "102" "-"      "me"   "/usr/bin/INTELLIJ-helper" \
+    "200" "-"      "idea" "bash" \
+    "300" ":5432"  "pg"   "postgres -D /data"
+}
+
+KILLED=""
+kill() { [[ "$1" == "-0" ]] && return 0; KILLED="${KILLED}${*:2} "; return 0; }
+
+# Only the confirmation prompt (read -rp) is mocked; every other read falls through to the builtin.
+_mock_answer() {
+  _MOCK_ANSWER="$1"
+  read() {
+    if [[ "$1" == "-rp" ]]; then local -n _r="$3"; _r="${_MOCK_ANSWER}"; else builtin read "$@"; fi
+  }
+}
+
+# Confirmation answered "y": exactly the three command lines containing intellij die.
+_mock_answer y
+KILLED=""
+_i_kill_all_matching "intellij" >/dev/null
+_expect_eq "all: kills every case-insensitive command-line match" "${KILLED}" "100 101 102 "
+
+# "idea" appears in a USER column (pid 200) and in a command line (pid 100): only the latter counts.
+KILLED=""
+_i_kill_all_matching "idea" >/dev/null
+_expect_eq "all: user column is not matched, only the command line" "${KILLED}" "100 "
+
+# Answering anything but "y" kills nothing.
+_mock_answer n
+KILLED=""
+_i_kill_all_matching "intellij" >/dev/null
+_expect_eq "all: declined confirmation kills nothing" "${KILLED}" ""
+
+# Default answer (empty) is also "no".
+_mock_answer ""
+KILLED=""
+_i_kill_all_matching "intellij" >/dev/null
+_expect_eq "all: empty answer defaults to no" "${KILLED}" ""
+
+# No match / no pattern: no kill, and a missing pattern is an error.
+_mock_answer y
+KILLED=""
+_i_kill_all_matching "nothing-like-this" >/dev/null
+_expect_eq "all: no match kills nothing" "${KILLED}" ""
+_i_kill_all_matching "" >/dev/null; rc=$?
+_expect_eq "all: missing pattern returns an error" "${rc}" "1"
+
+# Regex metacharacters are literal: "." must not act as a wildcard.
+KILLED=""
+_i_kill_all_matching "intellij.*java" >/dev/null
+_expect_eq "all: pattern is literal, not a regex" "${KILLED}" ""
+
+# Dispatch from the public command.
+KILLED=""
+_interactive_kill --all "postgres" >/dev/null
+_expect_eq "all: reachable through _interactive_kill --all" "${KILLED}" "300 "
+
+unset -f kill read _i_kill_candidates
+
+#-----------------------------------------------------------------------------------------------------------------------
 # Summary
 #-----------------------------------------------------------------------------------------------------------------------
 echo ""

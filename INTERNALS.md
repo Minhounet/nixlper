@@ -557,6 +557,25 @@ concern as the historical `grep -v grep` in `_i_kill_by_pattern`.
 The caller's own shell (`$$`) is filtered out on the same pass. `$$` is the parent shell's PID
 even inside the command substitution, so this works without any extra plumbing.
 
+### Group kill: `CTRL-A` and `ik --all`
+
+Selection is opt-in (nothing preselected), but a group is one gesture: fzf runs with
+`--bind=ctrl-a:select-all,ctrl-d:deselect-all`. `select-all` acts on the rows the **current query
+leaves visible**, so "type `intellij`, CTRL-A, ENTER" marks exactly the matches — not the whole
+process table. Both paths end in `_i_kill_confirm_and_kill`, which takes array *names* (nameref)
+and always lists + confirms before `kill -9`.
+
+`ik --all PATTERN` (`_i_kill_all_matching`) is the picker-less equivalent and has three guards,
+each fixing a silent failure that was hit while testing:
+
+- **Match the command line only**, not the display row — otherwise `--all root` / `--all 80`
+  match the USER column or any PID/port containing the digits.
+- **Exclude the caller's subtree** (`_i_kill_self_pids`: `$$`, `$BASHPID` and descendants by
+  PPID). Candidates already drop `$$`, but a subshell, or a `bash -c '… ik --all foo'` wrapper,
+  carries the pattern in its own command line and would otherwise kill the shell running `ik`.
+- **Drop rows that no longer exist** (`kill -0`): the snapshot contains the short-lived subshell
+  that ran `ps`, which would otherwise show up as an un-killable "ghost" row.
+
 ### Why the legacy flags stay
 
 `ik --port` / `ik --pattern` bypass the picker entirely and keep their original code paths.

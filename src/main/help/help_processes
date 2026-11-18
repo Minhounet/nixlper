@@ -11,12 +11,17 @@ ik : interactive kill. Opens one fzf picker listing every process with its PID, 
        5678    -               user       node worker.js
 
      Type 8080 to find who holds the port, or java to find it by name. TAB marks several
-     processes, ENTER validates. The marked processes are listed back and confirmed before
+     processes, ENTER validates.
+     CTRL-A marks EVERY row the current filter leaves visible (a whole group, e.g. type
+     "intellij" then CTRL-A); CTRL-D unmarks all. The marked processes are listed back and confirmed before
      any kill -9. Your own shell is never listed.
      Port detection uses `ss` (iproute2) if available, falls back to `netstat` (net-tools);
      with neither, the ports column shows "-" and the picker still works by command name.
 
 ik PATTERN : same picker, opened pre-filtered on PATTERN.
+ik --all PATTERN : group kill, no picker (works without fzf). Lists every process whose
+     COMMAND LINE contains PATTERN (case-insensitive, literal; user/PID/port are not matched),
+     then one y/n confirmation before kill -9. The calling shell is never included.
 ik --pattern VALUE : skip the picker, use the historical numbered kill-by-pattern flow.
 ik --port VALUE : skip the picker, kill whatever listens on VALUE.
 
