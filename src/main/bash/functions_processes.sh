@@ -141,27 +141,27 @@ function _i_kill_fuzzy_pick() {
     labels+=("${line}")
   done <<< "${selected}"
 
-  _i_kill_confirm_and_kill pids labels
+  _i_kill_confirm_and_kill "${labels[@]}"
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
-# _i_kill_confirm_and_kill: shared tail of the picker and of `ik --all`. Takes the NAMES of two
-# arrays (PIDs and their display lines), echoes the list back, asks for confirmation, then kill -9.
-# Nothing is ever killed without the explicit "y".
+# _i_kill_confirm_and_kill: shared tail of the picker and of `ik --all`. Takes the display lines as
+# arguments (the PID is each line's first field), echoes them back, asks for confirmation, then
+# kill -9. Nothing is ever killed without the explicit "y". Plain arguments rather than namerefs:
+# `local -n` needs bash 4.3, the package declares bash >= 4.0.
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_kill_confirm_and_kill() {
-  local -n _kc_pids="$1"
-  local -n _kc_labels="$2"
+  local -a labels=("$@")
 
-  if [[ ${#_kc_pids[@]} -eq 0 ]]; then
+  if [[ ${#labels[@]} -eq 0 ]]; then
     _i_log_as_info "Nothing to kill, exit interactive kill"
     return 0
   fi
 
   local line
   echo ""
-  _i_log_as_info "About to kill ${#_kc_pids[@]} process(es):"
-  for line in "${_kc_labels[@]}"; do
+  _i_log_as_info "About to kill ${#labels[@]} process(es):"
+  for line in "${labels[@]}"; do
     echo "  ${line}"
   done
   echo ""
@@ -176,7 +176,8 @@ function _i_kill_confirm_and_kill() {
 
   local pid
   local failures=0
-  for pid in "${_kc_pids[@]}"; do
+  for line in "${labels[@]}"; do
+    pid="${line%% *}"
     if kill -9 "${pid}" 2>/dev/null; then
       _i_log_as_info "Killed ${pid}"
     else
@@ -245,7 +246,7 @@ function _i_kill_all_matching() {
     _i_log_as_info "No process matches '${pattern}'"
     return 0
   fi
-  _i_kill_confirm_and_kill pids labels
+  _i_kill_confirm_and_kill "${labels[@]}"
 }
 
 # Opens a single fzf picker listing every process with its PID, listening ports, user and

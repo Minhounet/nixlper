@@ -562,8 +562,8 @@ even inside the command substitution, so this works without any extra plumbing.
 Selection is opt-in (nothing preselected), but a group is one gesture: fzf runs with
 `--bind=ctrl-a:select-all,ctrl-d:deselect-all`. `select-all` acts on the rows the **current query
 leaves visible**, so "type `intellij`, CTRL-A, ENTER" marks exactly the matches — not the whole
-process table. Both paths end in `_i_kill_confirm_and_kill`, which takes array *names* (nameref)
-and always lists + confirms before `kill -9`.
+process table. Both paths end in `_i_kill_confirm_and_kill`, which takes the display lines as plain
+arguments (PID = first field; no namerefs, `local -n` needs bash 4.3 vs the declared `>= 4.0`) and always lists + confirms before `kill -9`.
 
 `ik --all PATTERN` (`_i_kill_all_matching`) is the picker-less equivalent and has three guards,
 each fixing a silent failure that was hit while testing:
