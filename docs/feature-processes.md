@@ -8,6 +8,7 @@
 |---|---|
 | `ik` | Interactive kill — one fuzzy picker matching on command, PID **and** port |
 | `ik PATTERN` | Same picker, opened pre-filtered on `PATTERN` |
+| `ik --all PATTERN` | Kill a whole group: every process whose command line contains `PATTERN` (one confirmation) |
 | `ik --pattern VALUE` / `ik --port VALUE` | Explicit modes, without the picker |
 | `pc PORT` | Port quick-check — process name, PID, command line, suggested action (read-only) |
 
@@ -36,14 +37,15 @@ PID, the ports it listens on, its user and its full command line:
 
   3/187
   Kill > 8080
-  Filter by command, PID or port | TAB: mark several | ENTER: validate | ESC: cancel
+  Filter by command, PID or port | TAB: mark one | CTRL-A: mark ALL matches | CTRL-D: unmark all | ENTER: validate | ESC: cancel
 ```
 
 Because the port lives on the same line as the command, **one query searches both**: type
 `8080` when you only know the port, `java` when you only know the name, `1234` when you have
 the PID. No need to decide which one you are searching by.
 
-- `TAB` marks several processes, `ENTER` validates.
+- `TAB` marks one process, `ENTER` validates.
+- `CTRL-A` marks **every row the current filter leaves visible** (a whole group); `CTRL-D` unmarks everything.
 - The marked processes are listed back and confirmed before anything is killed.
 - `ESC` cancels.
 - Your own shell is never listed — you cannot fat-finger your session away.
@@ -58,6 +60,20 @@ ik java
 ```
 
 Opens the same picker with `java` already typed in the query.
+
+### Killing a group (e.g. every IntelliJ process)
+
+Nothing is selected by default — you always choose. To choose a *group* in one gesture:
+
+```bash
+ik intellij        # picker pre-filtered on "intellij"; press CTRL-A, then ENTER
+ik --all intellij  # no picker: lists every process whose command line contains "intellij"
+```
+
+`ik --all` matches the **command line only**, case-insensitively and literally (not a regex), so
+`ik --all root` will not sweep up a user's processes and `ik --all 80` will not match PIDs or
+ports. It works without `fzf`. Either way the full list is shown and you must answer `y` before
+any `kill -9`; the calling shell and its subshells are never included.
 
 ### Explicit modes
 

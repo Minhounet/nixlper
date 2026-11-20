@@ -8,6 +8,7 @@
 |---|---|
 | `ik` | Arrêt interactif — un sélecteur flou qui filtre sur la commande, le PID **et** le port |
 | `ik MOTIF` | Le même sélecteur, ouvert pré-filtré sur `MOTIF` |
+| `ik --all MOTIF` | Arrêter un groupe : tous les processus dont la ligne de commande contient `MOTIF` (une seule confirmation) |
 | `ik --pattern VALEUR` / `ik --port VALEUR` | Modes explicites, sans le sélecteur |
 | `pc PORT` | Vérification rapide de port — nom du processus, PID, ligne de commande, action suggérée (lecture seule) |
 
@@ -36,14 +37,15 @@ ligne porte le PID, les ports écoutés, l'utilisateur et la ligne de commande c
 
   3/187
   Kill > 8080
-  Filter by command, PID or port | TAB: mark several | ENTER: validate | ESC: cancel
+  Filter by command, PID or port | TAB: mark one | CTRL-A: mark ALL matches | CTRL-D: unmark all | ENTER: validate | ESC: cancel
 ```
 
 Comme le port figure sur la même ligne que la commande, **une seule saisie cherche dans les
 deux** : tapez `8080` si vous ne connaissez que le port, `java` si vous ne connaissez que le
 nom, `1234` si vous avez le PID. Plus besoin de décider selon quel critère vous cherchez.
 
-- `TAB` marque plusieurs processus, `ENTRÉE` valide.
+- `TAB` marque un processus, `ENTRÉE` valide.
+- `CTRL-A` marque **toutes les lignes visibles avec le filtre courant** (un groupe entier) ; `CTRL-D` tout démarque.
 - Les processus marqués sont réaffichés et confirmés avant tout arrêt.
 - `ÉCHAP` annule.
 - Votre propre shell n'apparaît jamais dans la liste — impossible de tuer votre session par
@@ -60,6 +62,22 @@ ik java
 ```
 
 Ouvre le même sélecteur avec `java` déjà saisi dans la recherche.
+
+### Arrêter un groupe (ex. tous les processus IntelliJ)
+
+Rien n'est sélectionné par défaut — c'est toujours vous qui choisissez. Pour choisir un *groupe*
+en un seul geste :
+
+```bash
+ik intellij        # sélecteur pré-filtré sur "intellij" ; CTRL-A puis ENTRÉE
+ik --all intellij  # sans sélecteur : liste tous les processus dont la ligne de commande contient "intellij"
+```
+
+`ik --all` ne compare que la **ligne de commande**, sans tenir compte de la casse et de façon
+littérale (pas une regex) : `ik --all root` n'emporte donc pas les processus d'un utilisateur et
+`ik --all 80` ne correspond ni aux PIDs ni aux ports. Fonctionne sans `fzf`. Dans les deux cas la
+liste complète est affichée et il faut répondre `y` avant tout `kill -9` ; le shell appelant et
+ses sous-shells ne sont jamais inclus.
 
 ### Modes explicites
 
