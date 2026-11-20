@@ -58,6 +58,36 @@ Les instantanés sont stockés dans `NIXLPER_SNAPSHOT_DIR`. Le fichier original 
 
 ---
 
+## Rechercher & remplacer dans un fichier
+
+```bash
+rp NOM_FICHIER
+```
+
+Recherche et remplacement interactifs avec la **syntaxe `:s` de vi** — fini les one-liners `sed` cryptiques. `rp` pose quatre questions, puis construit et exécute l'équivalent de `:%s/RECHERCHE/REMPLACEMENT/FLAGS` (via `ex`, fourni avec vim) :
+
+```text
+$ rp app.conf
+Search  (vi regex): ^timeout=\(.*\)
+Replace (\1 and & work as in vi): retry=\1
+Lines   (Enter = all, or 10,20 or /start/,/end/):
+Flags   (g = every match per line, i = ignore case, c = confirm each; default g):
+   1 - timeout=30
+   1 + retry=30
+1 line(s) would change in app.conf
+Apply? (y/n, default is n): y
+```
+
+- **Aperçu d'abord** — seules les lignes modifiées sont affichées, rien n'est écrit tant que vous ne répondez pas `y`.
+- **Délimiteur géré pour vous** — des chemins comme `/usr/bin` n'ont pas besoin d'être échappés avec `\/`.
+- **Flags** — `g` (défaut) toutes les occurrences d'une ligne, `i` ignorer la casse, `c` confirmer chaque occurrence une par une, comme dans vi (nécessite `vim`).
+- **Plage de lignes** — laisser vide pour tout le fichier, ou `10,20`, `5`, `/début/,/fin/`.
+- **Annuler** — le fichier est sauvegardé (instantané) avant modification : `re NOM_FICHIER` le restaure. Si un instantané existe déjà, une confirmation est demandée avant de l'écraser. Désactivable avec `NIXLPER_REPLACE_SNAPSHOT=false`.
+- **Pipes** — un `|` nu est refusé (ex le traiterait comme séparateur de commandes) : utilisez `[|]` dans la recherche, `\|` dans le remplacement.
+- Les fichiers binaires et en lecture seule sont refusés. Nécessite `ex` (fourni avec vim).
+
+---
+
 ## Renommage par motif
 
 ```bash

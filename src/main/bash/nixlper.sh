@@ -208,6 +208,7 @@ export NIXLPER_HEALTH_CRIT_PCT="\${NIXLPER_HEALTH_CRIT_PCT:-90}"
 export NIXLPER_HEALTH_TOP_N="\${NIXLPER_HEALTH_TOP_N:-3}"
 export NIXLPER_LOGTAIL_IGNORE_CASE="\${NIXLPER_LOGTAIL_IGNORE_CASE:-false}"
 export NIXLPER_LOGTAIL_LINES="\${NIXLPER_LOGTAIL_LINES:-10}"
+export NIXLPER_REPLACE_SNAPSHOT="\${NIXLPER_REPLACE_SNAPSHOT:-true}"
 export NIXLPER_PORT_CHECK_SHOW_CMDLINE="\${NIXLPER_PORT_CHECK_SHOW_CMDLINE:-true}"
 EOF
   chmod 644 /etc/nixlper/nixlper.conf
@@ -411,6 +412,7 @@ alias pc=_port_check
 alias sucd=_su_to_current_directory
 alias sn=_snapshot_file
 alias re=_restore_file
+alias rp=_replace_in_file
 alias fan=_find_and_navigate
 alias fag=_grep_and_navigate
 alias olf=_open_latest_file

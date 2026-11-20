@@ -30,6 +30,13 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
   `true`). Docs: `docs/feature-processes.md` / `docs/fr/feature-processes.md`, help:
   `src/main/help/help_processes`, tests: `src/test/bash/test_functions_processes.sh`.
 
+- **`rp` in `functions_files_and_folders.sh`** — `rp FILE` (`@args`/`@interactive`, alias wired in `nixlper.sh`):
+  interactive search & replace using vi `:s` syntax executed through `ex` (requires vim; no sed). Prompts for
+  search/replace/range/flags, previews changed lines, applies after confirmation, snapshots first so `re` undoes it.
+  Configurable via `nconf`: `NIXLPER_REPLACE_SNAPSHOT` (bool, default `true`). Bare `|` is rejected (ex command
+  injection guard, see INTERNALS.md). Docs: `docs/feature-files-folders.md` / `docs/fr/feature-files-folders.md`, help:
+  `src/main/help/help_files_folders`, tests: `src/test/bash/test_functions_replace.sh`.
+
 - **`functions_logtail.sh`** — `logtail FILE PATTERN` (`@args` command, no keybind — see the
   `bind -x` constraint above). Wraps `tail -F FILE | grep --color=always -E PATTERN`; `-F`
   (not `-f`) so it survives log rotation. Configurable via `nconf`: `NIXLPER_LOGTAIL_IGNORE_CASE`
@@ -726,6 +733,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_LAST_COMMAND_FUZZY` | `true` | `true` |
 | `NIXLPER_NAVIGATE_FUZZY` | `true` | `true` |
 | `NIXLPER_KILL_FUZZY` | `true` | `true` |
+| `NIXLPER_REPLACE_SNAPSHOT` | `true` | `true` |
 | `NIXLPER_TARGET_DIR` | `/tmp/nixlper_target` | `/tmp/nixlper_target` |
 | `NIXLPER_TARGET_CHMOD` | `777` | `777` |
 

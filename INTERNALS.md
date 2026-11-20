@@ -494,6 +494,19 @@ directly, since that never goes through `bind -x` in the first place).
 
 ---
 
+## Search & replace `rp` (`functions_files_and_folders.sh`)
+
+`rp` is a thin interactive front end over vim's `:s`. It never uses `sed`: the vi regex flavour (`\(…\)`, `\+`, `\|`) differs from sed's, and reusing vi's own engine is the whole point.
+
+- **Execution:** the command is built as `RANGE s DELIM SEARCH DELIM REPLACE DELIM FLAGS` and run with `ex -N -u NONE -i NONE -s -c 'set nofixeol' -c CMD -c wq`. `-u NONE` ignores the user's vimrc (a `gdefault` or `ignorecase` there would silently change results); `nofixeol` keeps a missing final newline missing.
+- **Dry run:** the edit is applied to a `mktemp` copy, `diff` (GNU line formats) prints only the changed lines with numbers, and only on `y` is the copy written back with `cat > file` (not `mv`, so inode, permissions and ownership survive).
+- **Delimiter:** `_i_replace_pick_delimiter` picks the first of `/ # @ ! % ~ , ; : + =` absent from both strings, which is why users never escape `/`.
+- **Silent failure / injection:** ex treats a bare `|` as a command separator, so `s/x/a|!rm -rf ~/` would run a shell command. `_i_replace_has_bare_pipe` rejects any `|` not preceded by an odd number of backslashes, in search, replacement and range. Do not remove this guard.
+- **Confirm mode (flag `c`):** needs a real terminal, so it runs interactive `vim` instead of `ex` and skips the preview. It is not covered by the unit tests; it was checked by hand through a pty.
+- **Undo:** `_i_replace_snapshot` writes to the same `NIXLPER_SNAPSHOT_DIR` layout `sn`/`re` use, but never overwrites an existing snapshot without asking.
+
+---
+
 ## Interactive kill picker (`functions_processes.sh`)
 
 ### Mechanism

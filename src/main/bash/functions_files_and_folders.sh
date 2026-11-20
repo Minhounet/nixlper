@@ -288,3 +288,168 @@ Examples:
         return 1
     fi
 }
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_replace_pick_delimiter: echo the first :s delimiter found in neither $1 (search) nor $2 (replacement).
+# Picking it automatically means the user never has to escape "/" in paths. Returns 1 if none is free.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_replace_pick_delimiter() {
+  local d
+  for d in '/' '#' '@' '!' '%' '~' ',' ';' ':' '+' '='; do
+    if [[ "$1" != *"${d}"* && "$2" != *"${d}"* ]]; then
+      printf '%s' "${d}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_replace_has_bare_pipe: succeed if $1 contains a "|" not escaped by a backslash. ex treats a bare "|" as a command
+# separator, so letting one through would execute whatever follows as an ex command.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_replace_has_bare_pipe() {
+  local -r stripped="${1//\\\\/}" # drop escaped backslashes so "\\|" is seen as a bare pipe
+  [[ "${stripped}" =~ (^|[^\\])\| ]]
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_replace_ex_run: apply an ex command to a file, silently and with the user's vimrc ignored (deterministic result).
+# nofixeol keeps a missing final newline missing.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_replace_ex_run() {
+  local -r ex_cmd="$1" target="$2"
+  ex -N -u NONE -i NONE -s -c 'set nofixeol' -c "${ex_cmd}" -c 'wq' -- "${target}" < /dev/null > /dev/null 2>&1
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _replace_in_file: interactive search & replace in a file, using vi's :s syntax.
+# Builds ":RANGE s/SEARCH/REPLACE/FLAGS", previews the changed lines, then applies it after confirmation.
+# @cmd-palette
+# @description: Interactive search and replace in a file (vi :s syntax)
+# @category: Files & Folders
+# @alias: rp
+# @args: FILENAME
+# @interactive
+#-----------------------------------------------------------------------------------------------------------------------
+function _replace_in_file() {
+  if [[ $# -ne 1 ]]; then
+    _i_log_as_error "Usage: rp FILENAME"
+    return 1
+  fi
+  local -r file="$1"
+  if [[ ! -f "${file}" ]]; then
+    _i_log_as_error "File not found: ${file}"
+    return 1
+  fi
+  if [[ ! -w "${file}" ]]; then
+    _i_log_as_error "File is not writable: ${file}"
+    return 1
+  fi
+  if [[ -s "${file}" ]] && ! grep -Iq '' "${file}"; then
+    _i_log_as_error "Binary file, refusing to edit: ${file}"
+    return 1
+  fi
+  if ! command -v ex > /dev/null 2>&1; then
+    _i_log_as_error "'ex' not found: install vim to use rp"
+    return 1
+  fi
+
+  local search replace range flags
+  read -erp "Search  (vi regex, e.g. foo\(.*\)): " search
+  if [[ -z "${search}" ]]; then
+    _i_log_action_cancelled
+    return 1
+  fi
+  read -erp "Replace (\1 and & work as in vi): " replace
+  read -erp "Lines   (Enter = all, or 10,20 or /start/,/end/): " range
+  read -erp "Flags   (g = every match per line, i = ignore case, c = confirm each; default g): " flags
+  range="${range:-%}"
+  flags="${flags:-g}"
+
+  if [[ ! "${flags}" =~ ^[giIc]*$ ]]; then
+    _i_log_as_error "Invalid flags '${flags}' (allowed: g i I c)"
+    return 1
+  fi
+  if _i_replace_has_bare_pipe "${search}"; then
+    _i_log_as_error "Bare '|' in search is not supported: use [|] for a literal pipe or \\| for alternation"
+    return 1
+  fi
+  if _i_replace_has_bare_pipe "${replace}"; then
+    _i_log_as_error "Bare '|' in replacement is not supported: use \\| for a literal pipe"
+    return 1
+  fi
+  if [[ "${range}" == *$'\n'* ]] || { [[ "${range}" == *'|'* ]]; }; then
+    _i_log_as_error "Invalid line range '${range}'"
+    return 1
+  fi
+
+  local delim
+  if ! delim="$(_i_replace_pick_delimiter "${search}" "${replace}")"; then
+    _i_log_as_error "Could not find a free delimiter: simplify the search or replacement"
+    return 1
+  fi
+  local -r ex_cmd="${range}s${delim}${search}${delim}${replace}${delim}${flags}"
+  _i_log_as_info "Command: :${ex_cmd}"
+
+  local confirm_each="false"
+  [[ "${flags}" == *c* ]] && confirm_each="true"
+
+  if [[ "${confirm_each}" == "false" ]]; then
+    # Dry run on a temporary copy, then show only what changes
+    local tmp
+    tmp="$(mktemp)" || return 1
+    cp -- "${file}" "${tmp}"
+    _i_replace_ex_run "${ex_cmd}" "${tmp}"
+    local -r nb_changed="$(diff --unchanged-line-format= --old-line-format='x
+' --new-line-format= "${file}" "${tmp}" | wc -l)"
+    if [[ "${nb_changed}" -eq 0 ]]; then
+      _i_log_as_info "No change: pattern not found (or replacement identical)"
+      rm -f -- "${tmp}"
+      return 0
+    fi
+    diff --unchanged-line-format= --old-line-format='%4dn - %L' --new-line-format='%4dn + %L' "${file}" "${tmp}"
+    _i_log_as_info "${nb_changed} line(s) would change in ${file}"
+    local apply
+    read -rp "Apply? (y/n, default is n): " apply
+    if [[ "${apply:-n}" != "y" ]]; then
+      rm -f -- "${tmp}"
+      _i_log_action_cancelled
+      return 0
+    fi
+    _i_replace_snapshot "${file}"
+    cat -- "${tmp}" > "${file}" # cat > keeps the original inode, permissions and ownership
+    rm -f -- "${tmp}"
+    _i_log_as_info "-> ${nb_changed} line(s) replaced in ${file}"
+    _i_log_ok
+  else
+    if ! command -v vim > /dev/null 2>&1; then
+      _i_log_as_error "Confirm mode (flag c) needs vim"
+      return 1
+    fi
+    _i_replace_snapshot "${file}"
+    vim -N -u NONE -i NONE -c 'set nofixeol' -c "${ex_cmd}" -c 'wq' -- "${file}"
+    _i_log_as_info "-> Done"
+  fi
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
+# _i_replace_snapshot: save a restore point (for "re") before rp edits a file, if NIXLPER_REPLACE_SNAPSHOT is true.
+# An existing snapshot is only overwritten with the user's consent, so a deliberate "sn" is never lost silently.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_replace_snapshot() {
+  [[ "${NIXLPER_REPLACE_SNAPSHOT:-true}" == "true" ]] || return 0
+  local -r absolute_filepath="$(realpath -- "$1")"
+  local -r snapshot_dir="${NIXLPER_SNAPSHOT_DIR:-${NIXLPER_INSTALL_DIR}/snapshots}"
+  local -r snapshot_file="${snapshot_dir}${absolute_filepath}"
+  if [[ -f "${snapshot_file}" ]]; then
+    local overwrite
+    read -rp "A snapshot of this file already exists, overwrite it with the current version? (y/n, default is n): " overwrite
+    if [[ "${overwrite:-n}" != "y" ]]; then
+      _i_log_as_info "-> Existing snapshot kept (re will restore that older version)"
+      return 0
+    fi
+  fi
+  mkdir -p "$(dirname "${snapshot_file}")" && cp -- "${absolute_filepath}" "${snapshot_file}" &&
+    _i_log_as_info "-> Snapshot saved, use \"re\" to undo"
+}

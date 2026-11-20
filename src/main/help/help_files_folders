@@ -30,6 +30,9 @@ Save/Restore
 sn FILEPATH : save file in the snapshot area
 re [FILEPATH] : restore a file, if there is no parameters, a list of choices will be displayed for interactive restore
 ------------------------------------------------------------------------------------------------------------------------
+Search & replace
+rp FILEPATH : interactive search and replace in a file, with vi :s syntax (regex, \1, &). Asks for search, replacement, optional line range (10,20 or /start/,/end/) and flags (g every match, i ignore case, c confirm each), shows the changed lines, applies only after confirmation. A snapshot is taken first, use "re" to undo (NIXLPER_REPLACE_SNAPSHOT)
+------------------------------------------------------------------------------------------------------------------------
 Rename
 rn FILENAME PATTERN [REPLACEMENT] : rename a file by removing or replacing a pattern (e.g. `rn file_peppa.txt _peppa` -> `file.txt`)
 ------------------------------------------------------------------------------------------------------------------------

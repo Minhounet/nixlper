@@ -58,6 +58,36 @@ Snapshots are stored in `NIXLPER_SNAPSHOT_DIR`. The original file is never delet
 
 ---
 
+## Search & replace in a file
+
+```bash
+rp FILENAME
+```
+
+Interactive search and replace using **vi's `:s` syntax** — no more cryptic `sed` one-liners. `rp` asks four questions, then builds and runs the equivalent of `:%s/SEARCH/REPLACE/FLAGS` (through `ex`, which ships with vim):
+
+```text
+$ rp app.conf
+Search  (vi regex): ^timeout=\(.*\)
+Replace (\1 and & work as in vi): retry=\1
+Lines   (Enter = all, or 10,20 or /start/,/end/):
+Flags   (g = every match per line, i = ignore case, c = confirm each; default g):
+   1 - timeout=30
+   1 + retry=30
+1 line(s) would change in app.conf
+Apply? (y/n, default is n): y
+```
+
+- **Preview first** — only the changed lines are shown, nothing is written until you answer `y`.
+- **Delimiter handled for you** — paths such as `/usr/bin` need no `\/` escaping.
+- **Flags** — `g` (default) every match on a line, `i` ignore case, `c` confirm each match one by one, as in vi (needs `vim`).
+- **Line range** — leave empty for the whole file, or give `10,20`, `5`, `/start/,/end/`.
+- **Undo** — the file is snapshotted before it is edited: run `re FILENAME` to restore it. If a snapshot already exists you are asked before it is overwritten. Disable with `NIXLPER_REPLACE_SNAPSHOT=false`.
+- **Pipes** — a bare `|` is refused (ex would treat it as a command separator): use `[|]` in the search, `\|` in the replacement.
+- Binary and read-only files are refused. Requires `ex` (part of vim).
+
+---
+
 ## Rename by pattern
 
 ```bash
