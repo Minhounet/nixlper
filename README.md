@@ -1,8 +1,8 @@
 # NIXLPER
 
-> 🚀 **Current version: v2.6.1** — [Release notes](https://github.com/Minhounet/nixlper/releases)
+> 🚀 **Current version: v2.7.0** — [Release notes](https://github.com/Minhounet/nixlper/releases)
 >
-> **What's new in v2.6.1:** Adds/updates: `tc` (target staging copy).
+> **What's new in v2.7.0:** Adds/updates: `rp FILE`: interactive search and replace with vi syntax, `ik` group kill.
 >
 > Nixlper evolves constantly. Tagged releases are stable snapshots. Two channels are available: **stable** (default, tagged releases) and **edge** (rolling build of every commit on `main`, not an official release). See [Updates](#updates) for installation commands.
 

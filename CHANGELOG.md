@@ -8,16 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-11-20
+
 ### Added
 
 - **`rp FILE`: interactive search and replace with vi syntax** (`functions_files_and_folders.sh`): prompts for the search regex, replacement, optional line range and flags (`g`/`i`/`c`), builds the matching `:s` command and runs it through `ex`, so no `sed` knowledge is needed (`\1`, `&`, `\(…\)` work as in vi; `/` in paths needs no escaping). Shows a preview of the changed lines and only writes after confirmation. The file is snapshotted first so `re` can undo it (`NIXLPER_REPLACE_SNAPSHOT`, default `true`). Bare `|` is rejected to prevent ex command injection.
 - **`ik` group kill** (`functions_processes.sh`): `CTRL-A` in the picker marks every row the current filter shows (`CTRL-D` unmarks all), and the new `ik --all PATTERN` kills every process whose command line contains `PATTERN` after a single confirmation (case-insensitive, literal, works without `fzf`; never includes the calling shell). Example: `ik --all intellij`.
-
-## [2.6.1] - 2026-10-09
-
-### Changed
-
-- **`tc` (target staging copy)** (`functions_target.sh`): now asks whether to copy or move the file (default: `cp`, preserving the previous one-shot behaviour on Enter), and chmods the landed file to `NIXLPER_TARGET_CHMOD` (default `777`, configurable via `nconf`) instead of a hardcoded `644`.
 
 ---
 
