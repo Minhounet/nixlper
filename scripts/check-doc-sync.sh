@@ -8,7 +8,7 @@
 # This does NOT check that the prose is in sync — only that the fact ("this command/alias/
 # keybind exists") is present wherever a matching doc file exists. It exists to catch the
 # recurring bug the tri-location documentation rule guards against: a command added in code
-# but never mentioned in one of the docs. See "Tri-location documentation rule" in CLAUDE.md.
+# but never mentioned in one of the docs. See the tri-location rule in .claude/skills/nixlper-add-feature/SKILL.md.
 ########################################################################################################################
 set -o nounset
 set -o pipefail

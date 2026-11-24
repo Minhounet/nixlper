@@ -5,7 +5,7 @@ the source. It is not a user manual — the in-shell help (`CTRL+X+H`) and `READ
 "what". This file covers the "how" and "why it works that way", for anyone extending or debugging
 these features.
 
-See `CLAUDE.md → INTERNALS.md rule` for the criteria that determine whether a feature deserves
+See `.claude/skills/nixlper-add-feature/SKILL.md` (section 7, "Other records") for the criteria that determine whether a feature deserves
 an entry here.
 
 ---
@@ -482,7 +482,7 @@ written. See `KNOWN_ISSUES.md` for the still-open direct-alias-invocation case.
 
 `bookmark_dirs` calls `read` (numbered fallback) or `fzf` (fuzzy path) — both require the normal
 readline/terminal state, which is unavailable inside a `bind -x` callback (raw mode; see the
-`@interactive` constraint in `CLAUDE.md`). `CTRL+X+D` used to bind `_display_existing_bookmarks`
+`bind -x` constraint in `.claude/skills/nixlper-add-feature/SKILL.md`). `CTRL+X+D` used to bind `_display_existing_bookmarks`
 directly via `bind -x`, which was safe because that function only prints. Now that `CTRL+X+D`
 resolves to the interactive `bookmark_dirs`, the binding had to move to the same
 insert-onto-the-command-line mechanism used by `rd` and `sc`:

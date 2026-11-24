@@ -77,7 +77,7 @@ echo "👉 Create version file (git sha)"
 } > "${WORK_DIRECTORY}/Nixlper/version"
 _log_ok
 
-# Windows PowerShell 5.1 reads BOM-less .ps1 files as ANSI: refuse to ship anything non-ASCII (see CLAUDE.md).
+# Windows PowerShell 5.1 reads BOM-less .ps1 files as ANSI: refuse to ship anything non-ASCII (see .claude/skills/nixlper-powershell).
 echo "👉 Check sources are pure ASCII"
 if LC_ALL=C grep -rlP '[^\x00-\x7F]' "${WORK_DIRECTORY}/Nixlper" --include='*.ps1' --include='*.psm1' --include='*.psd1'; then
   _fail "Non-ASCII characters found in the files above"

@@ -5,12 +5,12 @@
 # for on push to main. Meant to be run by .github/workflows/scheduled_release.yml,
 # but is a plain script so it can also be run by hand.
 #
-# Version bump rule (mirrors CLAUDE.md's "Release process" policy):
+# Version bump rule (mirrors the policy in .claude/skills/nixlper-release/SKILL.md):
 #   - any commit since the last tag starts with the 💥 (breaking) gitmoji -> MAJOR
 #   - else [Unreleased] has a non-empty "### Added" section               -> MINOR
 #   - else (only Fixed/Changed/Removed)                                  -> PATCH
 #
-# MAJOR bumps are never pushed to main directly: CLAUDE.md requires a
+# MAJOR bumps are never pushed to main directly: the release policy requires a
 # human-picked "Turnabout <Word>" codename for major releases, so this script
 # commits the draft to a release/vX.0.0-draft branch, pushes it, and exits 20
 # so the caller opens a PR instead.

@@ -4,7 +4,7 @@ This file tracks confirmed defects that are **not** yet fixed. Each entry is rep
 and verified. These are intended to be addressed in dedicated follow-up sessions.
 
 > Referenced from `CLAUDE.md`. When an issue here is fixed, remove it from this file in the
-> same commit and (if user-facing) update `README.md` / `src/main/help/*` per the dual-location rule.
+> same commit and (if user-facing) update `src/main/help/*` and the EN/FR docs per the tri-location rule.
 
 ### Impact legend
 
@@ -93,23 +93,19 @@ Any recorded command that internally calls `read` (e.g. `ik`, `re`, bookmark com
 be silently skipped or block during replay. The recording itself works fine — only replay is
 affected. Workaround: do not record interactive commands in a macro.
 
-## Documentation drift (dual-location rule)
-
-Per CLAUDE.md, every command in `README.md → ## Features → ### <Category>` must also appear in
-the matching `src/main/help/help_<category>` file, and vice versa.
-
 ## Technical debt
 
-### 🟡 No unit tests for existing feature modules
+### 🟡 Some feature modules still have no unit tests
 
-Only `functions_update.sh` has a unit test file (`src/test/bash/test_functions_update.sh`).
-All other modules (`functions_clipboard.sh`, `functions_navigation.sh`, `functions_files.sh`,
-`functions_bookmarks.sh`, `functions_processes.sh`,
-`functions_command_palette.sh`, etc.) have no automated tests.
-`functions_macros.sh` gained tests when its implementation was rewritten
-(`src/test/bash/test_functions_macros.sh`).
+13 modules have a `src/test/bash/test_functions_<module>.sh` file (all run by `tests.yml`, enforced by
+`scripts/check-feature-completeness.sh`). These still have none: `functions_bookmarks.sh`,
+`functions_clipboard.sh`, `functions_command_palette.sh`, `functions_debug.sh`,
+`functions_dev_utilities.sh`, `functions_files_and_folders.sh` (only `rp` is covered, by
+`test_functions_replace.sh`), `functions_navigation.sh`, `functions_tips.sh`, `functions_users.sh`
+(plus the trivial `functions_check_tools.sh`, `functions_help.sh`, `functions_logging.sh`,
+`functions_version.sh`).
 
-New feature modules must include a test file (see CLAUDE.md → "Unit test files"). Retrofitting
+New feature modules must include a test file (see the `nixlper-add-feature` skill). Retrofitting
 tests for existing modules is welcome but not required — tackle one module at a time when
 touching that module for another reason.
 
