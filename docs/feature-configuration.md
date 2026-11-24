@@ -51,6 +51,7 @@ Changes take effect in new shells. To apply immediately: `source ~/.bashrc`.
 |---|---|
 | `NIXLPER_UPDATE_CHECK_INTERVAL` | Seconds between auto-checks (default `86400`) |
 | `NIXLPER_UPDATE_TIMEOUT` | Network probe timeout in seconds (default `2`) |
+| `NIXLPER_UPDATE_CACHE_FILE` | Path to the update-check throttle file |
 | `NIXLPER_BOOKMARKS_FILE` | Path to bookmarks file |
 | `NIXLPER_SNAPSHOT_DIR` | Path to snapshots directory |
 | `NIXLPER_CUSTOM_DIR` | Path to custom scripts directory |

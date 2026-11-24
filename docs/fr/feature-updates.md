@@ -60,6 +60,7 @@ Récupère les notes de la pré-version edge depuis GitHub et affiche les commit
 | `NIXLPER_UPDATE_AUTO` | `false` | Installer automatiquement les mises à jour (défaut : notification uniquement) |
 | `NIXLPER_UPDATE_CHECK_INTERVAL` | `86400` | Secondes entre les vérifications automatiques |
 | `NIXLPER_UPDATE_TIMEOUT` | `2` | Délai d'expiration de la sonde réseau en secondes |
+| `NIXLPER_UPDATE_CACHE_FILE` | `~/.local/share/nixlper/update_check` (RPM/DEB) ou `$NIXLPER_INSTALL_DIR/.nixlper_update_check` (manuel) | Horodatage de la dernière vérification automatique, utilisé pour limiter leur fréquence |
 
 Configurable via `nconf` (`CTRL+X+C`).
 

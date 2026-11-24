@@ -223,6 +223,9 @@ function _nconf_create_user_conf() {
     printf "# export NIXLPER_HEALTH_TOP_N=3\n"
     printf "# export NIXLPER_LOGTAIL_LINES=10\n"
     printf "# export NIXLPER_BROADCAST_MESSAGE_FILE=\${NIXLPER_INSTALL_DIR}/broadcast_message\n"
+    printf "# export NIXLPER_SSH_CONNECTIONS_FILE=\${HOME}/.config/nixlper/ssh_connections\n"
+    printf "# export NIXLPER_SSH_IDENTITY_FILE=\${HOME}/.ssh/nixlper_id_rsa\n"
+    printf "# export NIXLPER_DEBUG=false\n"
   } > "${_NIXLPER_USER_CONF}"
   echo "  -> Created ${_NIXLPER_USER_CONF}"
 }

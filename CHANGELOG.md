@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **RPM/DEB admin notice location** (`packaging/shared/nixlper.conf`): the packaged system config never set `NIXLPER_BROADCAST_MESSAGE_FILE`, so `bset` wrote the notice under `/usr/share/nixlper/` instead of the documented `/etc/nixlper/broadcast_message`. The packaged config now sets it, along with the 18 other settings it was missing (fuzzy pickers, health thresholds, logtail, target staging, SSH paths…), so admins can see and change every default in one place.
+- **Config templates out of sync** (`nixlper.sh`, `functions_config.sh`): the system-wide config written by `install.sh --system` now includes `NIXLPER_DISABLE_TIPS`, `NIXLPER_DEBUG`, `NIXLPER_TARGET_DIR`, `NIXLPER_TARGET_CHMOD` and the SSH paths, and the per-user template lists `NIXLPER_SSH_CONNECTIONS_FILE`, `NIXLPER_SSH_IDENTITY_FILE` and `NIXLPER_DEBUG`. `NIXLPER_UPDATE_CACHE_FILE` is now documented.
+
 ## [2.7.0] - 2026-11-20
 
 ### Added
