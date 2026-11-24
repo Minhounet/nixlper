@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Enforce the gitmoji commit convention ("✨feat|Message."). Opt in with: git config core.hooksPath .githooks
+# (Claude Code sessions turn it on automatically via .claude/hooks/session-start.sh).
+exec bash "$(git rev-parse --show-toplevel)/scripts/check-feature-completeness.sh" --commit-msg "$1"
