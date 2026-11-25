@@ -8,6 +8,7 @@
 |---|---|
 | `ik` | Interactive kill — one fuzzy picker matching on command, PID **and** port |
 | `ik PATTERN` | Same picker, opened pre-filtered on `PATTERN` |
+| `ik --exact [PATTERN]` | Same picker, strict matching: rows must contain `PATTERN` literally (no fuzzy matching) |
 | `ik --all PATTERN` | Kill a whole group: every process whose command line contains `PATTERN` (one confirmation) |
 | `ik --pattern VALUE` / `ik --port VALUE` | Explicit modes, without the picker |
 | `pc PORT` | Port quick-check — process name, PID, command line, suggested action (read-only) |
@@ -60,6 +61,28 @@ ik java
 ```
 
 Opens the same picker with `java` already typed in the query.
+
+### Exact matching (strict contains)
+
+The picker matches **fuzzily** by default: `java` also matches a row where `j`, `a`, `v`, `a`
+merely appear scattered in that order, so a short query can pull in unrelated processes.
+When you need to target a precise word:
+
+```bash
+ik --exact java     # or: ik -e java
+ik --exact          # strict picker, empty query
+```
+
+In exact mode a row is kept only if it **contains the typed text as-is** (case-insensitive
+unless you type an uppercase letter, `fzf --exact`). Several space-separated terms must all be
+present. A term prefixed with `'` switches back to fuzzy for that term. The prompt reads
+`Kill [exact] >` so you always know which mode is active.
+
+Set `NIXLPER_KILL_EXACT=true` (via `nconf`) to make exact matching the default. Without `fzf`,
+`ik --exact PATTERN` runs the numbered pattern flow with a literal (non-regex) match.
+
+Tip: even in the default fuzzy mode, prefixing a single term with `'` (e.g. `'java`) makes that
+term exact.
 
 ### Killing a group (e.g. every IntelliJ process)
 
@@ -131,6 +154,7 @@ Suggested action: run 'ik --port 8080' to kill it interactively, or 'kill -9 123
 | Variable | Default | Effect |
 |---|---|---|
 | `NIXLPER_KILL_FUZZY` | `true` | Use the `fzf` unified picker for `ik` when `fzf` is installed |
+| `NIXLPER_KILL_EXACT` | `false` | Make the `ik` picker match exact substrings instead of fuzzy (same as `ik --exact`) |
 | `NIXLPER_PORT_CHECK_SHOW_CMDLINE` | `true` | Show the full command line in `pc` output |
 
 ---

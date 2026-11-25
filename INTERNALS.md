@@ -597,6 +597,17 @@ port/pattern prompt remains the fallback when `fzf` is absent or `NIXLPER_KILL_F
 so that flow cannot be deleted, only demoted. A bare non-flag argument (`ik java`), which used
 to be rejected as an invalid parameter, now seeds the picker's initial query.
 
+### Exact mode: `ik --exact` / `NIXLPER_KILL_EXACT`
+
+`--exact` (`-e`) is a *modifier*, not a mode: `_interactive_kill` consumes it first, then parses
+the remaining arguments as usual, so `ik --exact java`, `ik --exact --all foo` and
+`ik --exact --port 80` all work (`--all` is already literal; `--port` ignores it). With `fzf` it
+only adds `--exact` to the picker's argument list — fzf then requires each space-separated term
+as a contiguous substring, and the `'` prefix flips meaning (fuzzy for that term). Without `fzf`
+the flag has no picker to modify, so it is translated to `--pattern` and the `exact` match mode is
+passed down to `_i_kill_by_pattern`, which switches from `grep -i` (regex) to `grep -iF`
+(literal). That function recurses after every kill, so the mode is passed on each recursive call.
+
 ---
 
 ## PowerShell port (`src/main/powershell/Nixlper`)

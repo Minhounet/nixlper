@@ -8,6 +8,7 @@
 |---|---|
 | `ik` | Arrêt interactif — un sélecteur flou qui filtre sur la commande, le PID **et** le port |
 | `ik MOTIF` | Le même sélecteur, ouvert pré-filtré sur `MOTIF` |
+| `ik --exact [MOTIF]` | Le même sélecteur en correspondance stricte : la ligne doit contenir `MOTIF` tel quel (pas de recherche floue) |
 | `ik --all MOTIF` | Arrêter un groupe : tous les processus dont la ligne de commande contient `MOTIF` (une seule confirmation) |
 | `ik --pattern VALEUR` / `ik --port VALEUR` | Modes explicites, sans le sélecteur |
 | `pc PORT` | Vérification rapide de port — nom du processus, PID, ligne de commande, action suggérée (lecture seule) |
@@ -62,6 +63,28 @@ ik java
 ```
 
 Ouvre le même sélecteur avec `java` déjà saisi dans la recherche.
+
+### Correspondance exacte (contient strictement)
+
+Par défaut le sélecteur filtre de façon **floue** : `java` retient aussi une ligne où `j`, `a`,
+`v`, `a` apparaissent simplement dispersés dans cet ordre, si bien qu'une requête courte peut
+remonter des processus sans rapport. Pour cibler un mot précis :
+
+```bash
+ik --exact java     # ou : ik -e java
+ik --exact          # sélecteur strict, requête vide
+```
+
+En mode exact, une ligne n'est conservée que si elle **contient le texte saisi tel quel**
+(insensible à la casse sauf si vous tapez une majuscule, `fzf --exact`). Plusieurs termes séparés
+par des espaces doivent tous être présents. Un terme préfixé par `'` repasse en recherche floue
+pour ce terme. L'invite affiche `Kill [exact] >` pour indiquer le mode actif.
+
+Mettez `NIXLPER_KILL_EXACT=true` (via `nconf`) pour faire de la correspondance exacte le mode par
+défaut. Sans `fzf`, `ik --exact MOTIF` lance le flux numéroté par motif avec une correspondance
+littérale (pas une regex).
+
+Astuce : même en mode flou, préfixer un seul terme par `'` (ex. `'java`) rend ce terme exact.
 
 ### Arrêter un groupe (ex. tous les processus IntelliJ)
 
@@ -136,6 +159,7 @@ Suggested action: run 'ik --port 8080' to kill it interactively, or 'kill -9 123
 | Variable | Défaut | Effet |
 |---|---|---|
 | `NIXLPER_KILL_FUZZY` | `true` | Utiliser le sélecteur `fzf` unifié pour `ik` quand `fzf` est installé |
+| `NIXLPER_KILL_EXACT` | `false` | Le sélecteur `ik` filtre par sous-chaîne exacte au lieu de flou (équivaut à `ik --exact`) |
 | `NIXLPER_PORT_CHECK_SHOW_CMDLINE` | `true` | Afficher la ligne de commande complète dans la sortie de `pc` |
 
 ---
