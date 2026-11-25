@@ -256,9 +256,18 @@ out=$(_i_kill_by_pattern "j.va" exact 2>&1)
 _expect_eq "exact (no fzf): pattern is literal, regex dot matches nothing" "${out}" ""
 out=$(_interactive_kill --exact "j.va" 2>&1)
 _expect_eq "exact (no fzf): ik --exact PATTERN routes to the literal pattern flow" "${out}" ""
-ps() { printf '%s\n' "user 200 1 0 10:00 ? 00:00:01 run j.va now"; }
-out=$(_interactive_kill --exact "j.va" 2>&1 | head -1)
-_expect_eq "exact (no fzf): literal text is still found" "${out}" "user 200 1 0 10:00 ? 00:00:01 run j.va now (1)"
+# Literal match found: choose 1, the mocked kill marks the process dead (a file, since ps runs in
+# a subshell), so the re-listing finds nothing and the flow ends on its own. No `| head` here:
+# CI runners may ignore SIGPIPE, which would turn an endless re-listing into a hung job.
+DEAD_FILE="$(mktemp)"; rm -f "${DEAD_FILE}"
+ps() { [[ -e "${DEAD_FILE}" ]] || printf '%s\n' "user 200 1 0 10:00 ? 00:00:01 run j.va now"; }
+kill() { KILLED="${KILLED}${*:2} "; touch "${DEAD_FILE}"; }
+_mock_answer 1
+KILLED=""
+out=$(_interactive_kill --exact "j.va" 2>&1; echo "killed=${KILLED}")
+_expect_eq "exact (no fzf): literal text is still found and killed" "${out}" "user 200 1 0 10:00 ? 00:00:01 run j.va now (1)
+killed=200 "
+rm -f "${DEAD_FILE}"
 unset -f ps read fzf kill _i_kill_candidates _i_kill_fuzzy_enabled _i_kill_self_pids
 source "${MODULE}"
 
