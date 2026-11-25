@@ -60,6 +60,7 @@ Fetches the edge pre-release notes from GitHub and prints commits since the last
 | `NIXLPER_UPDATE_AUTO` | `false` | Auto-install updates (default: notify only) |
 | `NIXLPER_UPDATE_CHECK_INTERVAL` | `86400` | Seconds between automatic checks |
 | `NIXLPER_UPDATE_TIMEOUT` | `2` | Network probe timeout in seconds |
+| `NIXLPER_UPDATE_CACHE_FILE` | `~/.local/share/nixlper/update_check` (RPM/DEB) or `$NIXLPER_INSTALL_DIR/.nixlper_update_check` (manual) | Timestamp of the last automatic check, used to throttle checks |
 
 Configure via `nconf` (`CTRL+X+C`).
 

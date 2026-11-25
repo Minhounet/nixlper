@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`ik --exact` strict matching** (`functions_processes.sh`): `ik --exact [PATTERN]` (or `ik -e`) opens the kill picker in exact-substring mode (`fzf --exact`), so `java` only matches rows that literally contain `java` instead of any row where those letters appear scattered in order. Set `NIXLPER_KILL_EXACT=true` (via `nconf`) to make it the default; in exact mode a `'` prefix turns a term back to fuzzy. Without `fzf`, `ik --exact PATTERN` runs the numbered pattern flow with a literal (non-regex) match.
 
+### Fixed
+
+- **RPM/DEB admin notice location** (`packaging/shared/nixlper.conf`): the packaged system config never set `NIXLPER_BROADCAST_MESSAGE_FILE`, so `bset` wrote the notice under `/usr/share/nixlper/` instead of the documented `/etc/nixlper/broadcast_message`. The packaged config now sets it, along with the 18 other settings it was missing (fuzzy pickers, health thresholds, logtail, target staging, SSH paths…), so admins can see and change every default in one place.
+- **Config templates out of sync** (`nixlper.sh`, `functions_config.sh`): the system-wide config written by `install.sh --system` now includes `NIXLPER_DISABLE_TIPS`, `NIXLPER_DEBUG`, `NIXLPER_TARGET_DIR`, `NIXLPER_TARGET_CHMOD` and the SSH paths, and the per-user template lists `NIXLPER_SSH_CONNECTIONS_FILE`, `NIXLPER_SSH_IDENTITY_FILE` and `NIXLPER_DEBUG`. `NIXLPER_UPDATE_CACHE_FILE` is now documented.
+
 ## [2.7.0] - 2026-11-20
 
 ### Added

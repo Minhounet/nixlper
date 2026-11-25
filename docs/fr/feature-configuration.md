@@ -51,6 +51,7 @@ Les modifications prennent effet dans les nouveaux shells. Pour les appliquer im
 |---|---|
 | `NIXLPER_UPDATE_CHECK_INTERVAL` | Secondes entre les vérifications automatiques (défaut `86400`) |
 | `NIXLPER_UPDATE_TIMEOUT` | Délai d'expiration de la sonde réseau en secondes (défaut `2`) |
+| `NIXLPER_UPDATE_CACHE_FILE` | Chemin du fichier de limitation des vérifications de mise à jour |
 | `NIXLPER_BOOKMARKS_FILE` | Chemin du fichier de signets |
 | `NIXLPER_SNAPSHOT_DIR` | Chemin du répertoire d'instantanés |
 | `NIXLPER_CUSTOM_DIR` | Chemin du répertoire de scripts personnalisés |

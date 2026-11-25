@@ -82,7 +82,7 @@ jobs:
           branch="$(git branch --show-current)"
           gh pr create --base main --head "$branch" \
             --title "Prepare ${branch#release/}: needs a codename" \
-            --body "Automated MAJOR version bump. CLAUDE.md requires a human-picked \`Turnabout <Word>\` codename for major releases — pick one, update the version heading in CHANGELOG.md, then merge to cut the release."
+            --body "Automated MAJOR version bump. The release policy (.claude/skills/nixlper-release) requires a human-picked \`Turnabout <Word>\` codename for major releases — pick one, update the version heading in CHANGELOG.md, then merge to cut the release."
 
       - name: Fail on unexpected error
         if: >-
