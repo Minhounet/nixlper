@@ -206,6 +206,63 @@ _expect_eq "all: reachable through _interactive_kill --all" "${KILLED}" "300 "
 unset -f kill read _i_kill_candidates
 
 #-----------------------------------------------------------------------------------------------------------------------
+# Tests: exact (strict contains) mode
+#-----------------------------------------------------------------------------------------------------------------------
+echo ""
+echo "=== processes: ik --exact ==="
+
+# fzf is mocked: it records its arguments (to a file — the picker runs it inside $(...), so a
+# variable would be lost) and selects nothing, so nothing is ever killed.
+FZF_ARGS_FILE="$(mktemp)"
+trap 'rm -f "${FZF_ARGS_FILE}"' EXIT
+fzf() { printf '%s\n' "$*" > "${FZF_ARGS_FILE}"; cat >/dev/null; return 130; }
+_fzf_args() { cat "${FZF_ARGS_FILE}"; }
+_fzf_has() { [[ " $(_fzf_args) " == *"$1"* ]] && echo yes || echo no; }
+_i_kill_candidates() { printf '%s\n' "100     -               user       java -jar app.jar"; }
+_i_kill_fuzzy_enabled() { return 0; }
+
+: > "${FZF_ARGS_FILE}"; _interactive_kill java >/dev/null
+_expect_eq "exact: default picker stays fuzzy (no --exact)" "$(_fzf_has " --exact ")" "no"
+_expect_eq "exact: default picker prompt is unchanged" "$(_fzf_has "--prompt=Kill > ")" "yes"
+
+: > "${FZF_ARGS_FILE}"; _interactive_kill --exact java >/dev/null
+_expect_eq "exact: --exact passes --exact to fzf" "$(_fzf_has " --exact ")" "yes"
+_expect_eq "exact: --exact keeps the initial query" "$(_fzf_has "--query java")" "yes"
+_expect_eq "exact: prompt shows the active mode" "$(_fzf_has "--prompt=Kill [exact] > ")" "yes"
+
+: > "${FZF_ARGS_FILE}"; _interactive_kill -e >/dev/null
+_expect_eq "exact: -e short flag enables exact mode" "$(_fzf_has " --exact ")" "yes"
+_expect_eq "exact: -e with no query passes no --query" "$(_fzf_has "--query")" "no"
+
+: > "${FZF_ARGS_FILE}"; NIXLPER_KILL_EXACT=true _interactive_kill java >/dev/null
+_expect_eq "exact: NIXLPER_KILL_EXACT=true makes exact the default" "$(_fzf_has " --exact ")" "yes"
+
+# --exact followed by --all still dispatches to the group kill (fzf never opened).
+_mock_answer y
+KILLED=""; : > "${FZF_ARGS_FILE}"
+_i_kill_self_pids() { :; }
+kill() { [[ "$1" == "-0" ]] && return 0; KILLED="${KILLED}${*:2} "; return 0; }
+_interactive_kill --exact --all java >/dev/null
+_expect_eq "exact: --exact --all still runs the group kill" "${KILLED}" "100 "
+_expect_eq "exact: --exact --all does not open the picker" "$(_fzf_args)" ""
+
+# Without fzf: the numbered pattern flow, literal grep instead of a regex. Answer 0 (abort) to
+# the numbered prompt; the flow then re-lists, so it only stops once nothing matches — hence
+# kill is never reached, and the listing is captured to see what matched.
+_i_kill_fuzzy_enabled() { return 1; }
+ps() { printf '%s\n' "user 200 1 0 10:00 ? 00:00:01 java -jar app.jar" "user 201 1 0 10:00 ? 00:00:01 jxava other"; }
+_mock_answer 0
+out=$(_i_kill_by_pattern "j.va" exact 2>&1)
+_expect_eq "exact (no fzf): pattern is literal, regex dot matches nothing" "${out}" ""
+out=$(_interactive_kill --exact "j.va" 2>&1)
+_expect_eq "exact (no fzf): ik --exact PATTERN routes to the literal pattern flow" "${out}" ""
+ps() { printf '%s\n' "user 200 1 0 10:00 ? 00:00:01 run j.va now"; }
+out=$(_interactive_kill --exact "j.va" 2>&1 | head -1)
+_expect_eq "exact (no fzf): literal text is still found" "${out}" "user 200 1 0 10:00 ? 00:00:01 run j.va now (1)"
+unset -f ps read fzf kill _i_kill_candidates _i_kill_fuzzy_enabled _i_kill_self_pids
+source "${MODULE}"
+
+#-----------------------------------------------------------------------------------------------------------------------
 # Summary
 #-----------------------------------------------------------------------------------------------------------------------
 echo ""

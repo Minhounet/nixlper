@@ -17,6 +17,14 @@ function _i_kill_fuzzy_enabled() {
 }
 
 #-----------------------------------------------------------------------------------------------------------------------
+# _i_kill_exact_default: true when NIXLPER_KILL_EXACT makes strict (exact substring) matching the
+# picker's default, without having to pass `ik --exact` every time.
+#-----------------------------------------------------------------------------------------------------------------------
+function _i_kill_exact_default() {
+  [[ "${NIXLPER_KILL_EXACT:-false}" == "true" ]]
+}
+
+#-----------------------------------------------------------------------------------------------------------------------
 # _i_kill_parse_ss_ports: stdin = `ss -tlnp` output, stdout = "pid port" lines.
 # A single socket can name several PIDs (nginx master + workers), hence the loop over every
 # `pid=` occurrence rather than a single match.
@@ -95,10 +103,13 @@ function _i_kill_candidates() {
 # _i_kill_fuzzy_pick: unified picker — one prompt where a query filters on command line, PID and
 # listening port at once. TAB marks several processes, ENTER validates, and nothing is killed
 # before the marked list is echoed back and confirmed.
-# Optional argument: initial fzf query.
+# Optional arguments: initial fzf query, then "exact" to switch fzf from fuzzy to strict substring
+# matching (`fzf --exact`): "java" then only matches rows containing the literal text "java",
+# never a row where j, a, v, a merely appear scattered in that order.
 #-----------------------------------------------------------------------------------------------------------------------
 function _i_kill_fuzzy_pick() {
   local -r query="${1:-}"
+  local -r match_mode="${2:-fuzzy}"
 
   # Built before fzf starts, not piped into it: both sides of a pipeline run concurrently, so a
   # direct `_i_kill_candidates | fzf` would list fzf itself as a killable process.
@@ -109,16 +120,24 @@ function _i_kill_fuzzy_pick() {
     return 0
   fi
 
+  local prompt="Kill > "
+  local mode_hint=""
+  if [[ "${match_mode}" == "exact" ]]; then
+    prompt="Kill [exact] > "
+    mode_hint="EXACT match | "
+  fi
+
   local -a fzf_args=(
     --multi
     --height=60%
     --reverse
-    --prompt="Kill > "
-    --header="Filter by command, PID or port | TAB: mark one | CTRL-A: mark ALL matches | CTRL-D: unmark all | ENTER: validate | ESC: cancel"
+    --prompt="${prompt}"
+    --header="${mode_hint}Filter by command, PID or port | TAB: mark one | CTRL-A: mark ALL matches | CTRL-D: unmark all | ENTER: validate | ESC: cancel"
     # select-all acts on the rows the current query leaves visible, which is what makes
     # "type intellij, CTRL-A, ENTER" a group kill.
     --bind="ctrl-a:select-all,ctrl-d:deselect-all"
   )
+  [[ "${match_mode}" == "exact" ]] && fzf_args+=(--exact)
   [[ -n "${query}" ]] && fzf_args+=(--query "${query}")
 
   local selected
@@ -261,6 +280,20 @@ function _interactive_kill() {
   local param_killmode=""
   local value=""
   local fuzzy_query=""
+  local match_mode="fuzzy"
+  _i_kill_exact_default && match_mode="exact"
+  # --exact / -e is a modifier of the picker, so it is consumed first and may be followed by an
+  # initial query: `ik --exact java`.
+  if [[ "${1:-}" == "--exact" || "${1:-}" == "-e" ]]; then
+    match_mode="exact"
+    shift
+    # Without the picker, strict matching means the numbered pattern flow with a literal match.
+    if ! _i_kill_fuzzy_enabled; then
+      param_killmode="--pattern"
+      value="${1:-}"
+      set --
+    fi
+  fi
   if [[ $# -gt 0 ]]; then
     param_killmode=$1
     if [[ "${param_killmode}" == "--all" ]]; then
@@ -279,7 +312,7 @@ function _interactive_kill() {
   fi
 
   if [[ -z "${param_killmode}" ]] && _i_kill_fuzzy_enabled; then
-    _i_kill_fuzzy_pick "${fuzzy_query}"
+    _i_kill_fuzzy_pick "${fuzzy_query}" "${match_mode}"
     return $?
   fi
 
@@ -309,7 +342,7 @@ function _interactive_kill() {
   _i_log_as_info "Kill by ${param_killmode%--*} with value ${value}, output is:"
   case ${param_killmode} in
   --pattern)
-    _i_kill_by_pattern "${value}"
+    _i_kill_by_pattern "${value}" "${match_mode}"
     ;;
   --port)
     _i_kill_by_port "${value}"
@@ -328,6 +361,10 @@ function _i_kill_by_pattern() {
   fi
   local kill_increment=1
   local -r pattern=$1
+  # "exact": literal, case-insensitive substring (grep -F) instead of a grep regex.
+  local -r match_mode="${2:-fuzzy}"
+  local -a grep_opts=(-i)
+  [[ "${match_mode}" == "exact" ]] && grep_opts+=(-F)
   while read -r i; do
     # Exit point where there is nothing to kill!
     if [[ -z "$i" ]]; then
@@ -337,7 +374,7 @@ function _i_kill_by_pattern() {
     echo "$i (${kill_increment})"
     kill_choices[kill_increment]=$(echo "$i" | awk "{print \$2}")
     ((kill_increment++))
-  done <<< "$(ps -ef | grep -i "${pattern}" | grep -v "grep")"
+  done <<< "$(ps -ef | grep "${grep_opts[@]}" -- "${pattern}" | grep -v "grep")"
   ((kill_increment--))
 
   local kill_hint="from 1 to ${kill_increment}"
@@ -357,7 +394,7 @@ function _i_kill_by_pattern() {
     kill -9 "${kill_choices[kill_choice]}"
     _i_log_as_info "-> DONE"
   fi
-  _i_kill_by_pattern "${pattern}"
+  _i_kill_by_pattern "${pattern}" "${match_mode}"
 }
 
 function _i_get_pid_by_port() {

@@ -26,7 +26,8 @@ Features discussed and agreed upon but not yet implemented. Pick these up in fut
   caller's process subtree); the marked list is always confirmed before `kill -9`. Deliberately has **no** `N ` index column, unlike `rd`/`bd`/`lc`:
   digits here must mean port or PID (see INTERNALS.md). The legacy `ik --port` / `ik --pattern` paths
   are untouched and remain the fallback when `fzf` is absent. Configurable via `nconf`:
-  `NIXLPER_KILL_FUZZY` (bool, default `true`) and `NIXLPER_PORT_CHECK_SHOW_CMDLINE` (bool, default
+  `NIXLPER_KILL_FUZZY` (bool, default `true`), `NIXLPER_KILL_EXACT` (bool, default `false`, same as `ik --exact`:
+  `fzf --exact` strict substring matching instead of fuzzy) and `NIXLPER_PORT_CHECK_SHOW_CMDLINE` (bool, default
   `true`). Docs: `docs/feature-processes.md` / `docs/fr/feature-processes.md`, help:
   `src/main/help/help_processes`, tests: `src/test/bash/test_functions_processes.sh`.
 
@@ -733,6 +734,7 @@ Actual precedence (lowest → highest):
 | `NIXLPER_LAST_COMMAND_FUZZY` | `true` | `true` |
 | `NIXLPER_NAVIGATE_FUZZY` | `true` | `true` |
 | `NIXLPER_KILL_FUZZY` | `true` | `true` |
+| `NIXLPER_KILL_EXACT` | `false` | `false` |
 | `NIXLPER_REPLACE_SNAPSHOT` | `true` | `true` |
 | `NIXLPER_TARGET_DIR` | `/tmp/nixlper_target` | `/tmp/nixlper_target` |
 | `NIXLPER_TARGET_CHMOD` | `777` | `777` |

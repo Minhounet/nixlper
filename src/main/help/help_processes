@@ -19,6 +19,11 @@ ik : interactive kill. Opens one fzf picker listing every process with its PID, 
      with neither, the ports column shows "-" and the picker still works by command name.
 
 ik PATTERN : same picker, opened pre-filtered on PATTERN.
+ik --exact [PATTERN] (or ik -e) : same picker with STRICT matching (fzf --exact): a row is
+     kept only if it contains the typed text as-is, e.g. "java" no longer matches rows where
+     j-a-v-a merely appear scattered. Prompt shows "Kill [exact] >". A 'term prefix turns
+     that term back to fuzzy (and in fuzzy mode, 'java makes that one term exact). Without
+     fzf: numbered pattern flow with a literal, non-regex match.
 ik --all PATTERN : group kill, no picker (works without fzf). Lists every process whose
      COMMAND LINE contains PATTERN (case-insensitive, literal; user/PID/port are not matched),
      then one y/n confirmation before kill -9. The calling shell is never included.
@@ -30,6 +35,7 @@ ik --port VALUE : skip the picker, kill whatever listens on VALUE.
 
   Settings (nconf):
     NIXLPER_KILL_FUZZY   bool   true   Use the fzf unified picker when fzf is installed
+    NIXLPER_KILL_EXACT   bool   false  Picker matches exact substrings by default (= ik --exact)
 
 pc PORT : quick-check what process is listening on PORT (process name, PID, command line,
      suggested action). Read-only — does not kill anything. Uses the same port detection as `ik`.

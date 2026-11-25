@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`ik --exact` strict matching** (`functions_processes.sh`): `ik --exact [PATTERN]` (or `ik -e`) opens the kill picker in exact-substring mode (`fzf --exact`), so `java` only matches rows that literally contain `java` instead of any row where those letters appear scattered in order. Set `NIXLPER_KILL_EXACT=true` (via `nconf`) to make it the default; in exact mode a `'` prefix turns a term back to fuzzy. Without `fzf`, `ik --exact PATTERN` runs the numbered pattern flow with a literal (non-regex) match.
+
 ## [2.7.0] - 2026-11-20
 
 ### Added
